@@ -25,12 +25,7 @@ public class UserRepositoryTest {
 
 	@BeforeEach
 	public void setUp() {
-		user = User.builder()
-			.email("test@naver.com")
-			.name("tester")
-			.phoneNumber("+82 10-0000-0000")
-			.kakaoId(1111111111L)
-			.role(ROLE_USER)
+		user = User.builder(1111111111L, ROLE_USER, "test user", "testUser@naver.com", "+82 10-0000-0000")
 			.build();
 	}
 

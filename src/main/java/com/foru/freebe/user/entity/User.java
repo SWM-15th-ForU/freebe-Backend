@@ -53,15 +53,25 @@ public class User {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
+	public static UserBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {
+		return new UserBuilder()
+			.kakaoId(kakaoId)
+			.role(role)
+			.name(name)
+			.email(email)
+			.phoneNumber(phoneNumber);
+	}
+
 	@Builder
-	public User(Long kakaoId, String name, String email, String phoneNumber, Role role) {
+	public User(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
+		Role role, String gender) {
 		this.kakaoId = kakaoId;
-		this.instagramId = null;
+		this.instagramId = instagramId;
 		this.role = role;
 		this.name = name;
 		this.email = email;
 		this.phoneNumber = phoneNumber;
-		this.birthyear = null;
-		this.gender = null;
+		this.birthyear = birthyear;
+		this.gender = gender;
 	}
 }

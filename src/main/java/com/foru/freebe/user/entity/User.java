@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -20,10 +21,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "Member")
+@Table(name = "User")
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "user_id")
 	private Long id;
 
 	@NotNull
@@ -52,10 +54,10 @@ public class User {
 	private LocalDateTime createdAt;
 
 	@Builder
-	public User(Long kakaoId, String name, String email, String phoneNumber) {
+	public User(Long kakaoId, String name, String email, String phoneNumber, Role role) {
 		this.kakaoId = kakaoId;
 		this.instagramId = null;
-		this.role = Role.ROLE_ANONYMOUS;
+		this.role = role;
 		this.name = name;
 		this.email = email;
 		this.phoneNumber = phoneNumber;

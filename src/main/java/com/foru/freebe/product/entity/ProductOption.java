@@ -28,9 +28,8 @@ public class ProductOption {
 	@NotNull
 	private Integer price;
 
-	@Column(nullable = true)
 	private String description;
-
+	
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id")
 	private Product product;

@@ -25,13 +25,10 @@ public class ProductDiscount {
 	@NotNull
 	private String title;
 
-	@Column(nullable = true)
 	private String rate;
 
-	@Column(nullable = true)
 	private String amount;
 
-	@Column(nullable = true)
 	private String description;
 
 	@ManyToOne(fetch = FetchType.LAZY)

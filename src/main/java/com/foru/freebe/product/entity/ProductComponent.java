@@ -28,7 +28,6 @@ public class ProductComponent {
 	@NotNull
 	private String content;
 
-	@Column(nullable = true)
 	private String description;
 
 	@ManyToOne(fetch = FetchType.LAZY)

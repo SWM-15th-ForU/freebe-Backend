@@ -29,7 +29,7 @@ public class Product {
 		this.activeStatus = activeStatus;
 	}
 
-	public static Product createActiveProduct() {
+	public static Product createProductAsActive() {
 		return new Product(ActiveStatus.ACTIVE);
 	}
 }

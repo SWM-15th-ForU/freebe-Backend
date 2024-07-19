@@ -41,11 +41,11 @@ public class ProductComponent {
 		this.product = product;
 	}
 
-	public static ProductComponent createWithoutDescription(String title, String content, Product product) {
+	public static ProductComponent createProductComponentWithoutDesc(String title, String content, Product product) {
 		return new ProductComponent(title, content, null, product);
 	}
 
-	public static ProductComponent createWithAllFields(String title, String content, String description,
+	public static ProductComponent createProductComponent(String title, String content, String description,
 		Product product) {
 		return new ProductComponent(title, content, description, product);
 	}

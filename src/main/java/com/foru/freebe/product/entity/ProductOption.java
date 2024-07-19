@@ -29,8 +29,23 @@ public class ProductOption {
 	private Integer price;
 
 	private String description;
-	
+
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id")
 	private Product product;
+
+	private ProductOption(String title, Integer price, String description, Product product) {
+		this.title = title;
+		this.price = price;
+		this.description = description;
+		this.product = product;
+	}
+
+	public static ProductOption createWithDescription(String title, Integer price, Product product) {
+		return new ProductOption(title, price, null, product);
+	}
+
+	public static ProductOption createWithAllFields(String title, Integer price, String description, Product product) {
+		return new ProductOption(title, price, description, product);
+	}
 }

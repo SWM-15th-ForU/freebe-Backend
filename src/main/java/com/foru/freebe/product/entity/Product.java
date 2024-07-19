@@ -24,4 +24,12 @@ public class Product {
 	@Enumerated(EnumType.STRING)
 	@NotNull
 	private ActiveStatus activeStatus;
+
+	private Product(ActiveStatus activeStatus) {
+		this.activeStatus = activeStatus;
+	}
+
+	public static Product create(ActiveStatus activeStatus) {
+		return new Product(ActiveStatus.ACTIVE);
+	}
 }

@@ -33,4 +33,20 @@ public class ProductComponent {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "product_id")
 	private Product product;
+
+	private ProductComponent(String title, String content, String description, Product product) {
+		this.title = title;
+		this.content = content;
+		this.description = description;
+		this.product = product;
+	}
+
+	public static ProductComponent createWithoutDescription(String title, String content, Product product) {
+		return new ProductComponent(title, content, null, product);
+	}
+
+	public static ProductComponent createWithAllFields(String title, String content, String description,
+		Product product) {
+		return new ProductComponent(title, content, description, product);
+	}
 }

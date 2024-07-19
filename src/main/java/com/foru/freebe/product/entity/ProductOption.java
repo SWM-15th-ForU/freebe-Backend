@@ -47,7 +47,7 @@ public class ProductOption {
 		}
 	}
 
-	public static ProductOption createWithDescription(String title, Integer price, Product product) {
+	public static ProductOption createWithoutDescription(String title, Integer price, Product product) {
 		return new ProductOption(title, price, null, product);
 	}
 

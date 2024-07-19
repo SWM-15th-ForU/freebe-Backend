@@ -39,7 +39,6 @@ public class ProductDiscount {
 	private Product product;
 
 	@Builder
-
 	public ProductDiscount(String title, DiscountType discountType, Integer discountValue, String description,
 		Product product) {
 		this.title = title;

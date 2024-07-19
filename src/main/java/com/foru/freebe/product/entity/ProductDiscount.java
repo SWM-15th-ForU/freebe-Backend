@@ -26,9 +26,11 @@ public class ProductDiscount {
 	@NotNull
 	private String title;
 
-	private String rate;
+	@NotNull
+	private DiscountType discountType;
 
-	private String amount;
+	@NotNull
+	private Integer discountValue;
 
 	private String description;
 
@@ -37,11 +39,24 @@ public class ProductDiscount {
 	private Product product;
 
 	@Builder
-	public ProductDiscount(String title, String rate, String amount, String description, Product product) {
+
+	public ProductDiscount(String title, DiscountType discountType, Integer discountValue, String description,
+		Product product) {
 		this.title = title;
-		this.rate = rate;
-		this.amount = amount;
+		this.discountType = discountType;
+		this.discountValue = discountValue;
 		this.description = description;
 		this.product = product;
+
+		validateDiscountValue();
+	}
+
+	private void validateDiscountValue() {
+		if (discountType == DiscountType.RATE && (discountValue < 0 || discountValue > 100)) {
+			throw new IllegalArgumentException("Percentage must be between 0 and 100.");
+		}
+		if (discountType == DiscountType.AMOUNT && discountValue <= 0) {
+			throw new IllegalArgumentException("Amount must be greater than 0.");
+		}
 	}
 }

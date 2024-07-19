@@ -39,6 +39,8 @@ public class ProductOption {
 		this.price = price;
 		this.description = description;
 		this.product = product;
+
+		validatePrice(price);
 	}
 
 	private void validatePrice(Integer price) {

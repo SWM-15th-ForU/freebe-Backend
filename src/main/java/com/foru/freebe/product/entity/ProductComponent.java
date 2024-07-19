@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class ProductComponent {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "product_component_id")
 	private Long id;
 
 	@NotNull

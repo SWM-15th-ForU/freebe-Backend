@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class ProductDiscount {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "product_discount_id")
 	private Long id;
 
 	@NotNull

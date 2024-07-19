@@ -1,4 +1,4 @@
-package com.foru.freebe.user.entity;
+package com.foru.freebe.member.entity;
 
 import java.time.LocalDateTime;
 
@@ -21,8 +21,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(name = "User")
-public class User {
+@Table(name = "member")
+public class Member {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
@@ -53,17 +53,8 @@ public class User {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
-	public static UserBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {
-		return new UserBuilder()
-			.kakaoId(kakaoId)
-			.role(role)
-			.name(name)
-			.email(email)
-			.phoneNumber(phoneNumber);
-	}
-
 	@Builder
-	public User(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
+	public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
 		Role role, String gender) {
 		this.kakaoId = kakaoId;
 		this.instagramId = instagramId;
@@ -73,5 +64,14 @@ public class User {
 		this.phoneNumber = phoneNumber;
 		this.birthyear = birthyear;
 		this.gender = gender;
+	}
+
+	public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {
+		return new MemberBuilder()
+			.kakaoId(kakaoId)
+			.role(role)
+			.name(name)
+			.email(email)
+			.phoneNumber(phoneNumber);
 	}
 }

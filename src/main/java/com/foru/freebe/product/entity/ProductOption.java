@@ -41,6 +41,12 @@ public class ProductOption {
 		this.product = product;
 	}
 
+	private void validatePrice(Integer price) {
+		if (price <= 0) {
+			throw new IllegalArgumentException("Price must be greater than 0.");
+		}
+	}
+
 	public static ProductOption createWithDescription(String title, Integer price, Product product) {
 		return new ProductOption(title, price, null, product);
 	}
@@ -48,4 +54,5 @@ public class ProductOption {
 	public static ProductOption createWithAllFields(String title, Integer price, String description, Product product) {
 		return new ProductOption(title, price, description, product);
 	}
+
 }

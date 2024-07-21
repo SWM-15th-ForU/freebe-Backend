@@ -19,15 +19,15 @@ public class Profile {
 	private Long id;
 
 	@NotNull
-	private String uniqueLink;
+	private String uniqueUrl;
 
 	private String introductionContent;
 
 	private String bannerImageUrl;
 
 	@Builder
-	public Profile(String uniqueLink, String introductionContent, String bannerImageUrl) {
-		this.uniqueLink = uniqueLink;
+	public Profile(String uniqueUrl, String introductionContent, String bannerImageUrl) {
+		this.uniqueUrl = uniqueUrl;
 		this.introductionContent = introductionContent;
 		this.bannerImageUrl = bannerImageUrl;
 	}

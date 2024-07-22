@@ -49,7 +49,7 @@ public class ProductOption {
 		}
 	}
 
-	public static ProductOption createProductOptionWithoutDesc(String title, Integer price, Product product) {
+	public static ProductOption createProductOptionWithoutDescription(String title, Integer price, Product product) {
 		return new ProductOption(title, price, null, product);
 	}
 

@@ -41,7 +41,8 @@ public class ProductComponent {
 		this.product = product;
 	}
 
-	public static ProductComponent createProductComponentWithoutDesc(String title, String content, Product product) {
+	public static ProductComponent createProductComponentWithoutDescription(String title, String content,
+		Product product) {
 		return new ProductComponent(title, content, null, product);
 	}
 

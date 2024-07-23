@@ -2,6 +2,8 @@ package com.foru.freebe.product.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,6 +28,7 @@ public class ProductDiscount {
     @NotNull
     private String title;
 
+    @Enumerated(EnumType.STRING)
     @NotNull
     private DiscountType discountType;
 

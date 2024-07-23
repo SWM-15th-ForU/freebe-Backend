@@ -18,44 +18,44 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProductDiscount {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "product_discount_id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_discount_id")
+    private Long id;
 
-	@NotNull
-	private String title;
+    @NotNull
+    private String title;
 
-	@NotNull
-	private DiscountType discountType;
+    @NotNull
+    private DiscountType discountType;
 
-	@NotNull
-	private Integer discountValue;
+    @NotNull
+    private Integer discountValue;
 
-	private String description;
+    private String description;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "product_id")
-	private Product product;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-	@Builder
-	public ProductDiscount(String title, DiscountType discountType, Integer discountValue, String description,
-		Product product) {
-		this.title = title;
-		this.discountType = discountType;
-		this.discountValue = discountValue;
-		this.description = description;
-		this.product = product;
+    @Builder
+    public ProductDiscount(String title, DiscountType discountType, Integer discountValue, String description,
+        Product product) {
+        this.title = title;
+        this.discountType = discountType;
+        this.discountValue = discountValue;
+        this.description = description;
+        this.product = product;
 
-		validateDiscountValue();
-	}
+        validateDiscountValue();
+    }
 
-	private void validateDiscountValue() {
-		if (discountType == DiscountType.RATE && (discountValue < 0 || discountValue > 100)) {
-			throw new IllegalArgumentException("Percentage must be between 0 and 100.");
-		}
-		if (discountType == DiscountType.AMOUNT && discountValue <= 0) {
-			throw new IllegalArgumentException("Amount must be greater than 0.");
-		}
-	}
+    private void validateDiscountValue() {
+        if (discountType == DiscountType.RATE && (discountValue < 0 || discountValue > 100)) {
+            throw new IllegalArgumentException("Percentage must be between 0 and 100.");
+        }
+        if (discountType == DiscountType.AMOUNT && discountValue <= 0) {
+            throw new IllegalArgumentException("Amount must be greater than 0.");
+        }
+    }
 }

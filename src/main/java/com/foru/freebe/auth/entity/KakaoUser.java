@@ -11,34 +11,34 @@ import lombok.Getter;
 @Getter
 public class KakaoUser {
 	private final Map<String, Object> attributes;
-	private final Map<String, Object> kakao_account;
+	private final Map<String, Object> kakaoAccount;
 	private final Collection<? extends GrantedAuthority> authorities;
 	private final Long name;
 
 	public KakaoUser(OAuth2User oAuth2User) {
 		this.attributes = oAuth2User.getAttributes();
-		this.kakao_account = (Map<String, Object>)attributes.get("kakao_account");
+		this.kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
 		this.authorities = oAuth2User.getAuthorities();
 		this.name = Long.valueOf(oAuth2User.getName());
 	}
 
 	public String getUserName() {
-		return (String)kakao_account.get("name");
+		return (String)kakaoAccount.get("name");
 	}
 
 	public String getEmail() {
-		return (String)kakao_account.get("email");
+		return (String)kakaoAccount.get("email");
 	}
 
 	public String getPhoneNumber() {
-		return (String)kakao_account.get("phone_number");
+		return (String)kakaoAccount.get("phone_number");
 	}
 
 	public String getPhoneNumberFormatE164() {
-		return "+" + getPhoneNumber().replaceAll("[^\\d]", "");
+		return "+" + getPhoneNumber().replaceAll("\\D", "");
 	}
 
 	public Integer getBirthYear() {
-		return (Integer)kakao_account.get("birth_year");
+		return (Integer)kakaoAccount.get("birth_year");
 	}
 }

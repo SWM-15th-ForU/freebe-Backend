@@ -38,7 +38,7 @@ public class CognitoManagementService {
 			.username(kakaoUser.getEmail())
 			.userAttributes(
 				AttributeType.builder().name("email").value(kakaoUser.getEmail()).build(),
-				AttributeType.builder().name("phone_number").value(kakaoUser.getPhoneNumber()).build(),
+				AttributeType.builder().name("phone_number").value(kakaoUser.getPhoneNumberFormatE164()).build(),
 				AttributeType.builder().name("name").value(kakaoUser.getUserName()).build()
 			)
 			.build();

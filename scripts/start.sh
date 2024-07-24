@@ -15,5 +15,5 @@ cp $ROOT_PATH/build/libs/freebe-0.0.1-SNAPSHOT.jar $JAR
 echo "[$NOW] > $JAR 실행" >> $START_LOG
 nohup java -jar $JAR &
 
-SERVICE_PID=$(pgrep -f $JAR)
+SERVICE_PID=$(ps aux | grep "java -jar $JAR" | grep -v grep | awk '{print $2}')
 echo "[$NOW] > 서비스 PID: $SERVICE_PID" >> $START_LOG

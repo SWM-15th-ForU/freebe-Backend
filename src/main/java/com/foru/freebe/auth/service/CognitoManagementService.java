@@ -15,14 +15,6 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeTy
 
 @Service
 public class CognitoManagementService {
-	@Value("${AWS_ACCESS_KEY_ID}")
-	private String awsAccessKeyId;
-	@Value("${AWS_SECRET_ACCESS_KEY}")
-	private String awsSecretAccessKey;
-	@Value("${AWS_REGION}")
-	private String awsRegion;
-	@Value("${COGNITO_USER_POOL_ID}")
-	private String cognitoUserPoolId;
 
 	public void registerUserPool(KakaoUser kakaoUser) {
 		AwsBasicCredentials credentials = AwsBasicCredentials.create(awsAccessKeyId, awsSecretAccessKey);

@@ -17,10 +17,12 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
 @Service
 public class CognitoManagementService {
@@ -66,7 +68,46 @@ public class CognitoManagementService {
 		return adminSetUserPasswordRequest;
 	}
 
+	private void generateToken(KakaoUser kakaoUser) {
+		AdminInitiateAuthRequest adminInitiateAuthRequest = getAuthenticatedUser(kakaoUser);
+		AdminInitiateAuthResponse adminInitiateAuthResponse = cognitoClient.adminInitiateAuth(adminInitiateAuthRequest);
 
+		AuthenticationResultType authenticationResultType = adminInitiateAuthResponse.authenticationResult();
+		String accessToken = authenticationResultType.accessToken();
+		String refreshToken = authenticationResultType.refreshToken();
+	}
 
+	private AdminInitiateAuthRequest getAuthenticatedUser(KakaoUser kakaoUser) {
+		Map<String, String> authParams = new HashMap<>();
+		authParams.put("USERNAME", kakaoUser.getEmail());
+		authParams.put("PASSWORD", "PermenantPassword1!");
+		authParams.put("SECRET_HASH", calculateSecretHash(cognitoProperties.getClientId(),
+			cognitoProperties.getClientSecret(),
+			kakaoUser.getEmail()));
+
+		AdminInitiateAuthRequest adminInitiateAuthRequest = AdminInitiateAuthRequest.builder()
+			.userPoolId(cognitoProperties.getUserPoolId())
+			.authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)
+			.authParameters(authParams)
+			.clientId(cognitoProperties.getClientId())
+			.build();
+		return adminInitiateAuthRequest;
+	}
+
+	private static String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
+		final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+
+		SecretKeySpec signingKey = new SecretKeySpec(
+			userPoolClientSecret.getBytes(StandardCharsets.UTF_8),
+			HMAC_SHA256_ALGORITHM);
+		try {
+			Mac mac = Mac.getInstance(HMAC_SHA256_ALGORITHM);
+			mac.init(signingKey);
+			mac.update(userName.getBytes(StandardCharsets.UTF_8));
+			byte[] rawHmac = mac.doFinal(userPoolClientId.getBytes(StandardCharsets.UTF_8));
+			return Base64.getEncoder().encodeToString(rawHmac);
+		} catch (Exception e) {
+			throw new RuntimeException("Error while calculating ");
+		}
 	}
 }

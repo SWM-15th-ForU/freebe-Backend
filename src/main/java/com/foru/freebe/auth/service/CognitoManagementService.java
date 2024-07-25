@@ -1,42 +1,72 @@
 package com.foru.freebe.auth.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.auth.config.CognitoProperties;
 import com.foru.freebe.auth.entity.KakaoUser;
 
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 
 @Service
 public class CognitoManagementService {
+	private final CognitoProperties cognitoProperties;
+	private final CognitoIdentityProviderClient cognitoClient;
+
+	public CognitoManagementService(CognitoProperties cognitoProperties, CognitoIdentityProviderClient cognitoClient) {
+		this.cognitoProperties = cognitoProperties;
+		this.cognitoClient = cognitoClient;
+	}
 
 	public void registerUserPool(KakaoUser kakaoUser) {
-		AwsBasicCredentials credentials = AwsBasicCredentials.create(awsAccessKeyId, awsSecretAccessKey);
+		AdminCreateUserRequest adminCreateUserRequest = registerUser(kakaoUser);
+		AdminCreateUserResponse adminCreateUserResponse = cognitoClient.adminCreateUser(adminCreateUserRequest);
 
-		CognitoIdentityProviderClient cognitoClient = CognitoIdentityProviderClient.builder()
-			.region(Region.of(awsRegion))
-			.credentialsProvider(StaticCredentialsProvider.create(credentials))
-			.build();
+		AdminSetUserPasswordRequest adminSetUserPasswordRequest = setPermanentPassword(kakaoUser);
+		AdminSetUserPasswordResponse adminSetUserPasswordResponse = cognitoClient.adminSetUserPassword(
+			adminSetUserPasswordRequest);
+	}
 
+	private AdminCreateUserRequest registerUser(KakaoUser kakaoUser) {
 		AdminCreateUserRequest createUserRequest = AdminCreateUserRequest.builder()
 			.messageAction("SUPPRESS")
-			.userPoolId(cognitoUserPoolId)
+			.userPoolId(cognitoProperties.getUserPoolId())
 			.username(kakaoUser.getEmail())
+			.temporaryPassword("TemporaryPassword1!")
 			.userAttributes(
 				AttributeType.builder().name("email").value(kakaoUser.getEmail()).build(),
 				AttributeType.builder().name("phone_number").value(kakaoUser.getPhoneNumberFormatE164()).build(),
 				AttributeType.builder().name("name").value(kakaoUser.getUserName()).build()
 			)
 			.build();
+		return createUserRequest;
+	}
 
-		AdminCreateUserResponse adminCreateUserResponse = cognitoClient.adminCreateUser(createUserRequest);
+	private AdminSetUserPasswordRequest setPermanentPassword(KakaoUser kakaoUser) {
+		AdminSetUserPasswordRequest adminSetUserPasswordRequest = AdminSetUserPasswordRequest.builder()
+			.userPoolId(cognitoProperties.getUserPoolId())
+			.username(kakaoUser.getEmail())
+			.password("PermenantPassword1!")
+			.permanent(true)
+			.build();
+		return adminSetUserPasswordRequest;
+	}
 
-		System.out.println("adminCreateUserResponse : " + adminCreateUserResponse);
+
+
 	}
 }

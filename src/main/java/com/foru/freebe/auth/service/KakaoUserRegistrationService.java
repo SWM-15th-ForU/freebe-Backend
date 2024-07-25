@@ -2,7 +2,6 @@ package com.foru.freebe.auth.service;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +15,7 @@ public class KakaoUserRegistrationService {
 	private final MemberRepository memberRepository;
 	private final MemberService memberService;
 	private final CognitoManagementService cognitoManagementService;
-
-	@Autowired
+	
 	public KakaoUserRegistrationService(MemberRepository memberRepository, MemberService memberService,
 		CognitoManagementService cognitoManagementService) {
 		this.memberRepository = memberRepository;

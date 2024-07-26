@@ -25,6 +25,7 @@ jobs:
           echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
           echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
           echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env

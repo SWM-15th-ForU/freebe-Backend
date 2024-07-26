@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -o allexport
-source .env
+source /home/ubuntu/freebe-backend/.env
 set +o allexport
 
 ROOT_PATH="/home/ubuntu/freebe-backend"

@@ -6,15 +6,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
-import com.foru.freebe.product.dto.ProductComponentDto;
 import com.foru.freebe.product.dto.ProductDiscountDto;
-import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductDiscount;
-import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductDiscountRepository;
-import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +21,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageService productImageService;
     private final ProductComponentService productComponentService;
-    private final ProductOptionRepository productOptionRepository;
+    private final ProductOptionService productOptionService;
     private final ProductDiscountRepository productDiscountRepository;
 
     @Override
@@ -33,8 +29,6 @@ public class ProductServiceImpl implements ProductService {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
-        List<ProductComponentDto> productComponentDtoList = productRegisterRequestDto.getProductComponents();
-        List<ProductOptionDto> productOptionDtoList = productRegisterRequestDto.getProductOptions();
         List<ProductDiscountDto> productDiscountDtoList = productRegisterRequestDto.getProductDiscounts();
 
         Product productAsActive;
@@ -48,24 +42,8 @@ public class ProductServiceImpl implements ProductService {
         productImageService.registerProductImage(productRegisterRequestDto.getProductImageUrls(), productAsActive);
         productComponentService.registerProductComponent(productRegisterRequestDto.getProductComponents(),
             productAsActive);
-
-        if (productOptionDtoList != null) {
-            for (ProductOptionDto productOptionDto : productOptionDtoList) {
-                if (productOptionDto.getDescription() != null) {
-                    ProductOption productOption = ProductOption.createProductOption(
-                        productOptionDto.getTitle(),
-                        productOptionDto.getPrice(),
-                        productOptionDto.getDescription(),
-                        productAsActive);
-                    productOptionRepository.save(productOption);
-                } else {
-                    ProductOption productOption = ProductOption.createProductOptionWithoutDescription(
-                        productOptionDto.getTitle(),
-                        productOptionDto.getPrice(),
-                        productAsActive);
-                    productOptionRepository.save(productOption);
-                }
-            }
+        if (productRegisterRequestDto.getProductOptions() != null) {
+            productOptionService.registerProductOption(productRegisterRequestDto.getProductOptions(), productAsActive);
         }
 
         if (productDiscountDtoList != null) {

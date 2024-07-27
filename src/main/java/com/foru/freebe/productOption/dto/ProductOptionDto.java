@@ -1,12 +1,12 @@
-package com.foru.freebe.product.dto;
+package com.foru.freebe.productOption.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductComponentDto {
+public class ProductOptionDto {
     private String title;
-    private String content;
+    private Integer price;
     private String description;
 }

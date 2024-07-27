@@ -1,8 +1,8 @@
-package com.foru.freebe.product.respository;
+package com.foru.freebe.productComponent.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.foru.freebe.product.entity.ProductComponent;
+import com.foru.freebe.productComponent.entity.ProductComponent;
 
 public interface ProductComponentRepository extends JpaRepository<ProductComponent, Long> {
 }

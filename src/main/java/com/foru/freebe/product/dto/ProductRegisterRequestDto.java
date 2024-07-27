@@ -2,6 +2,10 @@ package com.foru.freebe.product.dto;
 
 import java.util.List;
 
+import com.foru.freebe.productComponent.dto.ProductComponentDto;
+import com.foru.freebe.productDiscount.dto.ProductDiscountDto;
+import com.foru.freebe.productOption.dto.ProductOptionDto;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

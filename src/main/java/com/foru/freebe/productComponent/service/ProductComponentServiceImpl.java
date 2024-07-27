@@ -1,13 +1,13 @@
-package com.foru.freebe.product.service;
+package com.foru.freebe.productComponent.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.product.dto.ProductComponentDto;
 import com.foru.freebe.product.entity.Product;
-import com.foru.freebe.product.entity.ProductComponent;
-import com.foru.freebe.product.respository.ProductComponentRepository;
+import com.foru.freebe.productComponent.dto.ProductComponentDto;
+import com.foru.freebe.productComponent.entity.ProductComponent;
+import com.foru.freebe.productComponent.repository.ProductComponentRepository;
 
 import lombok.RequiredArgsConstructor;
 

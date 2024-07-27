@@ -1,16 +1,11 @@
 package com.foru.freebe.product.service;
 
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
-import com.foru.freebe.product.dto.ProductDiscountDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
-import com.foru.freebe.product.entity.ProductDiscount;
-import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -22,14 +17,12 @@ public class ProductServiceImpl implements ProductService {
     private final ProductImageService productImageService;
     private final ProductComponentService productComponentService;
     private final ProductOptionService productOptionService;
-    private final ProductDiscountRepository productDiscountRepository;
+    private final ProductDiscountService productDiscountService;
 
     @Override
     public ApiResponseDto<Void> addProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
-
-        List<ProductDiscountDto> productDiscountDtoList = productRegisterRequestDto.getProductDiscounts();
 
         Product productAsActive;
         if (productDescription != null) {
@@ -45,18 +38,8 @@ public class ProductServiceImpl implements ProductService {
         if (productRegisterRequestDto.getProductOptions() != null) {
             productOptionService.registerProductOption(productRegisterRequestDto.getProductOptions(), productAsActive);
         }
-
-        if (productDiscountDtoList != null) {
-            for (ProductDiscountDto productDiscountDto : productDiscountDtoList) {
-                ProductDiscount productDiscount = ProductDiscount.builder()
-                    .title(productDiscountDto.getTitle())
-                    .discountType(productDiscountDto.getDiscountType())
-                    .discountValue(productDiscountDto.getDiscountValue())
-                    .description(productDiscountDto.getDescription())
-                    .product(productAsActive)
-                    .build();
-                productDiscountRepository.save(productDiscount);
-            }
+        if (productRegisterRequestDto.getProductDiscounts() != null) {
+            productDiscountService.registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }
 
         return ApiResponseDto.<Void>builder()

@@ -11,10 +11,8 @@ import com.foru.freebe.product.dto.ProductDiscountDto;
 import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
-import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
 import com.foru.freebe.product.entity.ProductOption;
-import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
@@ -26,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductImageService productImageService;
-    private final ProductComponentRepository productComponentRepository;
+    private final ProductComponentService productComponentService;
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
@@ -48,24 +46,8 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(productAsActive);
 
         productImageService.registerProductImage(productRegisterRequestDto.getProductImageUrls(), productAsActive);
-
-        for (ProductComponentDto productComponentDto : productComponentDtoList) {
-            if (productComponentDto.getDescription() != null) {
-                ProductComponent productComponent = ProductComponent.createProductComponent(
-                    productComponentDto.getTitle(),
-                    productComponentDto.getContent(),
-                    productComponentDto.getDescription(),
-                    productAsActive);
-                productComponentRepository.save(productComponent);
-            } else {
-                ProductComponent productComponentWithoutDescription =
-                    ProductComponent.createProductComponentWithoutDescription(
-                        productComponentDto.getTitle(),
-                        productComponentDto.getContent(),
-                        productAsActive);
-                productComponentRepository.save(productComponentWithoutDescription);
-            }
-        }
+        productComponentService.registerProductComponent(productRegisterRequestDto.getProductComponents(),
+            productAsActive);
 
         if (productOptionDtoList != null) {
             for (ProductOptionDto productOptionDto : productOptionDtoList) {

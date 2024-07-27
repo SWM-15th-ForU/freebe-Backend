@@ -24,7 +24,7 @@ public class ProductServiceImpl implements ProductService {
     private final ProductDiscountService productDiscountService;
 
     @Override
-    public ApiResponseDto<Void> addProduct(ProductRegisterRequestDto productRegisterRequestDto) {
+    public ApiResponseDto<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 

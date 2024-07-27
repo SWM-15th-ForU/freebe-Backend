@@ -17,8 +17,8 @@ import lombok.RequiredArgsConstructor;
 public class ProductController {
     private final ProductService productService;
 
-    @PostMapping("/add")
+    @PostMapping("/register")
     public ApiResponseDto<Void> registerProduct(@RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
-        return productService.addProduct(productRegisterRequestDto);
+        return productService.registerProduct(productRegisterRequestDto);
     }
 }

@@ -13,11 +13,9 @@ import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
-import com.foru.freebe.product.entity.ProductImage;
 import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductDiscountRepository;
-import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 
@@ -27,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-    private final ProductImageRepository productImageRepository;
+    private final ProductImageService productImageService;
     private final ProductComponentRepository productComponentRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
@@ -37,7 +35,6 @@ public class ProductServiceImpl implements ProductService {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
-        List<String> productImageUrls = productRegisterRequestDto.getProductImageUrls();
         List<ProductComponentDto> productComponentDtoList = productRegisterRequestDto.getProductComponents();
         List<ProductOptionDto> productOptionDtoList = productRegisterRequestDto.getProductOptions();
         List<ProductDiscountDto> productDiscountDtoList = productRegisterRequestDto.getProductDiscounts();
@@ -50,11 +47,7 @@ public class ProductServiceImpl implements ProductService {
         }
         productRepository.save(productAsActive);
 
-        // TODO 추후 원본 이미지 리사이징 로직 추가 예정
-        for (String productImageUrl : productImageUrls) {
-            ProductImage productImage = ProductImage.createProductImage(null, productImageUrl, productAsActive);
-            productImageRepository.save(productImage);
-        }
+        productImageService.registerProductImage(productRegisterRequestDto.getProductImageUrls(), productAsActive);
 
         for (ProductComponentDto productComponentDto : productComponentDtoList) {
             if (productComponentDto.getDescription() != null) {

@@ -1,6 +1,6 @@
-package com.foru.freebe.productDiscount.dto;
+package com.foru.freebe.product.dto;
 
-import com.foru.freebe.productDiscount.entity.DiscountType;
+import com.foru.freebe.product.entity.DiscountType;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

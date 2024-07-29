@@ -1,4 +1,4 @@
-package com.foru.freebe.productImage.service;
+package com.foru.freebe.product.service;
 
 import java.util.List;
 

@@ -1,6 +1,4 @@
-package com.foru.freebe.productDiscount.entity;
-
-import com.foru.freebe.product.entity.Product;
+package com.foru.freebe.product.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

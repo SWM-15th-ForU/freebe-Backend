@@ -7,10 +7,6 @@ import com.foru.freebe.common.dto.ApiResponseDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
-import com.foru.freebe.productComponent.service.ProductComponentService;
-import com.foru.freebe.productDiscount.service.ProductDiscountService;
-import com.foru.freebe.productImage.service.ProductImageService;
-import com.foru.freebe.productOption.service.ProductOptionService;
 
 import lombok.RequiredArgsConstructor;
 

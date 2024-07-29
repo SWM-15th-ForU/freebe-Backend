@@ -1,8 +1,8 @@
-package com.foru.freebe.productImage.repository;
+package com.foru.freebe.product.respository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.foru.freebe.productImage.entity.ProductImage;
+import com.foru.freebe.product.entity.ProductImage;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
 }

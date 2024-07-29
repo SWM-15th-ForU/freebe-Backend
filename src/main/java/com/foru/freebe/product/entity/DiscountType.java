@@ -1,4 +1,4 @@
-package com.foru.freebe.productDiscount.entity;
+package com.foru.freebe.product.entity;
 
 public enum DiscountType {
     RATE,

@@ -1,5 +1,9 @@
 #!/bin/bash
 
+set -o allexport
+source /home/ubuntu/freebe-backend/.env
+set +o allexport
+
 ROOT_PATH="/home/ubuntu/freebe-backend"
 JAR="$ROOT_PATH/application.jar"
 

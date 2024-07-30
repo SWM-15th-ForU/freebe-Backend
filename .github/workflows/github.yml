@@ -2,7 +2,7 @@ name: Backend Dev Server CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "feat/FU-63-test-develop" ]
 
 jobs:
   build:

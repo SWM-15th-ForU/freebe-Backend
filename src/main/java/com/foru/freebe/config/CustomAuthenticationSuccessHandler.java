@@ -37,7 +37,22 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		String refreshToken = cognitoUtil.generateToken(kakaoUser).refreshToken();
 		//todo: refreshToken 저장 로직 추가
 
-		//todo: 토큰을 쿠키에 담아 리다이렉트
+		ResponseCookie accessTokenCookie = createCookie("accessToken", accessToken);
+		ResponseCookie responseTokenCookie = createCookie("refreshToken", refreshToken);
+
+		response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+		response.addHeader(HttpHeaders.SET_COOKIE, responseTokenCookie.toString());
+
 		response.sendRedirect("/main");
+	}
+
+	private ResponseCookie createCookie(String name, String value) {
+		return ResponseCookie.from(name, value)
+			.httpOnly(true)
+			// .secure(true) -> todo: https 환경이어야 함. 현재 로컬 테스트 중이므로 주석처리
+			.path("/")
+			.maxAge(Duration.ofDays(15)) // todo: 적절히 시간 조절 필요.
+			.sameSite("None")
+			.build();
 	}
 }

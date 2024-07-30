@@ -1,4 +1,4 @@
-package com.foru.freebe.config;
+package com.foru.freebe.auth.service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -25,11 +25,12 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.Authenticat
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserNotFoundException;
 
 @Service
-public class CognitoUtil {
+public class CognitoRegistrationService {
 	private final CognitoProperties cognitoProperties;
 	private final CognitoIdentityProviderClient cognitoClient;
 
-	public CognitoUtil(CognitoProperties cognitoProperties, CognitoIdentityProviderClient cognitoClient) {
+	public CognitoRegistrationService(CognitoProperties cognitoProperties,
+		CognitoIdentityProviderClient cognitoClient) {
 		this.cognitoProperties = cognitoProperties;
 		this.cognitoClient = cognitoClient;
 	}

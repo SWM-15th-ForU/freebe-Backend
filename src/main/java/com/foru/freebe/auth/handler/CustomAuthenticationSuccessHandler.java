@@ -1,4 +1,4 @@
-package com.foru.freebe.config;
+package com.foru.freebe.auth.handler;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import com.foru.freebe.auth.entity.KakaoUser;
+import com.foru.freebe.auth.service.CognitoRegistrationService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,10 +19,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-	private final CognitoUtil cognitoUtil;
+	private final CognitoRegistrationService cognitoRegistrationService;
 
-	public CustomAuthenticationSuccessHandler(CognitoUtil cognitoUtil) {
-		this.cognitoUtil = cognitoUtil;
+	public CustomAuthenticationSuccessHandler(CognitoRegistrationService cognitoRegistrationService) {
+		this.cognitoRegistrationService = cognitoRegistrationService;
 	}
 
 	@Override
@@ -31,10 +32,10 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
 		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
 
-		cognitoUtil.registerIfUserNotInCognito(kakaoUser);
+		cognitoRegistrationService.registerIfUserNotInCognito(kakaoUser);
 
-		String accessToken = cognitoUtil.generateToken(kakaoUser).accessToken();
-		String refreshToken = cognitoUtil.generateToken(kakaoUser).refreshToken();
+		String accessToken = cognitoRegistrationService.generateToken(kakaoUser).accessToken();
+		String refreshToken = cognitoRegistrationService.generateToken(kakaoUser).refreshToken();
 		//todo: refreshToken 저장 로직 추가
 
 		ResponseCookie accessTokenCookie = createCookie("accessToken", accessToken);

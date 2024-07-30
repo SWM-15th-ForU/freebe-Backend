@@ -31,8 +31,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
 		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
 
-		//todo: userpool 등록 전 이미 존재하는 유저인지 검사
-		cognitoUtil.registerUserPool(kakaoUser);
+		cognitoUtil.registerIfUserNotInCognito(kakaoUser);
 
 		String accessToken = cognitoUtil.generateToken(kakaoUser).accessToken();
 		String refreshToken = cognitoUtil.generateToken(kakaoUser).refreshToken();

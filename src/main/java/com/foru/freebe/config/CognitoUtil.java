@@ -15,14 +15,14 @@ import com.foru.freebe.auth.entity.KakaoUser;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminGetUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminInitiateAuthResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordRequest;
-import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.UserNotFoundException;
 
 @Service
 public class CognitoUtil {
@@ -34,17 +34,35 @@ public class CognitoUtil {
 		this.cognitoClient = cognitoClient;
 	}
 
-	public void registerUserPool(KakaoUser kakaoUser) {
-		AdminCreateUserRequest adminCreateUserRequest = registerUser(kakaoUser);
-		AdminCreateUserResponse adminCreateUserResponse = cognitoClient.adminCreateUser(adminCreateUserRequest);
-
-		AdminSetUserPasswordRequest adminSetUserPasswordRequest = setPermanentPassword(kakaoUser);
-		AdminSetUserPasswordResponse adminSetUserPasswordResponse = cognitoClient.adminSetUserPassword(
-			adminSetUserPasswordRequest);
+	public void registerIfUserNotInCognito(KakaoUser kakaoUser) {
+		if (isUserNotInCognito(kakaoUser)) {
+			registerUserWithTemporaryPassword(kakaoUser);
+			setPermanentPassword(kakaoUser);
+		}
 	}
 
-	private AdminCreateUserRequest registerUser(KakaoUser kakaoUser) {
-		AdminCreateUserRequest createUserRequest = AdminCreateUserRequest.builder()
+	public AuthenticationResultType generateToken(KakaoUser kakaoUser) {
+		AdminInitiateAuthRequest adminInitiateAuthRequest = createAuthRequest(kakaoUser);
+		AdminInitiateAuthResponse adminInitiateAuthResponse = cognitoClient.adminInitiateAuth(adminInitiateAuthRequest);
+
+		return adminInitiateAuthResponse.authenticationResult();
+	}
+
+	private boolean isUserNotInCognito(KakaoUser kakaoUser) {
+		try {
+			AdminGetUserRequest adminGetUserRequest = AdminGetUserRequest.builder()
+				.userPoolId(cognitoProperties.getUserPoolId())
+				.username(kakaoUser.getEmail())
+				.build();
+			cognitoClient.adminGetUser(adminGetUserRequest);
+			return false;
+		} catch (UserNotFoundException e) {
+			return true;
+		}
+	}
+
+	private void registerUserWithTemporaryPassword(KakaoUser kakaoUser) {
+		AdminCreateUserRequest adminCreateUserRequest = AdminCreateUserRequest.builder()
 			.messageAction("SUPPRESS")
 			.userPoolId(cognitoProperties.getUserPoolId())
 			.username(kakaoUser.getEmail())
@@ -55,41 +73,41 @@ public class CognitoUtil {
 				AttributeType.builder().name("name").value(kakaoUser.getUserName()).build()
 			)
 			.build();
-		return createUserRequest;
+
+		cognitoClient.adminCreateUser(adminCreateUserRequest);
 	}
 
-	private AdminSetUserPasswordRequest setPermanentPassword(KakaoUser kakaoUser) {
+	private void setPermanentPassword(KakaoUser kakaoUser) {
 		AdminSetUserPasswordRequest adminSetUserPasswordRequest = AdminSetUserPasswordRequest.builder()
 			.userPoolId(cognitoProperties.getUserPoolId())
 			.username(kakaoUser.getEmail())
-			.password("PermenantPassword1!")
+			.password("PermanentPassword1!")
 			.permanent(true)
 			.build();
-		return adminSetUserPasswordRequest;
+
+		cognitoClient.adminSetUserPassword(adminSetUserPasswordRequest);
 	}
 
-	public AuthenticationResultType generateToken(KakaoUser kakaoUser) {
-		AdminInitiateAuthRequest adminInitiateAuthRequest = getAuthenticatedUser(kakaoUser);
-		AdminInitiateAuthResponse adminInitiateAuthResponse = cognitoClient.adminInitiateAuth(adminInitiateAuthRequest);
+	private AdminInitiateAuthRequest createAuthRequest(KakaoUser kakaoUser) {
+		Map<String, String> authParams = createAuthParameters(kakaoUser);
 
-		return adminInitiateAuthResponse.authenticationResult();
-	}
-
-	private AdminInitiateAuthRequest getAuthenticatedUser(KakaoUser kakaoUser) {
-		Map<String, String> authParams = new HashMap<>();
-		authParams.put("USERNAME", kakaoUser.getEmail());
-		authParams.put("PASSWORD", "PermenantPassword1!");
-		authParams.put("SECRET_HASH", calculateSecretHash(cognitoProperties.getClientId(),
-			cognitoProperties.getClientSecret(),
-			kakaoUser.getEmail()));
-
-		AdminInitiateAuthRequest adminInitiateAuthRequest = AdminInitiateAuthRequest.builder()
+		return AdminInitiateAuthRequest.builder()
 			.userPoolId(cognitoProperties.getUserPoolId())
 			.authFlow(AuthFlowType.ADMIN_USER_PASSWORD_AUTH)
 			.authParameters(authParams)
 			.clientId(cognitoProperties.getClientId())
 			.build();
-		return adminInitiateAuthRequest;
+	}
+
+	private Map<String, String> createAuthParameters(KakaoUser kakaoUser) {
+		Map<String, String> authParams = new HashMap<>();
+		authParams.put("USERNAME", kakaoUser.getEmail());
+		authParams.put("PASSWORD", "PermanentPassword1!");
+		authParams.put("SECRET_HASH", calculateSecretHash(cognitoProperties.getClientId(),
+			cognitoProperties.getClientSecret(),
+			kakaoUser.getEmail()));
+
+		return authParams;
 	}
 
 	private static String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {

@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.service;
+package com.foru.freebe.config;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -25,11 +25,11 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowTyp
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthenticationResultType;
 
 @Service
-public class CognitoManagementService {
+public class CognitoUtil {
 	private final CognitoProperties cognitoProperties;
 	private final CognitoIdentityProviderClient cognitoClient;
 
-	public CognitoManagementService(CognitoProperties cognitoProperties, CognitoIdentityProviderClient cognitoClient) {
+	public CognitoUtil(CognitoProperties cognitoProperties, CognitoIdentityProviderClient cognitoClient) {
 		this.cognitoProperties = cognitoProperties;
 		this.cognitoClient = cognitoClient;
 	}
@@ -68,13 +68,11 @@ public class CognitoManagementService {
 		return adminSetUserPasswordRequest;
 	}
 
-	private void generateToken(KakaoUser kakaoUser) {
+	public AuthenticationResultType generateToken(KakaoUser kakaoUser) {
 		AdminInitiateAuthRequest adminInitiateAuthRequest = getAuthenticatedUser(kakaoUser);
 		AdminInitiateAuthResponse adminInitiateAuthResponse = cognitoClient.adminInitiateAuth(adminInitiateAuthRequest);
 
-		AuthenticationResultType authenticationResultType = adminInitiateAuthResponse.authenticationResult();
-		String accessToken = authenticationResultType.accessToken();
-		String refreshToken = authenticationResultType.refreshToken();
+		return adminInitiateAuthResponse.authenticationResult();
 	}
 
 	private AdminInitiateAuthRequest getAuthenticatedUser(KakaoUser kakaoUser) {

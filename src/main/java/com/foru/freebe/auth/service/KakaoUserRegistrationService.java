@@ -14,13 +14,10 @@ import com.foru.freebe.member.service.MemberService;
 public class KakaoUserRegistrationService {
 	private final MemberRepository memberRepository;
 	private final MemberService memberService;
-	private final CognitoManagementService cognitoManagementService;
-	
-	public KakaoUserRegistrationService(MemberRepository memberRepository, MemberService memberService,
-		CognitoManagementService cognitoManagementService) {
+
+	public KakaoUserRegistrationService(MemberRepository memberRepository, MemberService memberService) {
 		this.memberRepository = memberRepository;
 		this.memberService = memberService;
-		this.cognitoManagementService = cognitoManagementService;
 	}
 
 	public void register(OAuth2User oAuth2User) {
@@ -29,7 +26,6 @@ public class KakaoUserRegistrationService {
 
 		if (member.isEmpty()) {
 			memberService.register(kakaoUser);
-			cognitoManagementService.registerUserPool(kakaoUser);
 		}
 	}
 }

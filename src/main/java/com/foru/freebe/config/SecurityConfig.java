@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
+	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
@@ -29,7 +31,8 @@ public class SecurityConfig {
 
 			.oauth2Login((oauth2) -> oauth2
 				.defaultSuccessUrl("/user")
-				.failureUrl("/"));
+				.failureUrl("/")
+				.successHandler(customAuthenticationSuccessHandler));
 		return http.build();
 	}
 }

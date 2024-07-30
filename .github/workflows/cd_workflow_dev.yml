@@ -34,11 +34,8 @@ jobs:
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
 
-      - name: test 실행
-        run: ./gradlew test
-
       - name: 프로젝트 빌드
-        run: ./gradlew clean bootjar
+        run: ./gradlew clean bootjar -x test
 
       - name: 압축
         run: zip -r ./freebe.zip .

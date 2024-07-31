@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "95a3c840-a1dc-4781-a819-d3c0ff25e3c9",
+		"name": "freebe",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37131970"
+	},
+	"item": [
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "uniqueUrl 생성 및 등록",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/api/v1/profiles/uniqueUrl",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"uniqueUrl"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "상품 등록",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/api/v1/profiles/uniqueUrl",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"profiles",
+								"uniqueUrl"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

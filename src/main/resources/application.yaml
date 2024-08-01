@@ -31,16 +31,9 @@ spring:
               - birthday
               - birthyear
               - phone_number
-          cognito:
-            client-id: ${COGNITO.CLIENT_ID}
-            client-secret: ${COGNITO.CLIENT_SECRET}
-            client-name: ${COGNITO.CLIENT_NAME}
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-          cognito:
-            issuer-uri: https://cognito-idp.${AWS.REGION}.amazonaws.com/${COGNITO.USER_POOL_ID}
-            user-name-attribute: cognito:username

@@ -39,13 +39,13 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 		response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 		response.addHeader(HttpHeaders.SET_COOKIE, responseTokenCookie.toString());
 
-		response.sendRedirect("/main");
+		response.sendRedirect("https://www.freebe.co.kr/login/redirect");
 	}
 
 	private ResponseCookie createCookie(String name, String value) {
 		return ResponseCookie.from(name, value)
 			.httpOnly(true)
-			// .secure(true) -> todo: https 환경이어야 함. 현재 로컬 테스트 중이므로 주석처리
+			.secure(true)
 			.path("/")
 			.maxAge(Duration.ofDays(15)) // todo: 적절히 시간 조절 필요.
 			.sameSite("None")

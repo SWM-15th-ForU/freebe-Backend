@@ -41,6 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}
 
+		if (accessToken != null && jwtProvider.isTokenValidate(accessToken)) {
+			Authentication authentication = jwtProvider.getAuthentication(accessToken);
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+		}
+
 		filterChain.doFilter(request, response);
 	}
 }

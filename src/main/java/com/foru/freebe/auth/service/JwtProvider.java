@@ -4,6 +4,9 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -18,6 +21,7 @@ public class JwtProvider {
 	SecretKey secretKey = Jwts.SIG.HS256.key().build();
 	public static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30;
 	public static final long REFRESH_TOKEN_TIME = 1000 * 60 * 60 * 24 * 14;
+	private final UserDetailsServiceImpl userDetailsService;
 
 	public String generateAccessToken(Long kakaoId) {
 		Claims claims = Jwts.claims()
@@ -61,5 +65,13 @@ public class JwtProvider {
 		} catch (JwtException | IllegalArgumentException e) {
 			return false;
 		}
+	}
+
+	public Authentication getAuthentication(String token) {
+		Jws<Claims> claims = parseClaims(token);
+		UserDetails userDetails = userDetailsService.loadUserByUsername(
+			claims.getPayload().get("kakaoId", String.class));
+
+		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 	}
 }

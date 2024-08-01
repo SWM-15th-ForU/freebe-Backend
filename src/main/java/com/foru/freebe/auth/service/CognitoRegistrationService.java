@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.config.CognitoProperties;
-import com.foru.freebe.auth.entity.KakaoUser;
+import com.foru.freebe.auth.model.KakaoUser;
 
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;

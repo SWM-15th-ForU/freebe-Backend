@@ -3,7 +3,7 @@ package com.foru.freebe.member.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.auth.entity.KakaoUser;
+import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;

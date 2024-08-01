@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.handler;
+package com.foru.freebe.auth.config;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.foru.freebe.auth.entity.KakaoUser;
+import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.auth.service.CognitoRegistrationService;
 
 import jakarta.servlet.ServletException;

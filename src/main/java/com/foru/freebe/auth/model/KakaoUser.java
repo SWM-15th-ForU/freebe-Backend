@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.entity;
+package com.foru.freebe.auth.model;
 
 import java.util.Collection;
 import java.util.Map;

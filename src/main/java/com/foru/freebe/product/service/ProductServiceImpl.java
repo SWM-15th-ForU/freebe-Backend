@@ -37,6 +37,7 @@ public class ProductServiceImpl implements ProductService {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
+        // Active 상태의 product 추가
         Product productAsActive;
         if (productDescription != null) {
             productAsActive = Product.createProductAsActive(productTitle, productDescription);
@@ -48,9 +49,13 @@ public class ProductServiceImpl implements ProductService {
         registerProductImage(productRegisterRequestDto.getProductImageUrls(), productAsActive);
         registerProductComponent(productRegisterRequestDto.getProductComponents(),
             productAsActive);
+
+        // 상품에 옵션이 있을 때 option 추가
         if (productRegisterRequestDto.getProductOptions() != null) {
             registerProductOption(productRegisterRequestDto.getProductOptions(), productAsActive);
         }
+
+        // 상품에 할인이 있을 때 discount 추가
         if (productRegisterRequestDto.getProductDiscounts() != null) {
             registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }

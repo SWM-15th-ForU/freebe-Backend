@@ -7,6 +7,8 @@ import javax.crypto.SecretKey;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
@@ -43,5 +45,21 @@ public class JwtProvider {
 			.claims(claims)
 			.signWith(secretKey)
 			.compact();
+	}
+
+	private Jws<Claims> parseClaims(String token) {
+		return Jwts.parser()
+			.verifyWith(secretKey)
+			.build()
+			.parseSignedClaims(token);
+	}
+
+	public boolean isTokenValidate(String token) {
+		try {
+			Jws<Claims> claims = parseClaims(token);
+			return true;
+		} catch (JwtException | IllegalArgumentException e) {
+			return false;
+		}
 	}
 }

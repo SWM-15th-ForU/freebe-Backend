@@ -47,7 +47,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 			.httpOnly(true)
 			.secure(true)
 			.path("/")
-			.maxAge(Duration.ofDays(15)) // todo: 적절히 시간 조절 필요.
+			.maxAge(Duration.ofSeconds(3600))
 			.sameSite("None")
 			.build();
 	}

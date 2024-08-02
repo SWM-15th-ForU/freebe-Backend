@@ -16,20 +16,31 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "product_id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
+    private Long id;
 
-	@Enumerated(EnumType.STRING)
-	@NotNull
-	private ActiveStatus activeStatus;
+    @NotNull
+    private String title;
 
-	private Product(ActiveStatus activeStatus) {
-		this.activeStatus = activeStatus;
-	}
+    private String description;
 
-	public static Product createProductAsActive() {
-		return new Product(ActiveStatus.ACTIVE);
-	}
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private ActiveStatus activeStatus;
+
+    public Product(String title, String description, ActiveStatus activeStatus) {
+        this.title = title;
+        this.description = description;
+        this.activeStatus = activeStatus;
+    }
+
+    public static Product createProductAsActive(String title, String description) {
+        return new Product(title, description, ActiveStatus.ACTIVE);
+    }
+
+    public static Product createProductAsActiveWithoutDescription(String title) {
+        return new Product(title, null, ActiveStatus.ACTIVE);
+    }
 }

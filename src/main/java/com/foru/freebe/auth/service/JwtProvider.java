@@ -21,7 +21,7 @@ public class JwtProvider {
 	SecretKey secretKey = Jwts.SIG.HS256.key().build();
 	public static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30;
 	public static final long REFRESH_TOKEN_TIME = 1000 * 60 * 60 * 24 * 14;
-	private final UserDetailsServiceImpl userDetailsService;
+	private final CustomUserDetailsService userDetailsService;
 
 	public String generateAccessToken(Long kakaoId) {
 		Claims claims = Jwts.claims()

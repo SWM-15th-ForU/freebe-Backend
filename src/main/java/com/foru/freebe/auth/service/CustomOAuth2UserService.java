@@ -7,6 +7,8 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.auth.model.KakaoUser;
+
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 	private final KakaoUserRegistrationService kakaoUserRegistrationService;
@@ -21,6 +23,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 		OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
 		kakaoUserRegistrationService.register(oAuth2User);
-		return oAuth2User;
+		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
+
+		return new CustomOAuth2User(kakaoUser);
 	}
 }

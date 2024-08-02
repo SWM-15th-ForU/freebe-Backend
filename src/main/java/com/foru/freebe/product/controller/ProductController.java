@@ -13,11 +13,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/products")
+@RequestMapping("/product")
 public class ProductController {
     private final ProductService productService;
 
-    @PostMapping("/register")
+    @PostMapping("/")
     public ApiResponseDto<Void> registerProduct(@RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
         return productService.registerProduct(productRegisterRequestDto);
     }

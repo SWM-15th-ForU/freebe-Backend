@@ -1,15 +1,19 @@
 package com.foru.freebe.product.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
+import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.ProductComponentDto;
 import com.foru.freebe.product.dto.ProductDiscountDto;
 import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
+import com.foru.freebe.product.dto.RegisteredProductResponseDTO;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -31,6 +35,7 @@ public class ProductService {
     private final ProductComponentRepository productComponentRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
+    private final MemberRepository memberRepository;
 
     public ApiResponseDto<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         String productTitle = productRegisterRequestDto.getProductTitle();
@@ -63,6 +68,27 @@ public class ProductService {
             .status(HttpStatus.CREATED)
             .message("Successfully added")
             .data(null)
+            .build();
+    }
+
+    public ApiResponseDto<List<RegisteredProductResponseDTO>> getRegisteredProductList(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new RuntimeException("Member not found"));
+        List<Product> registeredProductList = productRepository.findByMember(member);
+
+        List<RegisteredProductResponseDTO> registeredProducts = registeredProductList.stream()
+            .map(product -> RegisteredProductResponseDTO.builder()
+                .productId(product.getId())
+                .productTitle(product.getTitle())
+                .reservationCount(0) // TODO 예약체결 관련 로직 구현 후 추가
+                .activeStatus(product.getActiveStatus())
+                .build())
+            .collect(Collectors.toList());
+
+        return ApiResponseDto.<List<RegisteredProductResponseDTO>>builder()
+            .status(HttpStatus.OK)
+            .message("Successfully retrieved list of registered products")
+            .data(registeredProducts)
             .build();
     }
 

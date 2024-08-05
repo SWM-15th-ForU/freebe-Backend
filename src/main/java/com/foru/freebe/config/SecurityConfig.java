@@ -35,9 +35,8 @@ public class SecurityConfig {
 				.anyRequest().permitAll())
 
 			.oauth2Login((oauth2) -> oauth2
-				.defaultSuccessUrl("/")
-				.failureUrl("/fail")
-				.successHandler(customAuthenticationSuccessHandler))
+				.successHandler(customAuthenticationSuccessHandler)
+				.failureUrl("/"))
 
 			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();

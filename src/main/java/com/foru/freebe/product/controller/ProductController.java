@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
-import com.foru.freebe.product.dto.RegisteredProductResponseDTO;
+import com.foru.freebe.product.dto.RegisteredProductResponseDto;
 import com.foru.freebe.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class ProductController {
     }
 
     @GetMapping("/registered-product/{id}")
-    public ApiResponseDto<List<RegisteredProductResponseDTO>> getRegisteredProductList(
+    public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(
         @PathVariable("id") Long memberId) {
         return productService.getRegisteredProductList(memberId);
     }

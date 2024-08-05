@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class RegisteredProductResponseDTO {
+public class RegisteredProductResponseDto {
     private Long productId;
     private String productTitle;
     private Integer reservationCount;
     private ActiveStatus activeStatus;
 
     @Builder
-    public RegisteredProductResponseDTO(Long productId, String productTitle, Integer reservationCount,
+    public RegisteredProductResponseDto(Long productId, String productTitle, Integer reservationCount,
         ActiveStatus activeStatus) {
         this.productId = productId;
         this.productTitle = productTitle;

@@ -13,7 +13,7 @@ import com.foru.freebe.product.dto.ProductComponentDto;
 import com.foru.freebe.product.dto.ProductDiscountDto;
 import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
-import com.foru.freebe.product.dto.RegisteredProductResponseDTO;
+import com.foru.freebe.product.dto.RegisteredProductResponseDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -73,12 +73,12 @@ public class ProductService {
             .build();
     }
 
-    public ApiResponseDto<List<RegisteredProductResponseDTO>> getRegisteredProductList(Long memberId) {
+    public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
         Member member = getMember(memberId);
         List<Product> registeredProductList = productRepository.findByMember(member);
 
-        List<RegisteredProductResponseDTO> registeredProducts = registeredProductList.stream()
-            .map(product -> RegisteredProductResponseDTO.builder()
+        List<RegisteredProductResponseDto> registeredProducts = registeredProductList.stream()
+            .map(product -> RegisteredProductResponseDto.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
                 .reservationCount(0) // TODO 예약체결 관련 로직 구현 후 추가
@@ -86,7 +86,7 @@ public class ProductService {
                 .build())
             .collect(Collectors.toList());
 
-        return ApiResponseDto.<List<RegisteredProductResponseDTO>>builder()
+        return ApiResponseDto.<List<RegisteredProductResponseDto>>builder()
             .status(HttpStatus.OK)
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)

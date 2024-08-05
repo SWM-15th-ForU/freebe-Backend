@@ -53,4 +53,8 @@ public class Product {
     public static Product createProductAsActiveWithoutDescription(String title, Member member) {
         return new Product(title, null, ActiveStatus.ACTIVE, member);
     }
+
+    public void updateProductActiveStatus(ActiveStatus newStatus) {
+        this.activeStatus = newStatus;
+    }
 }

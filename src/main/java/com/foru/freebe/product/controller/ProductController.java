@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.common.dto.ApiResponseDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.dto.RegisteredProductResponseDto;
+import com.foru.freebe.product.dto.UpdateProductRequestDto;
 import com.foru.freebe.product.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,11 @@ public class ProductController {
     public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(
         @PathVariable("id") Long memberId) {
         return productService.getRegisteredProductList(memberId);
+    }
+
+    @PostMapping("/update-status")
+    public ApiResponseDto<Void> updateProductActiveStatus(@RequestBody UpdateProductRequestDto requestDto) {
+        return productService.updateProductActiveStatus(requestDto);
     }
 
 }

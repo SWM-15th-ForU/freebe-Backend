@@ -1,5 +1,7 @@
 package com.foru.freebe.product.entity;
 
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -55,6 +57,9 @@ public class Product {
     }
 
     public void updateProductActiveStatus(ActiveStatus newStatus) {
+        if (newStatus == ActiveStatus.ACTIVE) {
+            throw new RestApiException(ProductErrorCode.INVALID_ACTIVE_STATUS);
+        }
         this.activeStatus = newStatus;
     }
 }

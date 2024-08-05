@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.ProductComponentDto;
@@ -96,7 +98,7 @@ public class ProductService {
 
     public ApiResponseDto<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
-            .orElseThrow(() -> new RuntimeException("Product not found"));
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());
 
         return ApiResponseDto.<Void>builder()

@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 public class ProfileController {
 	private final ProfileService profileService;
 
+	// Url 생성 테스트를 위한 API
+	// TODO 회원가입 로직 뒤에 해당 API관련 서비스로직이 추가되면 삭제 요망
 	@PostMapping("/uniqueUrl")
 	public ApiResponseDto<String> registerUniqueUrl() {
 		return profileService.registerUniqueUrl();

@@ -78,7 +78,8 @@ public class ProductService {
 
     public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
         Member member = getMember(memberId);
-        List<Product> registeredProductList = productRepository.findByMember(member);
+        List<Product> registeredProductList = productRepository.findByMember(member)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         List<RegisteredProductResponseDto> registeredProducts = registeredProductList.stream()
             .map(product -> RegisteredProductResponseDto.builder()
@@ -110,7 +111,7 @@ public class ProductService {
 
     private Member getMember(Long productRegisterRequestDto) {
         return memberRepository.findById(productRegisterRequestDto)
-            .orElseThrow(() -> new RuntimeException("Member not found"));
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
     private void registerProductImage(List<String> productImageUrls, Product product) {

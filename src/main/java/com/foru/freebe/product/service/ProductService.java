@@ -14,6 +14,7 @@ import com.foru.freebe.product.dto.ProductDiscountDto;
 import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.dto.ProductRegisterRequestDto;
 import com.foru.freebe.product.dto.RegisteredProductResponseDto;
+import com.foru.freebe.product.dto.UpdateProductRequestDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -67,7 +68,7 @@ public class ProductService {
         }
 
         return ApiResponseDto.<Void>builder()
-            .status(HttpStatus.CREATED)
+            .status(HttpStatus.OK)
             .message("Successfully added")
             .data(null)
             .build();
@@ -90,6 +91,18 @@ public class ProductService {
             .status(HttpStatus.OK)
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
+            .build();
+    }
+
+    public ApiResponseDto<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
+        Product product = productRepository.findById(requestDto.getProductId())
+            .orElseThrow(() -> new RuntimeException("Product not found"));
+        product.updateProductActiveStatus(requestDto.getActiveStatus());
+
+        return ApiResponseDto.<Void>builder()
+            .status(HttpStatus.OK)
+            .message("Successfully updated product active status")
+            .data(null)
             .build();
     }
 

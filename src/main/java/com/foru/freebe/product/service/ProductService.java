@@ -38,15 +38,17 @@ public class ProductService {
     private final MemberRepository memberRepository;
 
     public ApiResponseDto<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
+        Member member = getMember(productRegisterRequestDto.getMemberId());
+
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
         // Active 상태의 product 추가
         Product productAsActive;
         if (productDescription != null) {
-            productAsActive = Product.createProductAsActive(productTitle, productDescription);
+            productAsActive = Product.createProductAsActive(productTitle, productDescription, member);
         } else {
-            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle);
+            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, member);
         }
         productRepository.save(productAsActive);
 
@@ -72,8 +74,7 @@ public class ProductService {
     }
 
     public ApiResponseDto<List<RegisteredProductResponseDTO>> getRegisteredProductList(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new RuntimeException("Member not found"));
+        Member member = getMember(memberId);
         List<Product> registeredProductList = productRepository.findByMember(member);
 
         List<RegisteredProductResponseDTO> registeredProducts = registeredProductList.stream()
@@ -90,6 +91,11 @@ public class ProductService {
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
             .build();
+    }
+
+    private Member getMember(Long productRegisterRequestDto) {
+        return memberRepository.findById(productRegisterRequestDto)
+            .orElseThrow(() -> new RuntimeException("Member not found"));
     }
 
     private void registerProductImage(List<String> productImageUrls, Product product) {

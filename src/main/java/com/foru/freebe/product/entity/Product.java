@@ -39,17 +39,18 @@ public class Product {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Product(String title, String description, ActiveStatus activeStatus) {
+    public Product(String title, String description, ActiveStatus activeStatus, Member member) {
         this.title = title;
         this.description = description;
         this.activeStatus = activeStatus;
+        this.member = member;
     }
 
-    public static Product createProductAsActive(String title, String description) {
-        return new Product(title, description, ActiveStatus.ACTIVE);
+    public static Product createProductAsActive(String title, String description, Member member) {
+        return new Product(title, description, ActiveStatus.ACTIVE, member);
     }
 
-    public static Product createProductAsActiveWithoutDescription(String title) {
-        return new Product(title, null, ActiveStatus.ACTIVE);
+    public static Product createProductAsActiveWithoutDescription(String title, Member member) {
+        return new Product(title, null, ActiveStatus.ACTIVE, member);
     }
 }

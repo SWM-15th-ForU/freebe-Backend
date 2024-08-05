@@ -1,10 +1,7 @@
 package com.foru.freebe.auth.config;
 
 import java.io.IOException;
-import java.time.Duration;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -33,22 +30,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 		JwtTokenModel token = jwtService.generateToken(kakaoUser);
 
-		ResponseCookie accessTokenCookie = createCookie("accessToken", token.getAccessToken());
-		ResponseCookie responseTokenCookie = createCookie("refreshToken", token.getRefreshToken());
-
-		response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-		response.addHeader(HttpHeaders.SET_COOKIE, responseTokenCookie.toString());
-
-		response.sendRedirect("https://www.freebe.co.kr/login/redirect");
-	}
-
-	private ResponseCookie createCookie(String name, String value) {
-		return ResponseCookie.from(name, value)
-			.httpOnly(true)
-			.secure(true)
-			.path("/")
-			.maxAge(Duration.ofSeconds(3600))
-			.sameSite("None")
-			.build();
+		String redirectUrl =
+			"https://freebe.co.kr/login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
+				+ token.getRefreshToken();
+		response.sendRedirect(redirectUrl);
 	}
 }

@@ -18,7 +18,7 @@ public class CustomUserDetails implements UserDetails {
 
 	public CustomUserDetails(Member member) {
 		this.member = member;
-		this.authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getRole().toString()));
+		this.authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getAuthority()));
 	}
 
 	public Long getKakaoId() {

@@ -14,7 +14,7 @@ public class MemberService {
 	private MemberRepository memberRepository;
 
 	public void register(KakaoUser kakaoUser) {
-		Member member = Member.builder(kakaoUser.getName(), Role.ROLE_PENDING, kakaoUser.getUserName(),
+		Member member = Member.builder(kakaoUser.getName(), Role.PENDING, kakaoUser.getUserName(),
 				kakaoUser.getEmail(),
 				kakaoUser.getPhoneNumber())
 			.build();

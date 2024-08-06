@@ -24,7 +24,7 @@ public class MemberRepositoryTest {
 
 	@BeforeEach
 	public void setUp() {
-		member = Member.builder(1111111111L, Role.ROLE_CUSTOMER, "test Member", "testMember@naver.com",
+		member = Member.builder(1111111111L, Role.CUSTOMER, "test Member", "testMember@naver.com",
 				"+82 10-0000-0000")
 			.instagramId("testInstagramId")
 			.build();

@@ -53,6 +53,10 @@ public class Member {
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 
+	public String getAuthority() {
+		return "ROLE_" + role.name();
+	}
+
 	@Builder
 	public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
 		Role role, String gender) {

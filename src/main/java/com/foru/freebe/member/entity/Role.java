@@ -6,9 +6,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Role {
-	ROLE_ANONYMOUS,
-	ROLE_PENDING,
-	ROLE_PHOTOGRAPHER,
-	ROLE_CUSTOMER,
-	ROLE_ADMIN
+	ANONYMOUS,
+	PENDING,
+	PHOTOGRAPHER,
+	CUSTOMER,
+	ADMIN
 }

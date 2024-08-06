@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class ApiResponseDto<T> {
-	private HttpStatus status;
-	private String message;
-	private T data;
+    private HttpStatus status;
+    private String message;
+    private T data;
 }

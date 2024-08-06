@@ -11,20 +11,20 @@ import com.foru.freebe.auth.model.KakaoUser;
 
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
-	private final KakaoUserRegistrationService kakaoUserRegistrationService;
+    private final KakaoUserRegistrationService kakaoUserRegistrationService;
 
-	public CustomOAuth2UserService(KakaoUserRegistrationService abstractOAuth2UserService) {
-		this.kakaoUserRegistrationService = abstractOAuth2UserService;
-	}
+    public CustomOAuth2UserService(KakaoUserRegistrationService abstractOAuth2UserService) {
+        this.kakaoUserRegistrationService = abstractOAuth2UserService;
+    }
 
-	@Override
-	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-		OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
-		OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService = new DefaultOAuth2UserService();
+        OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
-		kakaoUserRegistrationService.register(oAuth2User);
-		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
+        kakaoUserRegistrationService.register(oAuth2User);
+        KakaoUser kakaoUser = new KakaoUser(oAuth2User);
 
-		return new CustomOAuth2User(kakaoUser);
-	}
+        return new CustomOAuth2User(kakaoUser);
+    }
 }

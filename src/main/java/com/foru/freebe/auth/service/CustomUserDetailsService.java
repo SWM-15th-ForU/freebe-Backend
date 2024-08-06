@@ -14,18 +14,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
-	private final MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
 
-	@Override
-	public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Long kakaoId = Long.valueOf(username);
-		Optional<Member> member = memberRepository.findByKakaoId(kakaoId);
+    @Override
+    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Long kakaoId = Long.valueOf(username);
+        Optional<Member> member = memberRepository.findByKakaoId(kakaoId);
 
-		if (member.isPresent()) {
-			return new CustomUserDetails(member.get());
-		} else {
-			throw new UsernameNotFoundException("User not found with username: " + username);
-		}
-	}
+        if (member.isPresent()) {
+            return new CustomUserDetails(member.get());
+        } else {
+            throw new UsernameNotFoundException("User not found with username: " + username);
+        }
+    }
 }
 

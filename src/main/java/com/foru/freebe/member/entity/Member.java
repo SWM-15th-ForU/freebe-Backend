@@ -23,63 +23,63 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "member")
 public class Member {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long id;
 
-	@NotNull
-	private Long kakaoId;
+    @NotNull
+    private Long kakaoId;
 
-	private String instagramId;
+    private String instagramId;
 
-	@Enumerated(EnumType.STRING)
-	@NotNull
-	private Role role;
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Role role;
 
-	@NotNull
-	private String name;
+    @NotNull
+    private String name;
 
-	@NotNull
-	private String email;
+    @NotNull
+    private String email;
 
-	@NotNull
-	private String phoneNumber;
+    @NotNull
+    private String phoneNumber;
 
-	private Integer birthyear;
+    private Integer birthyear;
 
-	private String gender;
+    private String gender;
 
-	@CreationTimestamp
-	private LocalDateTime createdAt;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
-	public String getAuthority() {
-		return "ROLE_" + role.name();
-	}
+    public String getAuthority() {
+        return "ROLE_" + role.name();
+    }
 
-	public void updateRole(Role role) {
-		this.role = role;
-	}
+    public void updateRole(Role role) {
+        this.role = role;
+    }
 
-	@Builder
-	public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
-		Role role, String gender) {
-		this.kakaoId = kakaoId;
-		this.instagramId = instagramId;
-		this.role = role;
-		this.name = name;
-		this.email = email;
-		this.phoneNumber = phoneNumber;
-		this.birthyear = birthyear;
-		this.gender = gender;
-	}
+    @Builder
+    public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
+        Role role, String gender) {
+        this.kakaoId = kakaoId;
+        this.instagramId = instagramId;
+        this.role = role;
+        this.name = name;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.birthyear = birthyear;
+        this.gender = gender;
+    }
 
-	public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {
-		return new MemberBuilder()
-			.kakaoId(kakaoId)
-			.role(role)
-			.name(name)
-			.email(email)
-			.phoneNumber(phoneNumber);
-	}
+    public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {
+        return new MemberBuilder()
+            .kakaoId(kakaoId)
+            .role(role)
+            .name(name)
+            .email(email)
+            .phoneNumber(phoneNumber);
+    }
 }

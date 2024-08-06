@@ -13,23 +13,23 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class JwtTokenEntity {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "token_id")
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "token_id")
+    private Long id;
 
-	@NotNull
-	private Long kakaoId;
+    @NotNull
+    private Long kakaoId;
 
-	@NotNull
-	private String refreshToken;
+    @NotNull
+    private String refreshToken;
 
-	private JwtTokenEntity(Long kakaoId, String refreshToken) {
-		this.kakaoId = kakaoId;
-		this.refreshToken = refreshToken;
-	}
+    private JwtTokenEntity(Long kakaoId, String refreshToken) {
+        this.kakaoId = kakaoId;
+        this.refreshToken = refreshToken;
+    }
 
-	public static JwtTokenEntity createJwtToken(Long kakaoId, String refreshToken) {
-		return new JwtTokenEntity(kakaoId, refreshToken);
-	}
+    public static JwtTokenEntity createJwtToken(Long kakaoId, String refreshToken) {
+        return new JwtTokenEntity(kakaoId, refreshToken);
+    }
 }

@@ -12,22 +12,22 @@ import com.foru.freebe.member.repository.MemberRepository;
 
 @Service
 public class MemberService {
-	@Autowired
-	private MemberRepository memberRepository;
+    @Autowired
+    private MemberRepository memberRepository;
 
-	public void register(KakaoUser kakaoUser) {
-		Member member = Member.builder(kakaoUser.getName(), Role.PENDING, kakaoUser.getUserName(),
-				kakaoUser.getEmail(),
-				kakaoUser.getPhoneNumber())
-			.build();
-		memberRepository.save(member);
-	}
+    public void register(KakaoUser kakaoUser) {
+        Member member = Member.builder(kakaoUser.getName(), Role.PENDING, kakaoUser.getUserName(),
+                kakaoUser.getEmail(),
+                kakaoUser.getPhoneNumber())
+            .build();
+        memberRepository.save(member);
+    }
 
-	public void updateMemberRole(KakaoUser kakaoUser, Role role) {
-		Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getName());
-		if (member.isPresent()) {
-			member.get().updateRole(role);
-			memberRepository.save(member.get());
-		}
-	}
+    public void updateMemberRole(KakaoUser kakaoUser, Role role) {
+        Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getName());
+        if (member.isPresent()) {
+            member.get().updateRole(role);
+            memberRepository.save(member.get());
+        }
+    }
 }

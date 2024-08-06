@@ -19,20 +19,20 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
-	private final JwtService jwtService;
+    private final JwtService jwtService;
 
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-		Authentication authentication) throws IOException, ServletException {
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+        Authentication authentication) throws IOException, ServletException {
 
-		OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
-		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
+        OAuth2User oAuth2User = (OAuth2User)authentication.getPrincipal();
+        KakaoUser kakaoUser = new KakaoUser(oAuth2User);
 
-		JwtTokenModel token = jwtService.generateToken(kakaoUser);
+        JwtTokenModel token = jwtService.generateToken(kakaoUser);
 
-		String baseUrl = "https://www.freebe/co.kr/";
-		String redirectUrl = baseUrl + "login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
-			+ token.getRefreshToken();
-		response.sendRedirect(redirectUrl);
-	}
+        String baseUrl = "https://www.freebe/co.kr/";
+        String redirectUrl = baseUrl + "login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
+            + token.getRefreshToken();
+        response.sendRedirect(redirectUrl);
+    }
 }

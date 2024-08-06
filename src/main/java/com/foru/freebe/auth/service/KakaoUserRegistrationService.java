@@ -12,20 +12,20 @@ import com.foru.freebe.member.service.MemberService;
 
 @Service
 public class KakaoUserRegistrationService {
-	private final MemberRepository memberRepository;
-	private final MemberService memberService;
+    private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
-	public KakaoUserRegistrationService(MemberRepository memberRepository, MemberService memberService) {
-		this.memberRepository = memberRepository;
-		this.memberService = memberService;
-	}
+    public KakaoUserRegistrationService(MemberRepository memberRepository, MemberService memberService) {
+        this.memberRepository = memberRepository;
+        this.memberService = memberService;
+    }
 
-	public void register(OAuth2User oAuth2User) {
-		KakaoUser kakaoUser = new KakaoUser(oAuth2User);
-		Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getName());
+    public void register(OAuth2User oAuth2User) {
+        KakaoUser kakaoUser = new KakaoUser(oAuth2User);
+        Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getName());
 
-		if (member.isEmpty()) {
-			memberService.register(kakaoUser);
-		}
-	}
+        if (member.isEmpty()) {
+            memberService.register(kakaoUser);
+        }
+    }
 }

@@ -11,26 +11,26 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.foru.freebe.auth.model.KakaoUser;
 
 public class CustomOAuth2User implements OAuth2User {
-	private final KakaoUser kakaoUser;
-	private final Collection<? extends GrantedAuthority> authorities;
+    private final KakaoUser kakaoUser;
+    private final Collection<? extends GrantedAuthority> authorities;
 
-	public CustomOAuth2User(KakaoUser kakaoUser) {
-		this.kakaoUser = kakaoUser;
-		this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_PENDING"));
-	}
+    public CustomOAuth2User(KakaoUser kakaoUser) {
+        this.kakaoUser = kakaoUser;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_PENDING"));
+    }
 
-	@Override
-	public Map<String, Object> getAttributes() {
-		return kakaoUser.getAttributes();
-	}
+    @Override
+    public Map<String, Object> getAttributes() {
+        return kakaoUser.getAttributes();
+    }
 
-	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return authorities;
-	}
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
+    }
 
-	@Override
-	public String getName() {
-		return kakaoUser.getName().toString();
-	}
+    @Override
+    public String getName() {
+        return kakaoUser.getName().toString();
+    }
 }

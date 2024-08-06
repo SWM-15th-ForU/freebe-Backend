@@ -7,6 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.foru.freebe.auth.model.JwtTokenEntity;
 
 public interface JwtTokenRepository extends JpaRepository<JwtTokenEntity, Long> {
-	Optional<JwtTokenEntity> findByKakaoId(Long kakaoId);
+    Optional<JwtTokenEntity> findByKakaoId(Long kakaoId);
 }
-

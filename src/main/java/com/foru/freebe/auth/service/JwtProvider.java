@@ -6,7 +6,6 @@ import javax.crypto.SecretKey;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -18,60 +17,61 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
-	SecretKey secretKey = Jwts.SIG.HS256.key().build();
-	public static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30;
-	public static final long REFRESH_TOKEN_TIME = 1000 * 60 * 60 * 24 * 14;
-	private final CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
+    private static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30;
+    private static final long REFRESH_TOKEN_TIME = 1000 * 60 * 60 * 24 * 14;
+    private static final SecretKey secretKey = Jwts.SIG.HS256.key().build();
 
-	public String generateAccessToken(Long kakaoId) {
-		Claims claims = Jwts.claims()
-			.issuer(String.valueOf(kakaoId))
-			.add("kakaoId", String.valueOf(kakaoId))
-			.issuedAt(new Date())
-			.expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TIME))
-			.build();
+    public String generateAccessToken(Long kakaoId) {
+        Claims claims = Jwts.claims()
+            .issuer(String.valueOf(kakaoId))
+            .add("kakaoId", String.valueOf(kakaoId))
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TIME))
+            .build();
 
-		return Jwts.builder()
-			.claims(claims)
-			.signWith(secretKey)
-			.compact();
-	}
+        return Jwts.builder()
+            .claims(claims)
+            .signWith(secretKey)
+            .compact();
+    }
 
-	public String generateRefreshToken(Long kakaoId) {
-		Claims claims = Jwts.claims()
-			.issuer(String.valueOf(kakaoId))
-			.add("kakaoId", String.valueOf(kakaoId))
-			.issuedAt(new Date())
-			.expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_TIME))
-			.build();
+    public String generateRefreshToken(Long kakaoId) {
+        Claims claims = Jwts.claims()
+            .issuer(String.valueOf(kakaoId))
+            .add("kakaoId", String.valueOf(kakaoId))
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_TIME))
+            .build();
 
-		return Jwts.builder()
-			.claims(claims)
-			.signWith(secretKey)
-			.compact();
-	}
+        return Jwts.builder()
+            .claims(claims)
+            .signWith(secretKey)
+            .compact();
+    }
 
-	private Jws<Claims> parseClaims(String token) {
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token);
-	}
+    private Jws<Claims> parseClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
+    }
 
-	public boolean isTokenValidate(String token) {
-		try {
-			Jws<Claims> claims = parseClaims(token);
-			return true;
-		} catch (JwtException | IllegalArgumentException e) {
-			return false;
-		}
-	}
+    public boolean isTokenValidate(String token) {
+        try {
+            Jws<Claims> claims = parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("Invalid JWT token " + e.getMessage());
+            return false;
+        }
+    }
 
-	public Authentication getAuthentication(String token) {
-		Jws<Claims> claims = parseClaims(token);
-		CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(
-			claims.getPayload().get("kakaoId", String.class));
+    public Authentication getAuthentication(String token) {
+        Jws<Claims> claims = parseClaims(token);
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(
+            claims.getPayload().get("kakaoId", String.class));
 
-		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-	}
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
 }

@@ -12,20 +12,20 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-	private final JwtTokenRepository jwtTokenRepository;
-	private final JwtProvider jwtProvider;
+    private final JwtTokenRepository jwtTokenRepository;
+    private final JwtProvider jwtProvider;
 
-	public JwtTokenModel generateToken(KakaoUser kakaoUser) {
-		String accessToken = jwtProvider.generateAccessToken(kakaoUser.getName());
-		String refreshToken = jwtProvider.generateRefreshToken(kakaoUser.getName());
+    public JwtTokenModel generateToken(KakaoUser kakaoUser) {
+        String accessToken = jwtProvider.generateAccessToken(kakaoUser.getName());
+        String refreshToken = jwtProvider.generateRefreshToken(kakaoUser.getName());
 
-		saveRefreshToken(kakaoUser.getName(), refreshToken);
+        saveRefreshToken(kakaoUser.getName(), refreshToken);
 
-		return new JwtTokenModel(accessToken, refreshToken);
-	}
+        return new JwtTokenModel(accessToken, refreshToken);
+    }
 
-	private void saveRefreshToken(Long kakaoId, String refreshToken) {
-		JwtTokenEntity jwtToken = JwtTokenEntity.createJwtToken(kakaoId, refreshToken);
-		jwtTokenRepository.save(jwtToken);
-	}
+    private void saveRefreshToken(Long kakaoId, String refreshToken) {
+        JwtTokenEntity jwtToken = JwtTokenEntity.createJwtToken(kakaoId, refreshToken);
+        jwtTokenRepository.save(jwtToken);
+    }
 }

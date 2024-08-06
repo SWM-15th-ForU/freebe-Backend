@@ -18,18 +18,18 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-	private final MemberService memberService;
+    private final MemberService memberService;
 
-	@PostMapping("/login/type")
-	public ApiResponseDto<Void> saveRoleType(@RequestBody RoleTypeRequest roleTypeRequest) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
-		KakaoUser kakaoUser = new KakaoUser(userDetails);
-		memberService.updateMemberRole(kakaoUser, roleTypeRequest.getRole());
+    @PostMapping("/login/type")
+    public ApiResponseDto<Void> saveRoleType(@RequestBody RoleTypeRequest roleTypeRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails)authentication.getPrincipal();
+        KakaoUser kakaoUser = new KakaoUser(userDetails);
+        memberService.updateMemberRole(kakaoUser, roleTypeRequest.getRole());
 
-		return ApiResponseDto.<Void>builder()
-			.status(HttpStatus.CREATED)
-			.message("Successfully save roleType")
-			.build();
-	}
+        return ApiResponseDto.<Void>builder()
+            .status(HttpStatus.CREATED)
+            .message("Successfully save roleType")
+            .build();
+    }
 }

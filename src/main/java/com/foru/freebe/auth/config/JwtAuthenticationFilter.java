@@ -1,6 +1,7 @@
 package com.foru.freebe.auth.config;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,28 +19,28 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-	private final JwtProvider jwtProvider;
+    private final JwtProvider jwtProvider;
 
-	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-		String[] excludePath = {"/login", "/"};
-		String path = request.getRequestURI();
-		return Arrays.stream(excludePath).anyMatch(path::startsWith);
-	}
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String[] excludePath = {"/login", "/"};
+        String path = request.getRequestURI();
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
+    }
 
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-		FilterChain filterChain) throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
 
-		String accessToken = request.getHeader("Authorization");
-		if (accessToken != null && accessToken.startsWith("Bearer ")) {
-			accessToken = accessToken.substring(7);
-			if (jwtProvider.isTokenValidate(accessToken)) {
-				Authentication auth = jwtProvider.getAuthentication(accessToken);
-				SecurityContextHolder.getContext().setAuthentication(auth);
-			}
-		}
+        String accessToken = request.getHeader("Authorization");
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+            if (jwtProvider.isTokenValidate(accessToken)) {
+                Authentication auth = jwtProvider.getAuthentication(accessToken);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+        }
 
-		filterChain.doFilter(request, response);
-	}
+        filterChain.doFilter(request, response);
+    }
 }

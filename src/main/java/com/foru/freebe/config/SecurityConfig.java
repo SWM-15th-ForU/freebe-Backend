@@ -19,26 +19,26 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-	private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-		http
-			.csrf((csrf) -> csrf.disable())
-			.cors(withDefaults())
-			.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf((csrf) -> csrf.disable())
+            .cors(withDefaults())
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-			.authorizeHttpRequests((request) -> request
-				.requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
-				.requestMatchers("/admin").hasAnyRole("ADMIN")
-				.anyRequest().permitAll())
+        http.authorizeHttpRequests((request) -> request
+            .requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
+            .requestMatchers("/admin").hasAnyRole("ADMIN")
+            .anyRequest().permitAll());
 
-			.oauth2Login((oauth2) -> oauth2
-				.successHandler(customAuthenticationSuccessHandler)
-				.failureUrl("/"))
+        http.oauth2Login((oauth2) -> oauth2
+            .successHandler(customAuthenticationSuccessHandler)
+            .failureUrl("/"));
 
-			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-		return http.build();
-	}
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
 }

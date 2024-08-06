@@ -18,9 +18,9 @@ import com.foru.freebe.member.repository.MemberRepository;
 // @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ActiveProfiles("test")
 public class MemberRepositoryTest {
-    @Autowired
-    private MemberRepository memberRepository;
-    private Member member;
+	@Autowired
+	private MemberRepository memberRepository;
+	private Member member;
 
 	@BeforeEach
 	public void setUp() {
@@ -30,36 +30,36 @@ public class MemberRepositoryTest {
 			.build();
 	}
 
-    @Test
-    public void testSaveMember() {
-        //when
-        Member savedMember = memberRepository.save(member);
+	@Test
+	public void testSaveMember() {
+		//when
+		Member savedMember = memberRepository.save(member);
 
-        //then
-        assertThat(savedMember).isNotNull();
-        assertThat(savedMember.getId()).isNotNull();
-        assertThat(savedMember.getEmail()).isEqualTo(member.getEmail());
-        assertThat(savedMember.getName()).isEqualTo(member.getName());
-        assertThat(savedMember.getPhoneNumber()).isEqualTo(member.getPhoneNumber());
-        assertThat(savedMember.getKakaoId()).isEqualTo(member.getKakaoId());
-        assertThat(savedMember.getInstagramId()).isEqualTo(member.getInstagramId());
-    }
+		//then
+		assertThat(savedMember).isNotNull();
+		assertThat(savedMember.getId()).isNotNull();
+		assertThat(savedMember.getEmail()).isEqualTo(member.getEmail());
+		assertThat(savedMember.getName()).isEqualTo(member.getName());
+		assertThat(savedMember.getPhoneNumber()).isEqualTo(member.getPhoneNumber());
+		assertThat(savedMember.getKakaoId()).isEqualTo(member.getKakaoId());
+		assertThat(savedMember.getInstagramId()).isEqualTo(member.getInstagramId());
+	}
 
-    @Test
-    public void testFindByKakaoId() {
-        //given
-        memberRepository.save(member);
+	@Test
+	public void testFindByKakaoId() {
+		//given
+		memberRepository.save(member);
 
-        //when
-        Optional<Member> foundMember = memberRepository.findByKakaoId(member.getKakaoId());
+		//when
+		Optional<Member> foundMember = memberRepository.findByKakaoId(member.getKakaoId());
 
-        // Then
-        assertThat(foundMember).isPresent();
-        assertThat(foundMember.get().getEmail()).isEqualTo(member.getEmail());
-        assertThat(foundMember.get().getName()).isEqualTo(member.getName());
-        assertThat(foundMember.get().getPhoneNumber()).isEqualTo(member.getPhoneNumber());
-        assertThat(foundMember.get().getKakaoId()).isEqualTo(member.getKakaoId());
-        assertThat(foundMember.get().getInstagramId()).isEqualTo(member.getInstagramId());
-    }
+		// Then
+		assertThat(foundMember).isPresent();
+		assertThat(foundMember.get().getEmail()).isEqualTo(member.getEmail());
+		assertThat(foundMember.get().getName()).isEqualTo(member.getName());
+		assertThat(foundMember.get().getPhoneNumber()).isEqualTo(member.getPhoneNumber());
+		assertThat(foundMember.get().getKakaoId()).isEqualTo(member.getKakaoId());
+		assertThat(foundMember.get().getInstagramId()).isEqualTo(member.getInstagramId());
+	}
 
 }

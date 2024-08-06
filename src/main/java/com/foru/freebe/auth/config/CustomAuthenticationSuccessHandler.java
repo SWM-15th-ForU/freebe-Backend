@@ -30,9 +30,9 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
 		JwtTokenModel token = jwtService.generateToken(kakaoUser);
 
-		String redirectUrl =
-			"https://freebe.co.kr/login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
-				+ token.getRefreshToken();
+		String baseUrl = "https://www.freebe/co.kr/";
+		String redirectUrl = baseUrl + "login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
+			+ token.getRefreshToken();
 		response.sendRedirect(redirectUrl);
 	}
 }

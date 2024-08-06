@@ -1,7 +1,6 @@
 package com.foru.freebe.auth.config;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,7 +11,6 @@ import com.foru.freebe.auth.service.JwtProvider;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -33,17 +31,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		Cookie[] cookies = request.getCookies();
-		String accessToken = null;
-		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals("accessToken")) {
-				accessToken = cookie.getValue();
+		String accessToken = request.getHeader("Authorization");
+		if (accessToken != null && accessToken.startsWith("Bearer ")) {
+			accessToken = accessToken.substring(7);
+			if (jwtProvider.isTokenValidate(accessToken)) {
+				Authentication auth = jwtProvider.getAuthentication(accessToken);
+				SecurityContextHolder.getContext().setAuthentication(auth);
 			}
-		}
-
-		if (accessToken != null && jwtProvider.isTokenValidate(accessToken)) {
-			Authentication authentication = jwtProvider.getAuthentication(accessToken);
-			SecurityContextHolder.getContext().setAuthentication(authentication);
 		}
 
 		filterChain.doFilter(request, response);

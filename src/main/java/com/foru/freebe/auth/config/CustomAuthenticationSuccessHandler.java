@@ -2,6 +2,7 @@ package com.foru.freebe.auth.config;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,6 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
     private final JwtService jwtService;
+    @Value("${FREEBE_BASE_URL}")
+    private String baseUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -30,8 +33,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         JwtTokenModel token = jwtService.generateToken(kakaoUser);
 
-        String baseUrl = "https://www.freebe/co.kr/";
-        String redirectUrl = baseUrl + "login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
+        String redirectUrl = baseUrl + "/login/redirect?accessToken=" + token.getAccessToken() + "&refreshToken="
             + token.getRefreshToken();
         response.sendRedirect(redirectUrl);
     }

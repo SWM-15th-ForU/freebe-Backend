@@ -26,7 +26,7 @@ public class JwtProvider {
 	public String generateAccessToken(Long kakaoId) {
 		Claims claims = Jwts.claims()
 			.issuer(String.valueOf(kakaoId))
-			.add("kakaoId", kakaoId)
+			.add("kakaoId", String.valueOf(kakaoId))
 			.issuedAt(new Date())
 			.expiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_TIME))
 			.build();
@@ -40,7 +40,7 @@ public class JwtProvider {
 	public String generateRefreshToken(Long kakaoId) {
 		Claims claims = Jwts.claims()
 			.issuer(String.valueOf(kakaoId))
-			.add("kakaoId", kakaoId)
+			.add("kakaoId", String.valueOf(kakaoId))
 			.issuedAt(new Date())
 			.expiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_TIME))
 			.build();

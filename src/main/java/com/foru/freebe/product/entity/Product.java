@@ -57,7 +57,7 @@ public class Product {
     }
 
     public void updateProductActiveStatus(ActiveStatus newStatus) {
-        if (newStatus == ActiveStatus.ACTIVE) {
+        if (this.activeStatus == newStatus) {
             throw new RestApiException(ProductErrorCode.INVALID_ACTIVE_STATUS);
         }
         this.activeStatus = newStatus;

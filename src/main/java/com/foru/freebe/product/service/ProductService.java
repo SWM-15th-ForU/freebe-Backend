@@ -28,6 +28,7 @@ import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -97,6 +98,7 @@ public class ProductService {
             .build();
     }
 
+    @Transactional
     public ApiResponseDto<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));

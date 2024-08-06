@@ -69,7 +69,7 @@ public class JwtProvider {
 
 	public Authentication getAuthentication(String token) {
 		Jws<Claims> claims = parseClaims(token);
-		UserDetails userDetails = userDetailsService.loadUserByUsername(
+		CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(
 			claims.getPayload().get("kakaoId", String.class));
 
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());

@@ -57,6 +57,10 @@ public class Member {
 		return "ROLE_" + role.name();
 	}
 
+	public void updateRole(Role role) {
+		this.role = role;
+	}
+
 	@Builder
 	public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
 		Role role, String gender) {

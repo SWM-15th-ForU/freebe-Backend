@@ -2,7 +2,6 @@ package com.foru.freebe.auth.service;
 
 import java.util.Optional;
 
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -18,12 +17,15 @@ public class CustomUserDetailsService implements UserDetailsService {
 	private final MemberRepository memberRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Long kakaoId = Long.valueOf(username);
 		Optional<Member> member = memberRepository.findByKakaoId(kakaoId);
 
-		//todo: null일때 예외처리
-		return new CustomUserDetails(member.get());
+		if (member.isPresent()) {
+			return new CustomUserDetails(member.get());
+		} else {
+			throw new UsernameNotFoundException("User not found with username: " + username);
+		}
 	}
 }
 

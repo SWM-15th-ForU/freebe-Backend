@@ -1,10 +1,13 @@
 package com.foru.freebe.auth.model;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+
+import com.foru.freebe.auth.service.CustomUserDetails;
 
 import lombok.Getter;
 
@@ -20,6 +23,13 @@ public class KakaoUser {
 		this.kakaoAccount = (Map<String, Object>)attributes.get("kakao_account");
 		this.authorities = oAuth2User.getAuthorities();
 		this.name = Long.valueOf(oAuth2User.getName());
+	}
+
+	public KakaoUser(CustomUserDetails userDetails) {
+		this.authorities = userDetails.getAuthorities();
+		this.name = userDetails.getKakaoId();
+		this.attributes = new HashMap<String, Object>();
+		this.kakaoAccount = new HashMap<String, Object>();
 	}
 
 	public String getUserName() {

@@ -11,9 +11,9 @@ import lombok.Getter;
 public class RoleTypeRequest {
     @Enumerated(EnumType.STRING)
     @NotNull
-    private String userType;
+    private String roleType;
 
     public Role getRole() {
-        return Role.valueOf(userType.toUpperCase());
+        return Role.valueOf(roleType.toUpperCase());
     }
 }

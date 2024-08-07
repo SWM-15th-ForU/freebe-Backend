@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.config;
+package com.foru.freebe.jwt.filter;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.foru.freebe.auth.service.JwtProvider;
+import com.foru.freebe.jwt.service.JwtProvider;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -40,7 +40,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }
-
         filterChain.doFilter(request, response);
     }
 }

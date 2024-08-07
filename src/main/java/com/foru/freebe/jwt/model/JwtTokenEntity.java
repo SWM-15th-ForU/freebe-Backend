@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.model;
+package com.foru.freebe.jwt.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

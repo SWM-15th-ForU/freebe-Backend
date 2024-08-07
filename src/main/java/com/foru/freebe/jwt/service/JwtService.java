@@ -1,11 +1,11 @@
-package com.foru.freebe.auth.service;
+package com.foru.freebe.jwt.service;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.auth.model.JwtTokenEntity;
-import com.foru.freebe.auth.model.JwtTokenModel;
 import com.foru.freebe.auth.model.KakaoUser;
-import com.foru.freebe.auth.repository.JwtTokenRepository;
+import com.foru.freebe.jwt.model.JwtTokenEntity;
+import com.foru.freebe.jwt.model.JwtTokenModel;
+import com.foru.freebe.jwt.repository.JwtTokenRepository;
 
 import lombok.RequiredArgsConstructor;
 

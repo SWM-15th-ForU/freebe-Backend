@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.service;
+package com.foru.freebe.jwt.service;
 
 import java.util.Date;
 
@@ -7,6 +7,9 @@ import javax.crypto.SecretKey;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+
+import com.foru.freebe.auth.service.CustomUserDetails;
+import com.foru.freebe.auth.service.CustomUserDetailsService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;

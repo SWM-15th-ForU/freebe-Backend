@@ -10,8 +10,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.foru.freebe.auth.config.CustomAuthenticationSuccessHandler;
-import com.foru.freebe.auth.config.JwtAuthenticationFilter;
+import com.foru.freebe.jwt.filter.JwtAuthenticationFilter;
+import com.foru.freebe.jwt.handler.CustomAuthenticationSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 

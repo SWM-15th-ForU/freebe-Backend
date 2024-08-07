@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.config;
+package com.foru.freebe.jwt.handler;
 
 import java.io.IOException;
 
@@ -8,9 +8,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
-import com.foru.freebe.auth.model.JwtTokenModel;
 import com.foru.freebe.auth.model.KakaoUser;
-import com.foru.freebe.auth.service.JwtService;
+import com.foru.freebe.jwt.model.JwtTokenModel;
+import com.foru.freebe.jwt.service.JwtService;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

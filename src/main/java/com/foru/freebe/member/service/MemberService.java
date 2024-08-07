@@ -23,8 +23,8 @@ public class MemberService {
         memberRepository.save(member);
     }
 
-    public void updateMemberRole(KakaoUser kakaoUser, Role role) {
-        Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getName());
+    public void updateMemberRole(Long id, Role role) {
+        Optional<Member> member = memberRepository.findByKakaoId(id);
         if (member.isPresent()) {
             member.get().updateRole(role);
             memberRepository.save(member.get());

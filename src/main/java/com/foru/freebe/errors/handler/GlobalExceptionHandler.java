@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ErrorCode;
+import com.foru.freebe.errors.exception.JwtTokenException;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.errors.response.ErrorResponse;
 
@@ -24,6 +25,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // 우리가 직접 커스텀한 에러 API
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<Object> handleCustomException(RestApiException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode);
+    }
+
+    @ExceptionHandler(JwtTokenException.class)
+    public ResponseEntity<Object> handleJwtAuthenticationException(JwtTokenException e) {
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }

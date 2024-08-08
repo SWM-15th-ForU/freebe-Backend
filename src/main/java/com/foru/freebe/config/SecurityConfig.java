@@ -11,6 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.foru.freebe.jwt.filter.JwtAuthenticationFilter;
+import com.foru.freebe.jwt.filter.JwtExceptionFilter;
 import com.foru.freebe.jwt.handler.CustomAuthenticationSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
@@ -21,24 +22,26 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf((csrf) -> csrf.disable())
             .cors(withDefaults())
-            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-        http.authorizeHttpRequests((request) -> request
-            .requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
-            .requestMatchers("/admin").hasAnyRole("ADMIN")
-            .anyRequest().permitAll());
+            .authorizeHttpRequests((request) -> request
+                .requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
+                .requestMatchers("/admin").hasAnyRole("ADMIN")
+                .anyRequest().permitAll())
 
-        http.oauth2Login((oauth2) -> oauth2
-            .successHandler(customAuthenticationSuccessHandler)
-            .failureUrl("/"));
+            .oauth2Login((oauth2) -> oauth2
+                .successHandler(customAuthenticationSuccessHandler)
+                .failureUrl("/"))
 
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 }

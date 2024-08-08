@@ -13,7 +13,6 @@ import com.foru.freebe.auth.service.CustomUserDetailsService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import lombok.RequiredArgsConstructor;
 
@@ -61,13 +60,8 @@ public class JwtProvider {
     }
 
     public boolean isTokenValidate(String token) {
-        try {
-            Jws<Claims> claims = parseClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            System.out.println("Invalid JWT token " + e.getMessage());
-            return false;
-        }
+        Jws<Claims> claims = parseClaims(token);
+        return true;
     }
 
     public Authentication getAuthentication(String token) {

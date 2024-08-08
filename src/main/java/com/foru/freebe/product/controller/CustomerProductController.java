@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/photographer/product")
+@RequestMapping("/customer/product")
 public class CustomerProductController {
     private final CustomerProductService customerProductService;
 

@@ -8,8 +8,10 @@ import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @NoArgsConstructor
 public class ProductResponse {
     @NotNull

@@ -14,15 +14,15 @@ import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
-import com.foru.freebe.product.service.ProductService;
+import com.foru.freebe.product.service.PhotographerProductService;
 
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product")
-public class ProductController {
-    private final ProductService productService;
+@RequestMapping("/photographer/product")
+public class PhotographerProductController {
+    private final PhotographerProductService productService;
 
     @PostMapping("/")
     public ApiResponse<Void> registerProduct(@RequestBody ProductRegisterRequest productRegisterRequestDto) {

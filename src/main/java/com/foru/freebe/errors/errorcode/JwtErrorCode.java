@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum JwtErrorCode implements ErrorCode {
     EXPIRED_TOKEN(401, "Expired token"),
-    SIGNATURE_MISMATCH(401, "Signature mismatch");
+    INVALID_TOKEN(400, "Invalid token");
 
     private final int httpStatus;
     private final String message;

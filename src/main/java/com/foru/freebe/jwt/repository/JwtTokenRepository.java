@@ -9,4 +9,6 @@ import com.foru.freebe.jwt.model.JwtTokenEntity;
 
 public interface JwtTokenRepository extends JpaRepository<JwtTokenEntity, Long> {
     Optional<List<JwtTokenEntity>> findByMemberId(Long memberId);
+
+    Optional<JwtTokenEntity> findByRefreshToken(String refreshToken);
 }

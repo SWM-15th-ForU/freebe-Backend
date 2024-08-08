@@ -3,7 +3,6 @@ package com.foru.freebe.product.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponseDto;
@@ -71,7 +70,7 @@ public class ProductService {
         }
 
         return ApiResponseDto.<Void>builder()
-            .status(HttpStatus.OK)
+            .status(200)
             .message("Successfully added")
             .data(null)
             .build();
@@ -92,7 +91,7 @@ public class ProductService {
             .collect(Collectors.toList());
 
         return ApiResponseDto.<List<RegisteredProductResponseDto>>builder()
-            .status(HttpStatus.OK)
+            .status(200)
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
             .build();
@@ -105,7 +104,7 @@ public class ProductService {
         product.updateProductActiveStatus(requestDto.getActiveStatus());
 
         return ApiResponseDto.<Void>builder()
-            .status(HttpStatus.OK)
+            .status(200)
             .message("Successfully updated product active status")
             .data(null)
             .build();

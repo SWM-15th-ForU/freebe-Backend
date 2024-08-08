@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductRegisterRequestDto {
+public class ProductRegisterRequest {
     @NotNull
     private Long memberId;
     @NotNull

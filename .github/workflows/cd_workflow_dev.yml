@@ -34,6 +34,7 @@ jobs:
           echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

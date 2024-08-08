@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -14,16 +15,26 @@ import com.foru.freebe.auth.service.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
     private final CustomUserDetailsService customUserDetailsService;
+
+    @Value("${JWT_SECRET_KEY}")
+    private String jwtSecretKey;
+    private SecretKey secretKey;
+
     private static final long ACCESS_TOKEN_TIME = 1000 * 60 * 30;
-    // private static final long ACCESS_TOKEN_TIME = 1000 * 5; //5초
     private static final long REFRESH_TOKEN_TIME = 1000 * 60 * 60 * 24 * 14;
-    private static final SecretKey secretKey = Jwts.SIG.HS256.key().build();
+
+    @PostConstruct
+    public void init() {
+        this.secretKey = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
+    }
 
     public String generateAccessToken(Long id) {
         Claims claims = Jwts.claims()

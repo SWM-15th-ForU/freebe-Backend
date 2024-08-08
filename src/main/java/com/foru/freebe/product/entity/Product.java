@@ -1,12 +1,19 @@
 package com.foru.freebe.product.entity;
 
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.entity.Member;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -30,17 +37,29 @@ public class Product {
     @NotNull
     private ActiveStatus activeStatus;
 
-    public Product(String title, String description, ActiveStatus activeStatus) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private Member member;
+
+    public Product(String title, String description, ActiveStatus activeStatus, Member member) {
         this.title = title;
         this.description = description;
         this.activeStatus = activeStatus;
+        this.member = member;
     }
 
-    public static Product createProductAsActive(String title, String description) {
-        return new Product(title, description, ActiveStatus.ACTIVE);
+    public static Product createProductAsActive(String title, String description, Member member) {
+        return new Product(title, description, ActiveStatus.ACTIVE, member);
     }
 
-    public static Product createProductAsActiveWithoutDescription(String title) {
-        return new Product(title, null, ActiveStatus.ACTIVE);
+    public static Product createProductAsActiveWithoutDescription(String title, Member member) {
+        return new Product(title, null, ActiveStatus.ACTIVE, member);
+    }
+
+    public void updateProductActiveStatus(ActiveStatus newStatus) {
+        if (this.activeStatus == newStatus) {
+            throw new RestApiException(ProductErrorCode.INVALID_ACTIVE_STATUS);
+        }
+        this.activeStatus = newStatus;
     }
 }

@@ -110,8 +110,8 @@ public class ProductService {
             .build();
     }
 
-    private Member getMember(Long productRegisterRequestDto) {
-        return memberRepository.findById(productRegisterRequestDto)
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 

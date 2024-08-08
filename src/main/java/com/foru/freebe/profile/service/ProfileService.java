@@ -1,6 +1,5 @@
 package com.foru.freebe.profile.service;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -22,27 +21,27 @@ public class ProfileService {
 
     public String registerUniqueUrl(Long id) {
         String uniqueUrl = null;
-        Optional<Member> member = memberRepository.findByKakaoId(id);
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Member not found"));
 
-        if (member.isPresent()) {
-            Profile profile = member.get().getProfile();
+        Profile profile = member.getProfile();
 
-            if (profile == null || profile.getUniqueUrl() == null) {
-                uniqueUrl = generateUniqueUrl();
+        if (profile == null || profile.getUniqueUrl() == null) {
+            uniqueUrl = generateUniqueUrl();
 
-                if (profile == null) {
-                    profile = Profile.builder()
-                        .uniqueUrl(uniqueUrl)
-                        .introductionContent(null)
-                        .bannerImageUrl(null)
-                        .build();
-                    member.get().updateProfile(profile);
-                } else {
-                    profile.updateUniqueUrl(uniqueUrl);
-                }
+            if (profile == null) {
+                profile = Profile.builder()
+                    .uniqueUrl(uniqueUrl)
+                    .introductionContent(null)
+                    .bannerImageUrl(null)
+                    .build();
+                member.updateProfile(profile);
+            } else {
+                profile.updateUniqueUrl(uniqueUrl);
             }
-            profileRepository.save(profile);
         }
+        profileRepository.save(profile);
+
         return uniqueUrl;
     }
 

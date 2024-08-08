@@ -15,19 +15,23 @@ public class MemberService {
     @Autowired
     private MemberRepository memberRepository;
 
-    public void register(KakaoUser kakaoUser) {
-        Member member = Member.builder(kakaoUser.getName(), Role.PENDING, kakaoUser.getUserName(),
-                kakaoUser.getEmail(),
-                kakaoUser.getPhoneNumber())
-            .build();
-        memberRepository.save(member);
+    public Member registerKakaoUser(KakaoUser kakaoUser) {
+        Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getKakaoId());
+        if (member.isPresent()) {
+            return member.get();
+        }
+
+        Member newMember = Member.builder(kakaoUser.getKakaoId(), Role.PENDING, kakaoUser.getUserName(),
+            kakaoUser.getEmail(), kakaoUser.getPhoneNumber()).build();
+
+        return memberRepository.save(newMember);
     }
 
     public void updateMemberRole(Long id, Role role) {
-        Optional<Member> member = memberRepository.findByKakaoId(id);
-        if (member.isPresent()) {
-            member.get().updateRole(role);
-            memberRepository.save(member.get());
-        }
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        member.updateRole(role);
+        memberRepository.save(member);
     }
 }

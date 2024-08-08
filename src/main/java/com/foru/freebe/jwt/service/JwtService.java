@@ -1,8 +1,10 @@
 package com.foru.freebe.jwt.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.jwt.model.JwtTokenEntity;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
@@ -15,11 +17,11 @@ public class JwtService {
     private final JwtTokenRepository jwtTokenRepository;
     private final JwtProvider jwtProvider;
 
-    public JwtTokenModel generateToken(KakaoUser kakaoUser) {
-        String accessToken = jwtProvider.generateAccessToken(kakaoUser.getName());
-        String refreshToken = jwtProvider.generateRefreshToken(kakaoUser.getName());
+    public JwtTokenModel generateToken(Long id) {
+        String accessToken = jwtProvider.generateAccessToken(id);
+        String refreshToken = jwtProvider.generateRefreshToken(id);
 
-        saveRefreshToken(kakaoUser.getName(), refreshToken);
+        saveRefreshToken(id, refreshToken);
 
         return new JwtTokenModel(accessToken, refreshToken);
     }

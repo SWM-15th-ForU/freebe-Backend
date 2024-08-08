@@ -1,5 +1,9 @@
 package com.foru.freebe.jwt.model;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,17 +23,20 @@ public class JwtTokenEntity {
     private Long id;
 
     @NotNull
-    private Long kakaoId;
+    private Long memberId;
 
     @NotNull
     private String refreshToken;
 
-    private JwtTokenEntity(Long kakaoId, String refreshToken) {
-        this.kakaoId = kakaoId;
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+
+    private JwtTokenEntity(Long memberId, String refreshToken) {
+        this.memberId = memberId;
         this.refreshToken = refreshToken;
     }
 
-    public static JwtTokenEntity createJwtToken(Long kakaoId, String refreshToken) {
-        return new JwtTokenEntity(kakaoId, refreshToken);
+    public static JwtTokenEntity createJwtToken(Long memberId, String refreshToken) {
+        return new JwtTokenEntity(memberId, refreshToken);
     }
 }

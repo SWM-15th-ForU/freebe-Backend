@@ -2,14 +2,13 @@ package com.foru.freebe.product.service;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponseDto;
-import com.foru.freebe.product.dto.ProductComponentDto;
-import com.foru.freebe.product.dto.ProductDiscountDto;
-import com.foru.freebe.product.dto.ProductOptionDto;
-import com.foru.freebe.product.dto.ProductRegisterRequestDto;
+import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.product.dto.photographer.ProductComponentDto;
+import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
+import com.foru.freebe.product.dto.photographer.ProductOptionDto;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequestDto;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -32,7 +31,7 @@ public class ProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    public ApiResponseDto<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
+    public ApiResponse<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
@@ -59,8 +58,8 @@ public class ProductService {
             registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }
 
-        return ApiResponseDto.<Void>builder()
-            .status(HttpStatus.CREATED)
+        return ApiResponse.<Void>builder()
+            .status(200)
             .message("Successfully added")
             .data(null)
             .build();

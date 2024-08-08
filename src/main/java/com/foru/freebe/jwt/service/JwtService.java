@@ -26,8 +26,10 @@ public class JwtService {
         return new JwtTokenModel(accessToken, refreshToken);
     }
 
-    private void saveRefreshToken(Long kakaoId, String refreshToken) {
-        JwtTokenEntity jwtToken = JwtTokenEntity.createJwtToken(kakaoId, refreshToken);
-        jwtTokenRepository.save(jwtToken);
+    private void saveRefreshToken(Long id, String refreshToken) {
+        Optional<List<JwtTokenEntity>> jwtToken = jwtTokenRepository.findByMemberId(id);
+        jwtToken.ifPresent(jwtTokenRepository::deleteAll);
+        JwtTokenEntity newToken = JwtTokenEntity.createJwtToken(id, refreshToken);
+        jwtTokenRepository.save(newToken);
     }
 }

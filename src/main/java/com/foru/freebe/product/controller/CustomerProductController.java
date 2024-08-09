@@ -19,8 +19,9 @@ import lombok.RequiredArgsConstructor;
 public class CustomerProductController {
     private final CustomerProductService customerProductService;
 
-    @GetMapping("/{id}")
-    public ApiResponse<List<ProductResponse>> getAllProducts(@PathVariable("id") Long photographerId) {
-        return customerProductService.getAllProductsByPhotographerId(photographerId);
+    @GetMapping("/detail-info/{id}")
+    public ApiResponse<ProductResponse> getDetailedInfoOfProduct(@PathVariable("id") Long productId) {
+        return customerProductService.getDetailedInfoOfProduct(productId);
     }
+}
 }

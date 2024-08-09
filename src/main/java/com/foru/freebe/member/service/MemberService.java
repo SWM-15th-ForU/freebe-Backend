@@ -1,7 +1,5 @@
 package com.foru.freebe.member.service;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,16 +15,9 @@ public class MemberService {
     @Autowired
     private MemberRepository memberRepository;
 
-    public Member registerKakaoUser(KakaoUser kakaoUser) {
-        Optional<Member> member = memberRepository.findByKakaoId(kakaoUser.getKakaoId());
-        if (member.isPresent()) {
-            return member.get();
-        }
-
-        Member newMember = Member.builder(kakaoUser.getKakaoId(), Role.PENDING, kakaoUser.getUserName(),
-            kakaoUser.getEmail(), kakaoUser.getPhoneNumber()).build();
-
-        return memberRepository.save(newMember);
+    public Member findOrRegisterMember(KakaoUser kakaoUser) {
+        return memberRepository.findByKakaoId(kakaoUser.getKakaoId())
+            .orElseGet(() -> registerNewMember(kakaoUser));
     }
 
     public void assignMemberRole(Long id, Role role) {
@@ -35,5 +26,12 @@ public class MemberService {
 
         member.assignRole(role);
         memberRepository.save(member);
+    }
+
+    private Member registerNewMember(KakaoUser kakaoUser) {
+        Member newMember = Member.builder(kakaoUser.getKakaoId(), Role.PENDING, kakaoUser.getUserName(),
+            kakaoUser.getEmail(), kakaoUser.getPhoneNumber()).build();
+
+        memberRepository.save(newMember);
     }
 }

@@ -25,7 +25,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
         KakaoUser kakaoUser = new KakaoUser(oAuth2User);
-        Member member = memberService.registerKakaoUser(kakaoUser);
+        Member member = memberService.findOrRegisterMember(kakaoUser);
 
         return new MemberAdapter(member, kakaoUser.getAttributes());
     }

@@ -42,7 +42,7 @@ public class ProductService {
 
     public ApiResponse<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         Member member = getMember(productRegisterRequestDto.getMemberId());
-
+        
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
@@ -78,6 +78,7 @@ public class ProductService {
 
     public ApiResponse<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
         Member member = getMember(memberId);
+
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 

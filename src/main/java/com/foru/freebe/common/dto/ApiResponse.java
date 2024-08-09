@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
-public class ApiResponseDto<T> {
+public class ApiResponse<T> {
     private int status;
     private String message;
     private T data;

@@ -34,10 +34,6 @@ public class KakaoUser {
         return (String)kakaoAccount.get("phone_number");
     }
 
-    public String getPhoneNumberFormatE164() {
-        return "+" + getPhoneNumber().replaceAll("\\D", "");
-    }
-
     public Integer getBirthYear() {
         return (Integer)kakaoAccount.get("birth_year");
     }

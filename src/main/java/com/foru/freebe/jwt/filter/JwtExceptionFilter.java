@@ -27,7 +27,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             response.setContentType("application/json");
             response.getWriter().write(e.getMessage());
         } catch (JwtException e) {
-            response.setStatus(402);
+            response.setStatus(400);
+            response.setContentType("application/json");
+            response.getWriter().write(e.getMessage());
         }
     }
 }

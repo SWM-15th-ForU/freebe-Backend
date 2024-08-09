@@ -25,8 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // 우리가 직접 커스텀한 에러 API
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<Object> handleCustomException(RestApiException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        return handleExceptionInternal(errorCode);
+        return handleExceptionInternal(e.getErrorCode());
     }
 
     @ExceptionHandler(JwtTokenException.class)

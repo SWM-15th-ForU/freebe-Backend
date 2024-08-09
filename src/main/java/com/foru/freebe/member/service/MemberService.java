@@ -32,6 +32,6 @@ public class MemberService {
         Member newMember = Member.builder(kakaoUser.getKakaoId(), Role.PENDING, kakaoUser.getUserName(),
             kakaoUser.getEmail(), kakaoUser.getPhoneNumber()).build();
 
-        memberRepository.save(newMember);
+        return memberRepository.save(newMember);
     }
 }

@@ -29,11 +29,11 @@ public class MemberService {
         return memberRepository.save(newMember);
     }
 
-    public void updateMemberRole(Long id, Role role) {
+    public void assignMemberRole(Long id, Role role) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        member.updateRole(role);
+        member.assignRole(role);
         memberRepository.save(member);
     }
 }

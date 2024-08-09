@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
-import com.foru.freebe.jwt.model.JwtTokenEntity;
+import com.foru.freebe.jwt.model.JwtToken;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
 
@@ -29,9 +29,9 @@ public class JwtService {
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
-        Optional<List<JwtTokenEntity>> jwtToken = jwtTokenRepository.findByMemberId(id);
+        Optional<List<JwtToken>> jwtToken = jwtTokenRepository.findByMemberId(id);
         jwtToken.ifPresent(jwtTokenRepository::deleteAll);
-        JwtTokenEntity newToken = JwtTokenEntity.createJwtToken(id, refreshToken);
+        JwtToken newToken = JwtToken.createJwtToken(id, refreshToken);
         jwtTokenRepository.save(newToken);
     }
 
@@ -43,7 +43,7 @@ public class JwtService {
             throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
         }
 
-        JwtTokenEntity jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)
+        JwtToken jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
 
         Long memberId = jwtToken.getMemberId();

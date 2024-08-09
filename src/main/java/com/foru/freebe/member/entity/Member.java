@@ -66,7 +66,7 @@ public class Member {
         return "ROLE_" + role.name();
     }
 
-    public void updateRole(Role role) {
+    public void assignRole(Role role) {
         this.role = role;
     }
 

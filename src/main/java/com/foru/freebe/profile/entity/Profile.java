@@ -33,7 +33,7 @@ public class Profile {
 
     private String bannerImageUrl;
 
-    public void updateUniqueUrl(String uniqueUrl) {
+    public void assignUniqueUrl(String uniqueUrl) {
         this.uniqueUrl = uniqueUrl;
     }
 

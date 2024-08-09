@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class JwtTokenEntity {
+public class JwtToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "token_id")
@@ -31,12 +31,12 @@ public class JwtTokenEntity {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    private JwtTokenEntity(Long memberId, String refreshToken) {
+    private JwtToken(Long memberId, String refreshToken) {
         this.memberId = memberId;
         this.refreshToken = refreshToken;
     }
 
-    public static JwtTokenEntity createJwtToken(Long memberId, String refreshToken) {
-        return new JwtTokenEntity(memberId, refreshToken);
+    public static JwtToken createJwtToken(Long memberId, String refreshToken) {
+        return new JwtToken(memberId, refreshToken);
     }
 }

@@ -17,7 +17,8 @@ public class ProfileService {
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
 
-    private static final String BASE_URL = "https://freebe.co.kr/photographer/";
+    @Value("${FREEBE_BASE_URL}")
+    private String freebeBaseUrl;
 
     public String registerUniqueUrl(Long id) {
         String uniqueUrl = null;
@@ -47,6 +48,6 @@ public class ProfileService {
 
     private String generateUniqueUrl() {
         String uniqueId = UUID.randomUUID().toString();
-        return BASE_URL + uniqueId;
+        return freebeBaseUrl + "/photographer/" + uniqueId;
     }
 }

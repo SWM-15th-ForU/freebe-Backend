@@ -5,10 +5,10 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.foru.freebe.jwt.model.JwtTokenEntity;
+import com.foru.freebe.jwt.model.JwtToken;
 
-public interface JwtTokenRepository extends JpaRepository<JwtTokenEntity, Long> {
-    Optional<List<JwtTokenEntity>> findByMemberId(Long memberId);
+public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
+    Optional<List<JwtToken>> findByMemberId(Long memberId);
 
-    Optional<JwtTokenEntity> findByRefreshToken(String refreshToken);
+    Optional<JwtToken> findByRefreshToken(String refreshToken);
 }

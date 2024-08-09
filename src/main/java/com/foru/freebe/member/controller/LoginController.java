@@ -25,7 +25,7 @@ public class LoginController {
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member member = memberAdapter.getMember();
         memberService.assignMemberRole(member.getId(), roleTypeRequest.getRole());
-        String uniqueUrl = profileService.registerUniqueUrl(member.getId());
+        String uniqueUrl = profileService.getUniqueUrl(member.getId());
 
         return ApiResponse.<String>builder()
             .status(200)

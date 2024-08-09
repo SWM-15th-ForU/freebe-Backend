@@ -2,8 +2,11 @@ package com.foru.freebe.profile.service;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.profile.entity.Profile;
@@ -20,30 +23,33 @@ public class ProfileService {
     @Value("${FREEBE_BASE_URL}")
     private String freebeBaseUrl;
 
-    public String registerUniqueUrl(Long id) {
-        String uniqueUrl = null;
+    public String getUniqueUrl(Long id) {
         Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Member not found"));
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        Profile profile = member.getProfile();
+        Profile profile = profileRepository.findByMember(member)
+            .orElseGet(() -> createMemberProfile(member));
 
-        if (profile == null || profile.getUniqueUrl() == null) {
-            uniqueUrl = generateUniqueUrl();
-
-            if (profile == null) {
-                profile = Profile.builder()
-                    .uniqueUrl(uniqueUrl)
-                    .introductionContent(null)
-                    .bannerImageUrl(null)
-                    .build();
-                member.updateProfile(profile);
-            } else {
-                profile.updateUniqueUrl(uniqueUrl);
-            }
+        if (profile.getUniqueUrl() == null) {
+            saveUniqueUrl(profile);
         }
-        profileRepository.save(profile);
 
-        return uniqueUrl;
+        return profile.getUniqueUrl();
+    }
+
+    private Profile createMemberProfile(Member member) {
+        return Profile.builder()
+            .uniqueUrl(null)
+            .introductionContent(null)
+            .bannerImageUrl(null)
+            .member(member)
+            .build();
+    }
+
+    private void saveUniqueUrl(Profile profile) {
+        String uniqueUrl = generateUniqueUrl();
+        profile.assignUniqueUrl(uniqueUrl);
+        profileRepository.save(profile);
     }
 
     private String generateUniqueUrl() {

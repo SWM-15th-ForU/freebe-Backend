@@ -8,7 +8,9 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.product.dto.customer.ProductBasicInfoResponse;
 import com.foru.freebe.product.dto.customer.ProductResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
@@ -58,6 +60,32 @@ public class CustomerProductService {
             .status(200)
             .message("Good Response")
             .data(productResponse)
+            .build();
+    }
+
+    public ApiResponse<List<ProductBasicInfoResponse>> getBasicInfoOfAllProducts(Long photographerId) {
+        Member photographer = memberRepository.findById(photographerId)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        List<Product> products = productRepository.findByMember(photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        List<ProductBasicInfoResponse> productBasicInfoResponseList = new ArrayList<>();
+        for (Product product : products) {
+            List<ProductImage> productImage = productImageRepository.findByProduct(product);
+
+            ProductBasicInfoResponse productBasicInfoResponse = ProductBasicInfoResponse.builder()
+                .productId(product.getId())
+                .productTitle(product.getTitle())
+                .productRepresentativeImageUrl(productImage.get(0).getOriginUrl())
+                .build();
+
+            productBasicInfoResponseList.add(productBasicInfoResponse);
+        }
+        return ApiResponse.<List<ProductBasicInfoResponse>>builder()
+            .status(200)
+            .message("Good Request")
+            .data(productBasicInfoResponseList)
             .build();
     }
 

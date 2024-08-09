@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.model.KakaoUser;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -29,7 +31,7 @@ public class MemberService {
 
     public void updateMemberRole(Long id, Role role) {
         Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Member not found"));
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         member.updateRole(role);
         memberRepository.save(member);

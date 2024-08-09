@@ -36,8 +36,11 @@ public class JwtService {
     }
 
     public JwtTokenModel reissueRefreshToken(String refreshToken) {
-        if (refreshToken == null || !jwtProvider.isTokenValidate(refreshToken)) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
             throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+        }
+        if (!jwtProvider.isTokenValidate(refreshToken)) {
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
         }
 
         JwtTokenEntity jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)

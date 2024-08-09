@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
         String path = request.getRequestURI();
-        String[] excludePath = {"/login", "/"};
+        String[] excludePath = {"/login/redirect", "/login", "/"};
         return Arrays.asList(excludePath).contains(path);
     }
 
@@ -38,12 +38,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             String accessToken = request.getHeader("Authorization");
-            if (accessToken != null && accessToken.startsWith("Bearer ")) {
-                accessToken = accessToken.substring(7);
-                if (jwtProvider.isTokenValidate(accessToken)) {
-                    Authentication auth = jwtProvider.getAuthentication(accessToken);
-                    SecurityContextHolder.getContext().setAuthentication(auth);
-                }
+
+            if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+                throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+            }
+
+            accessToken = accessToken.substring(7);
+            if (jwtProvider.isTokenValidate(accessToken)) {
+                Authentication auth = jwtProvider.getAuthentication(accessToken);
+                SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (ExpiredJwtException e) {
             throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);

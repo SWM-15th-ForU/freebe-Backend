@@ -4,9 +4,12 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.product.entity.ActiveStatus;
+import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.ReservationFormRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -45,6 +48,7 @@ public class ReservationFormService {
             .reservationStatus(ReservationStatus.NEW)
             .build();
 
+        validateActiveStatusOfProduct(reservationFormRequest, reservationForm);
         reservationFormRepository.save(reservationForm);
 
         return ApiResponse.<Void>builder()
@@ -52,6 +56,14 @@ public class ReservationFormService {
             .message("Good Request")
             .data(null)
             .build();
+    }
+
+    private void validateActiveStatusOfProduct(ReservationFormRequest reservationFormRequest,
+        ReservationForm reservationForm) {
+        Product product = productRepository.findByTitle(reservationFormRequest.getProductTitle());
+        if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
+            throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);
+        }
     }
 
     private void validateProductTitleExists(String productTitle) {

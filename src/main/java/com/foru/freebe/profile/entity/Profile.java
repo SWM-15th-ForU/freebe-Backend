@@ -1,5 +1,6 @@
 package com.foru.freebe.profile.entity;
 
+import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
 
 import jakarta.persistence.Column;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Profile {
+public class Profile extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "profile_id")

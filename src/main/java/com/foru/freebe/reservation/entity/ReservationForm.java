@@ -1,5 +1,6 @@
 package com.foru.freebe.reservation.entity;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class ReservationForm {
 
     @Type(JsonType.class)
     @Column(name = "photo_schedule", columnDefinition = "longtext")
-    private Map<String, String> photoSchedule = new HashMap<>();
+    private Map<Integer, LocalDateTime> photoSchedule = new HashMap<>();
 
     private String requestMemo;
 
@@ -71,7 +72,7 @@ public class ReservationForm {
 
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Map<String, String> photoInfo, Map<String, String> photoSchedule, String requestMemo,
+        Map<String, String> photoInfo, Map<Integer, LocalDateTime> photoSchedule, String requestMemo,
         String photographerMemo, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
         ReservationStatus reservationStatus) {
         this.photographer = photographer;

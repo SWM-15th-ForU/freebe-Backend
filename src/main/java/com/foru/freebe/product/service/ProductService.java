@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponseDto;
+import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -40,7 +40,7 @@ public class ProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
 
-    public ApiResponseDto<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
+    public ApiResponse<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
         Member member = getMember(productRegisterRequestDto.getMemberId());
 
         String productTitle = productRegisterRequestDto.getProductTitle();
@@ -69,14 +69,14 @@ public class ProductService {
             registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }
 
-        return ApiResponseDto.<Void>builder()
+        return ApiResponse.<Void>builder()
             .status(200)
             .message("Successfully added")
             .data(null)
             .build();
     }
 
-    public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
+    public ApiResponse<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
         Member member = getMember(memberId);
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
@@ -90,7 +90,7 @@ public class ProductService {
                 .build())
             .collect(Collectors.toList());
 
-        return ApiResponseDto.<List<RegisteredProductResponseDto>>builder()
+        return ApiResponse.<List<RegisteredProductResponseDto>>builder()
             .status(200)
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
@@ -98,12 +98,12 @@ public class ProductService {
     }
 
     @Transactional
-    public ApiResponseDto<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
+    public ApiResponse<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());
 
-        return ApiResponseDto.<Void>builder()
+        return ApiResponse.<Void>builder()
             .status(200)
             .message("Successfully updated product active status")
             .data(null)

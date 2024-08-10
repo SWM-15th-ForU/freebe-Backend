@@ -11,6 +11,8 @@ import com.foru.freebe.member.entity.Member;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -60,6 +62,7 @@ public class ReservationForm {
     @NotNull(message = "Photographer term agreement must not be null")
     private Boolean photographerTermAgreement;
 
+    @Enumerated(EnumType.STRING)
     @NotNull(message = "Reservation status must not be null")
     private ReservationStatus reservationStatus;
 

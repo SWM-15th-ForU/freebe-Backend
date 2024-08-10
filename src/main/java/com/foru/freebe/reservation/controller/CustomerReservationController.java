@@ -17,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/reservation")
+@RequestMapping("/customer")
 public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
 
-    @PostMapping("/")
+    @PostMapping("/reservation")
     public ApiResponse<Void> registerReservationForm(@Valid @RequestBody ReservationFormRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member customer = memberAdapter.getMember();

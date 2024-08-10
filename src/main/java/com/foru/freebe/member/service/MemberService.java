@@ -30,8 +30,10 @@ public class MemberService {
 
     private Member registerNewMember(KakaoUser kakaoUser) {
         Member newMember = Member.builder(kakaoUser.getKakaoId(), Role.PENDING, kakaoUser.getUserName(),
-            kakaoUser.getEmail(), kakaoUser.getPhoneNumber()).build();
-
+                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
+            .birthyear(kakaoUser.getBirthYear())
+            .gender(kakaoUser.getGender())
+            .build();
         return memberRepository.save(newMember);
     }
 }

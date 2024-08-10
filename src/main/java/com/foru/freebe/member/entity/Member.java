@@ -44,7 +44,7 @@ public class Member {
     @NotNull
     private String phoneNumber;
 
-    private Integer birthyear;
+    private Integer birthYear;
 
     private String gender;
 
@@ -69,7 +69,7 @@ public class Member {
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.birthyear = birthyear;
+        this.birthYear = birthyear;
         this.gender = gender;
         this.instagramId = instagramId;
     }

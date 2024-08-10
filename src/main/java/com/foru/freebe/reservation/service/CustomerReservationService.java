@@ -51,7 +51,6 @@ public class CustomerReservationService {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
-            .photographerMemo(request.getRequestMemo())
             .photoInfo(request.getPhotoInfo())
             .photoSchedule(request.getPhotoSchedule())
             .requestMemo(request.getRequestMemo());

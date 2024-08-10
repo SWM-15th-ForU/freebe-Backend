@@ -11,18 +11,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ReservationFormRequest {
     private Long photographerId;
-    private Long customerId; // TODO 추후 토큰 로직으로 대체
+
     @NotNull
     private String instagramId;
+
     @NotNull
     private String productTitle;
+
     private Map<String, String> photoInfo;
+
     private Map<Integer, LocalDateTime> photoSchedule;
+
     private String requestMemo;
+
     @NotNull
     private Long totalPrice;
+
     @NotNull
     private Boolean serviceTermAgreement;
+
     @NotNull
     private Boolean photographerTermAgreement;
 }

@@ -20,21 +20,35 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationFormService {
+public class CustomerReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
-    public ApiResponse<Void> registerReservationForm(ReservationFormRequest reservationFormRequest) {
-        Member customer = memberRepository.findById(reservationFormRequest.getCustomerId())
+    public ApiResponse<Void> registerReservationForm(Long customerId, ReservationFormRequest reservationFormRequest) {
+        Member customer = findMember(customerId);
+        Member photographer = findMember(reservationFormRequest.getPhotographerId());
+
+        ReservationForm reservationForm = createReservationForm(reservationFormRequest, photographer, customer);
+
+        validateReservationForm(reservationFormRequest);
+        reservationFormRepository.save(reservationForm);
+
+        return ApiResponse.<Void>builder()
+            .status(200)
+            .message("Good Request")
+            .data(null)
+            .build();
+    }
+
+    private Member findMember(Long id) {
+        return memberRepository.findById(id)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
 
-        Member photographer = memberRepository.findById(reservationFormRequest.getPhotographerId())
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        validateProductTitleExists(reservationFormRequest.getProductTitle());
-
-        ReservationForm reservationForm = ReservationForm.builder()
+    private static ReservationForm createReservationForm(ReservationFormRequest reservationFormRequest,
+        Member photographer, Member customer) {
+        return ReservationForm.builder()
             .photographer(photographer)
             .customer(customer)
             .instagramId(reservationFormRequest.getInstagramId())
@@ -47,20 +61,15 @@ public class ReservationFormService {
             .photographerTermAgreement(reservationFormRequest.getPhotographerTermAgreement())
             .reservationStatus(ReservationStatus.NEW)
             .build();
-
-        validateActiveStatusOfProduct(reservationFormRequest, reservationForm);
-        reservationFormRepository.save(reservationForm);
-
-        return ApiResponse.<Void>builder()
-            .status(200)
-            .message("Good Request")
-            .data(null)
-            .build();
     }
 
-    private void validateActiveStatusOfProduct(ReservationFormRequest reservationFormRequest,
-        ReservationForm reservationForm) {
-        Product product = productRepository.findByTitle(reservationFormRequest.getProductTitle());
+    private void validateReservationForm(ReservationFormRequest reservationFormRequest) {
+        validateProductTitleExists(reservationFormRequest.getProductTitle());
+        validateProductIsActive(reservationFormRequest.getProductTitle());
+    }
+
+    private void validateProductIsActive(String productTitle) {
+        Product product = productRepository.findByTitle(productTitle);
         if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
             throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);
         }

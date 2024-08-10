@@ -12,6 +12,7 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.ReservationFormRequest;
 import com.foru.freebe.reservation.service.CustomerReservationService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,9 +22,9 @@ public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
 
     @PostMapping("/")
-    public ApiResponse<Void> registerReservationForm(@RequestBody ReservationFormRequest reservationFormRequest,
+    public ApiResponse<Void> registerReservationForm(@Valid @RequestBody ReservationFormRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member customer = memberAdapter.getMember();
-        return customerReservationService.registerReservationForm(customer.getId(), reservationFormRequest);
+        return customerReservationService.registerReservationForm(customer.getId(), request);
     }
 }

@@ -46,21 +46,16 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private static ReservationForm createReservationForm(ReservationFormRequest reservationFormRequest,
+    private static ReservationForm createReservationForm(ReservationFormRequest request,
         Member photographer, Member customer) {
-        return ReservationForm.builder()
-            .photographer(photographer)
-            .customer(customer)
-            .instagramId(reservationFormRequest.getInstagramId())
-            .productTitle(reservationFormRequest.getProductTitle())
-            .photoInfo(reservationFormRequest.getPhotoInfo())
-            .photoSchedule(reservationFormRequest.getPhotoSchedule())
-            .requestMemo(reservationFormRequest.getRequestMemo())
-            .totalPrice(reservationFormRequest.getTotalPrice())
-            .serviceTermAgreement(reservationFormRequest.getServiceTermAgreement())
-            .photographerTermAgreement(reservationFormRequest.getPhotographerTermAgreement())
-            .reservationStatus(ReservationStatus.NEW)
-            .build();
+        ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
+                request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
+                request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
+            .photographerMemo(request.getRequestMemo())
+            .photoInfo(request.getPhotoInfo())
+            .photoSchedule(request.getPhotoSchedule())
+            .requestMemo(request.getRequestMemo());
+        return builder.build();
     }
 
     private void validateReservationForm(ReservationFormRequest reservationFormRequest) {

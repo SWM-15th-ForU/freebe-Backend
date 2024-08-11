@@ -31,8 +31,6 @@ public class Member {
     @NotNull
     private Long kakaoId;
 
-    private String instagramId;
-
     @Enumerated(EnumType.STRING)
     @NotNull
     private Role role;
@@ -46,9 +44,11 @@ public class Member {
     @NotNull
     private String phoneNumber;
 
-    private Integer birthyear;
+    private Integer birthYear;
 
     private String gender;
+
+    private String instagramId;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -62,16 +62,16 @@ public class Member {
     }
 
     @Builder
-    public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
-        Role role, String gender) {
+    public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, Integer birthyear,
+        String gender, String instagramId) {
         this.kakaoId = kakaoId;
-        this.instagramId = instagramId;
         this.role = role;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.birthyear = birthyear;
+        this.birthYear = birthyear;
         this.gender = gender;
+        this.instagramId = instagramId;
     }
 
     public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {

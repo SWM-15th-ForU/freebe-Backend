@@ -66,6 +66,7 @@ public class CustomerReservationFormService {
             .build();
     }
 
+    // TODO 추후 사진작가의 촬영 오픈일정 관련 로직이 추가되면 예약신청서 작성할 때 사진작가의 일정 조회 로직이 필요함
     public ApiResponse<BasicReservationInfoResponse> getBasicReservationInfo(Long customerId, Long productId) {
         Member customer = memberRepository.findById(customerId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));

@@ -89,7 +89,8 @@ public class PhotographerReservationService {
             reservationForm.getReservationStatus(),
             reservationForm.getCustomer().getName(),
             reservationForm.getProductTitle(),
-            reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
+            reservationForm.getReservationStatus() == ReservationStatus.NEW ? null :
+                reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
         );
     }
 

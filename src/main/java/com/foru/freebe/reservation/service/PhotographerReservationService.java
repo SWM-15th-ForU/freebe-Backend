@@ -41,29 +41,10 @@ public class PhotographerReservationService {
     }
 
     public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(Long photographerId, Long formId) {
-        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(
-                photographerId, formId)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        ReservationForm reservationForm = findReservationForm(photographerId, formId);
+        List<StatusHistory> statusHistories = getStatusHistories(reservationForm);
 
-        List<ReservationHistory> reservationHistory = reservationHistoryRepository.findAllByReservationForm(
-                reservationForm)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        List<StatusHistory> statusHistories = new ArrayList<>();
-        for (ReservationHistory reservationHistoryItem : reservationHistory) {
-            StatusHistory statusHistory = StatusHistory.builder()
-                .status(reservationHistoryItem.getReservationStatus())
-                .statusUpdateDate(reservationHistoryItem.getStatusUpdateDate())
-                .build();
-            statusHistories.add(statusHistory);
-        }
-
-        CustomerDetails customerDetails = CustomerDetails.builder()
-            .name(reservationForm.getCustomer().getName())
-            .phoneNumber(reservationForm.getCustomer().getPhoneNumber())
-            .instagramId(reservationForm.getInstagramId())
-            .build();
-
+        CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
         Map<String, String> shootDetails = reservationForm.getPhotoInfo();
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
 
@@ -106,5 +87,33 @@ public class PhotographerReservationService {
             reservationForm.getProductTitle(),
             reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
         );
+    }
+
+    private ReservationForm findReservationForm(Long photographerId, Long formId) {
+        return reservationFormRepository.findByPhotographerIdAndId(photographerId, formId)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    private List<StatusHistory> getStatusHistories(ReservationForm reservationForm) {
+        return reservationHistoryRepository.findAllByReservationForm(reservationForm)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND))
+            .stream()
+            .map(this::toStatusHistory)
+            .collect(Collectors.toList());
+    }
+
+    private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {
+        return StatusHistory.builder()
+            .status(reservationHistory.getReservationStatus())
+            .statusUpdateDate(reservationHistory.getStatusUpdateDate())
+            .build();
+    }
+
+    private CustomerDetails buildCustomerDetails(ReservationForm reservationForm) {
+        return CustomerDetails.builder()
+            .name(reservationForm.getCustomer().getName())
+            .phoneNumber(reservationForm.getCustomer().getPhoneNumber())
+            .instagramId(reservationForm.getInstagramId())
+            .build();
     }
 }

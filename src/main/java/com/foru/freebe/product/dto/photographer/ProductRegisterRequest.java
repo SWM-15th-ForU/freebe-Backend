@@ -10,8 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductRegisterRequest {
     @NotNull
-    private Long memberId;
-    @NotNull
     private String productTitle;
     private String productDescription;
     @NotNull

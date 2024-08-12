@@ -40,8 +40,8 @@ public class PhotographerProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
 
-    public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto) {
-        Member member = getMember(productRegisterRequestDto.getMemberId());
+    public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto, Long photographerId) {
+        Member member = getMember(photographerId);
 
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
@@ -76,8 +76,9 @@ public class PhotographerProductService {
             .build();
     }
 
-    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Long memberId) {
-        Member member = getMember(memberId);
+    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Long photographerId) {
+        Member member = getMember(photographerId);
+
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 

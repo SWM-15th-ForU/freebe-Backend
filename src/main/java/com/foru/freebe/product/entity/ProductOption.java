@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +28,7 @@ public class ProductOption {
     private String title;
 
     @NotNull
+    @PositiveOrZero
     private Integer price;
 
     private String description;
@@ -41,13 +43,5 @@ public class ProductOption {
         this.price = price;
         this.description = description;
         this.product = product;
-
-        validatePrice(price);
-    }
-
-    private void validatePrice(Integer price) {
-        if (price <= 0) {
-            throw new IllegalArgumentException("Price must be greater than 0.");
-        }
     }
 }

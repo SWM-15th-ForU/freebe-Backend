@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -40,31 +41,17 @@ public class ProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
 
-    public ApiResponse<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
-        Member member = getMember(productRegisterRequestDto.getMemberId());
-        
-        String productTitle = productRegisterRequestDto.getProductTitle();
-        String productDescription = productRegisterRequestDto.getProductDescription();
+    public ApiResponse<Void> registerProduct(Long memberId, ProductRegisterRequestDto productRegisterRequestDto) {
+        Member member = getMember(memberId);
 
-        // Active 상태의 product 추가
-        Product productAsActive;
-        if (productDescription != null) {
-            productAsActive = Product.createProductAsActive(productTitle, productDescription, member);
-        } else {
-            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, member);
-        }
-        productRepository.save(productAsActive);
-
+        Product productAsActive = registerActiveProduct(productRegisterRequestDto, member);
         registerProductImage(productRegisterRequestDto.getProductImageUrls(), productAsActive);
-        registerProductComponent(productRegisterRequestDto.getProductComponents(),
-            productAsActive);
+        registerProductComponent(productRegisterRequestDto.getProductComponents(), productAsActive);
 
-        // 상품에 옵션이 있을 때 option 추가
         if (productRegisterRequestDto.getProductOptions() != null) {
             registerProductOption(productRegisterRequestDto.getProductOptions(), productAsActive);
         }
 
-        // 상품에 할인이 있을 때 discount 추가
         if (productRegisterRequestDto.getProductDiscounts() != null) {
             registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }
@@ -109,6 +96,28 @@ public class ProductService {
             .message("Successfully updated product active status")
             .data(null)
             .build();
+    }
+
+    private Product registerActiveProduct(ProductRegisterRequestDto productRegisterRequestDto, Member member) {
+        String productTitle = productRegisterRequestDto.getProductTitle();
+        String productDescription = productRegisterRequestDto.getProductDescription();
+
+        Product productAsActive;
+        if (productDescription != null) {
+            productAsActive = Product.createProductAsActive(productTitle, productDescription, member);
+        } else {
+            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, member);
+        }
+
+        validateProductTitle(productTitle);
+        return productRepository.save(productAsActive);
+    }
+
+    private void validateProductTitle(String productTitle) {
+        Product product = productRepository.findByTitle(productTitle);
+        if (product != null) {
+            throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
+        }
     }
 
     private Member getMember(Long memberId) {

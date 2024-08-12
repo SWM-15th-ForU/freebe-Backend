@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.product.dto.ProductRegisterRequestDto;
-import com.foru.freebe.product.dto.RegisteredProductResponseDto;
-import com.foru.freebe.product.dto.UpdateProductRequestDto;
-import com.foru.freebe.product.service.ProductService;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
+import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
+import com.foru.freebe.product.service.PhotographerProductService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,24 +24,26 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/photographer/product")
-public class ProductController {
-    private final ProductService productService;
+public class PhotographerProductController {
+    private final PhotographerProductService productService;
 
     @PostMapping("/")
-    public ApiResponse<Void> registerProduct(@Valid @RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
-        return productService.registerProduct(productRegisterRequestDto);
+    public ApiResponse<Void> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
+        @Valid @RequestBody ProductRegisterRequest productRegisterRequest) {
+        Member photographer = memberAdapter.getMember();
+        return productService.registerProduct(productRegisterRequest, photographer.getId());
     }
 
-    @GetMapping("/registered-product")
-    public ApiResponse<List<RegisteredProductResponseDto>> getRegisteredProductList(
+    @GetMapping("/registered-product/{id}")
+    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member photographer = memberAdapter.getMember();
         return productService.getRegisteredProductList(photographer.getId());
     }
 
     @PutMapping("/update-status")
-    public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequestDto requestDto) {
-        return productService.updateProductActiveStatus(requestDto);
+    public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequest updateProductRequest) {
+        return productService.updateProductActiveStatus(updateProductRequest);
     }
 
 }

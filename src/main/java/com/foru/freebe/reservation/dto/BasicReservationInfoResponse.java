@@ -2,8 +2,8 @@ package com.foru.freebe.reservation.dto;
 
 import java.util.List;
 
-import com.foru.freebe.product.dto.ProductComponentDto;
-import com.foru.freebe.product.dto.ProductOptionDto;
+import com.foru.freebe.product.dto.photographer.ProductComponentDto;
+import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 
 import lombok.Builder;
 import lombok.Getter;

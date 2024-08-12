@@ -1,4 +1,4 @@
-package com.foru.freebe.product.dto;
+package com.foru.freebe.product.dto.photographer;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

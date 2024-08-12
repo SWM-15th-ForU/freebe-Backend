@@ -11,7 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,7 +30,7 @@ public class Profile extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @NotNull
+    @NotBlank(message = "Unique url must not be blank")
     private String uniqueUrl;
 
     private String introductionContent;

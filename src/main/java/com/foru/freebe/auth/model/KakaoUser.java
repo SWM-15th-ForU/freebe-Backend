@@ -37,4 +37,8 @@ public class KakaoUser {
     public Integer getBirthYear() {
         return (Integer)kakaoAccount.get("birth_year");
     }
+
+    public String getGender() {
+        return (String)kakaoAccount.get("gender");
+    }
 }

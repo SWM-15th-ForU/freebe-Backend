@@ -12,13 +12,17 @@ import com.foru.freebe.member.entity.Member;
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,17 +39,33 @@ public class ReservationForm extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "photographer_id")
+    @NotNull(message = "Photographer must not be null")
     private Member photographer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
+    @NotNull(message = "Customer must not be null")
     private Member customer;
 
-    @NotNull
+    @NotBlank(message = "Instagram ID must not be blank")
     private String instagramId;
 
-    @NotNull
+    @NotBlank(message = "Product title must not be blank")
     private String productTitle;
+
+    @NotNull(message = "Total price must not be null")
+    @Positive
+    private Long totalPrice;
+
+    @NotNull(message = "Service term agreement must not be null")
+    private Boolean serviceTermAgreement;
+
+    @NotNull(message = "Photographer term agreement must not be null")
+    private Boolean photographerTermAgreement;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull(message = "Reservation status must not be null")
+    private ReservationStatus reservationStatus;
 
     @Type(JsonType.class)
     @Column(name = "photo_info", columnDefinition = "longtext")
@@ -59,34 +79,36 @@ public class ReservationForm extends BaseEntity {
 
     private String photographerMemo;
 
-    @NotNull
-    private Long totalPrice;
-
-    @NotNull
-    private Boolean serviceTermAgreement;
-
-    @NotNull
-    private Boolean photographerTermAgreement;
-
-    @NotNull
-    private ReservationStatus reservationStatus;
-
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Map<String, String> photoInfo, Map<Integer, LocalDateTime> photoSchedule, String requestMemo,
-        String photographerMemo, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
-        ReservationStatus reservationStatus) {
+        Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
+        ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, LocalDateTime> photoSchedule,
+        String requestMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
         this.productTitle = productTitle;
-        this.photoInfo = photoInfo;
-        this.photoSchedule = photoSchedule;
-        this.requestMemo = requestMemo;
-        this.photographerMemo = photographerMemo;
         this.totalPrice = totalPrice;
         this.serviceTermAgreement = serviceTermAgreement;
         this.photographerTermAgreement = photographerTermAgreement;
         this.reservationStatus = reservationStatus;
+        this.photoInfo = photoInfo;
+        this.photoSchedule = photoSchedule;
+        this.requestMemo = requestMemo;
+        this.photographerMemo = photographerMemo;
+    }
+
+    public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
+        String productTitle, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
+        ReservationStatus reservationStatus) {
+        return new ReservationFormBuilder()
+            .photographer(photographer)
+            .customer(customer)
+            .instagramId(instagramId)
+            .productTitle(productTitle)
+            .totalPrice(totalPrice)
+            .serviceTermAgreement(serviceTermAgreement)
+            .photographerTermAgreement(photographerTermAgreement)
+            .reservationStatus(reservationStatus);
     }
 }

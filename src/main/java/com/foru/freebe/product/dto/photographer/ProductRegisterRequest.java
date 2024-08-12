@@ -1,4 +1,4 @@
-package com.foru.freebe.product.dto;
+package com.foru.freebe.product.dto.photographer;
 
 import java.util.List;
 
@@ -8,9 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductRegisterRequestDto {
-    @NotNull
-    private Long memberId;
+public class ProductRegisterRequest {
     @NotNull
     private String productTitle;
     private String productDescription;

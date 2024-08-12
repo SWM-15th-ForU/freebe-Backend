@@ -10,12 +10,12 @@ import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
-import com.foru.freebe.product.dto.ProductComponentDto;
-import com.foru.freebe.product.dto.ProductDiscountDto;
-import com.foru.freebe.product.dto.ProductOptionDto;
-import com.foru.freebe.product.dto.ProductRegisterRequestDto;
-import com.foru.freebe.product.dto.RegisteredProductResponseDto;
-import com.foru.freebe.product.dto.UpdateProductRequestDto;
+import com.foru.freebe.product.dto.photographer.ProductComponentDto;
+import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
+import com.foru.freebe.product.dto.photographer.ProductOptionDto;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
+import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -32,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class PhotographerProductService {
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductComponentRepository productComponentRepository;
@@ -40,9 +40,9 @@ public class ProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
 
-    public ApiResponse<Void> registerProduct(ProductRegisterRequestDto productRegisterRequestDto) {
-        Member member = getMember(productRegisterRequestDto.getMemberId());
-        
+    public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto, Long photographerId) {
+        Member member = getMember(photographerId);
+
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
@@ -76,14 +76,14 @@ public class ProductService {
             .build();
     }
 
-    public ApiResponse<List<RegisteredProductResponseDto>> getRegisteredProductList(Long memberId) {
-        Member member = getMember(memberId);
+    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Long photographerId) {
+        Member member = getMember(photographerId);
 
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        List<RegisteredProductResponseDto> registeredProducts = registeredProductList.stream()
-            .map(product -> RegisteredProductResponseDto.builder()
+        List<RegisteredProductResponse> registeredProducts = registeredProductList.stream()
+            .map(product -> RegisteredProductResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
                 .reservationCount(0) // TODO 예약체결 관련 로직 구현 후 추가
@@ -91,7 +91,7 @@ public class ProductService {
                 .build())
             .collect(Collectors.toList());
 
-        return ApiResponse.<List<RegisteredProductResponseDto>>builder()
+        return ApiResponse.<List<RegisteredProductResponse>>builder()
             .status(200)
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
@@ -99,7 +99,7 @@ public class ProductService {
     }
 
     @Transactional
-    public ApiResponse<Void> updateProductActiveStatus(UpdateProductRequestDto requestDto) {
+    public ApiResponse<Void> updateProductActiveStatus(UpdateProductRequest requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());

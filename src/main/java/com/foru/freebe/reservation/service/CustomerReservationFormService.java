@@ -11,8 +11,8 @@ import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
-import com.foru.freebe.product.dto.ProductComponentDto;
-import com.foru.freebe.product.dto.ProductOptionDto;
+import com.foru.freebe.product.dto.photographer.ProductComponentDto;
+import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
@@ -46,18 +46,14 @@ public class CustomerReservationFormService {
 
         validateProductTitleExists(reservationFormRequest.getProductTitle());
 
-        ReservationForm reservationForm = ReservationForm.builder()
-            .photographer(photographer)
-            .customer(customer)
-            .instagramId(reservationFormRequest.getInstagramId())
-            .productTitle(reservationFormRequest.getProductTitle())
+        ReservationForm reservationForm = ReservationForm.builder(photographer, customer,
+                reservationFormRequest.getInstagramId(),
+                reservationFormRequest.getProductTitle(), reservationFormRequest.getTotalPrice(),
+                reservationFormRequest.getServiceTermAgreement(),
+                reservationFormRequest.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(reservationFormRequest.getPhotoInfo())
             .photoSchedule(reservationFormRequest.getPhotoSchedule())
             .requestMemo(reservationFormRequest.getRequestMemo())
-            .totalPrice(reservationFormRequest.getTotalPrice())
-            .serviceTermAgreement(reservationFormRequest.getServiceTermAgreement())
-            .photographerTermAgreement(reservationFormRequest.getPhotographerTermAgreement())
-            .reservationStatus(ReservationStatus.NEW)
             .build();
 
         validateActiveStatusOfProduct(reservationFormRequest);

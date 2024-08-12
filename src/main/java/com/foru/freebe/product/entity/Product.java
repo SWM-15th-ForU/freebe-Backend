@@ -1,5 +1,6 @@
 package com.foru.freebe.product.entity;
 
+import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -22,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Product {
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")

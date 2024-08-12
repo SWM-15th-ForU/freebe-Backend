@@ -1,8 +1,6 @@
 package com.foru.freebe.member.entity;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
+import com.foru.freebe.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "member")
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -49,9 +47,6 @@ public class Member {
     private String gender;
 
     private String instagramId;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
 
     public String getAuthority() {
         return "ROLE_" + role.name();

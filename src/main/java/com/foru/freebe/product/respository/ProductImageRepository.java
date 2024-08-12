@@ -8,5 +8,6 @@ import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductImage;
 
 public interface ProductImageRepository extends JpaRepository<ProductImage, Long> {
+    List<ProductImage> findByProductId(Long productId);
     List<ProductImage> findByProduct(Product product);
 }

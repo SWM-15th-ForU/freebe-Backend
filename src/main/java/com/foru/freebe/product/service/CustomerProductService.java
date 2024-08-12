@@ -38,6 +38,21 @@ public class CustomerProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
+    public ApiResponse<List<String>> getReferenceImages(Long productId) {
+        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
+
+        List<String> referenceImages = new ArrayList<>();
+        for (ProductImage productImage : productImages) {
+            referenceImages.add(productImage.getOriginUrl());
+        }
+
+        return ApiResponse.<List<String>>builder()
+            .status(200)
+            .message("Good Response")
+            .data(referenceImages)
+            .build();
+    }
+
     public ApiResponse<ProductResponse> getDetailedInfoOfProduct(Long productId) {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));

@@ -45,5 +45,4 @@ public class PhotographerProductController {
     public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequest updateProductRequest) {
         return productService.updateProductActiveStatus(updateProductRequest);
     }
-
 }

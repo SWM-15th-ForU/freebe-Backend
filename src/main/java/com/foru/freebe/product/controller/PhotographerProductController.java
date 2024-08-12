@@ -16,16 +16,18 @@ import com.foru.freebe.product.dto.RegisteredProductResponseDto;
 import com.foru.freebe.product.dto.UpdateProductRequestDto;
 import com.foru.freebe.product.service.ProductService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/product")
-public class ProductController {
+@RequestMapping("/photographer/product")
+public class PhotographerProductController {
     private final ProductService productService;
 
     @PostMapping("/")
-    public ApiResponseDto<Void> registerProduct(@RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
+    public ApiResponseDto<Void> registerProduct(
+        @Valid @RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
         return productService.registerProduct(productRegisterRequestDto);
     }
 
@@ -36,7 +38,7 @@ public class ProductController {
     }
 
     @PutMapping("/update-status")
-    public ApiResponseDto<Void> updateProductActiveStatus(@RequestBody UpdateProductRequestDto requestDto) {
+    public ApiResponseDto<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequestDto requestDto) {
         return productService.updateProductActiveStatus(requestDto);
     }
 

@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductRegisterRequestDto {
-    @NotNull
     private Long memberId;
     @NotNull
     private String productTitle;

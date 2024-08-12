@@ -1,12 +1,12 @@
 package com.foru.freebe.reservation.entity;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.annotations.Type;
 
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.reservation.dto.PreferredDate;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
@@ -71,18 +71,18 @@ public class ReservationForm {
     private Map<String, String> photoInfo = new HashMap<>();
 
     @Type(JsonType.class)
-    @Column(name = "photo_schedule", columnDefinition = "longtext")
-    private Map<Integer, LocalDateTime> photoSchedule = new HashMap<>();
+    @Column(name = "preferred_date", columnDefinition = "longtext")
+    private Map<Integer, PreferredDate> preferredDate = new HashMap<>();
 
-    private String requestMemo;
+    private String customerMemo;
 
     private String photographerMemo;
 
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
-        ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, LocalDateTime> photoSchedule,
-        String requestMemo, String photographerMemo) {
+        ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
+        String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
@@ -92,8 +92,8 @@ public class ReservationForm {
         this.photographerTermAgreement = photographerTermAgreement;
         this.reservationStatus = reservationStatus;
         this.photoInfo = photoInfo;
-        this.photoSchedule = photoSchedule;
-        this.requestMemo = requestMemo;
+        this.preferredDate = preferredDate;
+        this.customerMemo = customerMemo;
         this.photographerMemo = photographerMemo;
     }
 

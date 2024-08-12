@@ -54,7 +54,7 @@ public class PhotographerReservationService {
             reservationForm.getReservationStatus(),
             reservationForm.getCustomer().getName(),
             reservationForm.getProductTitle(),
-            reservationForm.getPhotoSchedule().values().stream().findFirst().orElse(null)
+            reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
         );
     }
 

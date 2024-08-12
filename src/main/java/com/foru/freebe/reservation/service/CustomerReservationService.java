@@ -52,8 +52,8 @@ public class CustomerReservationService {
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(request.getPhotoInfo())
-            .photoSchedule(request.getPhotoSchedule())
-            .requestMemo(request.getRequestMemo());
+            .preferredDate(request.getPreferredDate())
+            .customerMemo(request.getCustomerMemo());
         return builder.build();
     }
 

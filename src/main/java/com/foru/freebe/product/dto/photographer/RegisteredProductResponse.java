@@ -1,4 +1,4 @@
-package com.foru.freebe.product.dto;
+package com.foru.freebe.product.dto.photographer;
 
 import com.foru.freebe.product.entity.ActiveStatus;
 
@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class RegisteredProductResponseDto {
+public class RegisteredProductResponse {
     private Long productId;
     private String productTitle;
     private Integer reservationCount;
     private ActiveStatus activeStatus;
 
     @Builder
-    public RegisteredProductResponseDto(Long productId, String productTitle, Integer reservationCount,
+    public RegisteredProductResponse(Long productId, String productTitle, Integer reservationCount,
         ActiveStatus activeStatus) {
         this.productId = productId;
         this.productTitle = productTitle;

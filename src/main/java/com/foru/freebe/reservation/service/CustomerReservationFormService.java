@@ -37,8 +37,8 @@ public class CustomerReservationFormService {
     private final ProductComponentRepository productComponentRepository;
     private final ProductOptionRepository productOptionRepository;
 
-    public ApiResponse<Void> registerReservationForm(ReservationFormRequest reservationFormRequest) {
-        Member customer = memberRepository.findById(reservationFormRequest.getCustomerId())
+    public ApiResponse<Void> registerReservationForm(ReservationFormRequest reservationFormRequest, Long customerId) {
+        Member customer = memberRepository.findById(customerId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         Member photographer = memberRepository.findById(reservationFormRequest.getPhotographerId())

@@ -10,13 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ReservationFormRequest {
+    @NotNull
     private Long photographerId;
-    private Long customerId; // TODO 추후 토큰 로직으로 대체
     @NotNull
     private String instagramId;
     @NotNull
     private String productTitle;
     private Map<String, String> photoInfo;
+    @NotNull
     private Map<Integer, LocalDateTime> photoSchedule;
     private String requestMemo;
     @NotNull

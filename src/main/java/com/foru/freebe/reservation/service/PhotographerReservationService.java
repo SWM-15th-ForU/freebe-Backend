@@ -91,6 +91,7 @@ public class PhotographerReservationService {
             reservationForm.getProductTitle(),
             reservationForm.getReservationStatus() == ReservationStatus.NEW ? null :
                 reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
+            //ToDo: 임의로 희망 촬영일정의 첫번째 값을 반환하였음. 추후 신청서 상태 변경 로직이 추가되면 확정된 촬영일자로 변경해주어야 함
         );
     }
 

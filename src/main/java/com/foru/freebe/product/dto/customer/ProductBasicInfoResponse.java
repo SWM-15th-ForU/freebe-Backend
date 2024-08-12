@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductBasicInfoResponse {
+    // TODO 상품 조회 페이지 추가 후 필드 업데이트 요망
     private Long productId;
     private String productTitle;
     private String productRepresentativeImageUrl;

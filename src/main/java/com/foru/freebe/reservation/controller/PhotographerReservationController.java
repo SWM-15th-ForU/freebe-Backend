@@ -23,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationController {
     private final PhotographerReservationService photographerReservationService;
 
-    @GetMapping("/reservation")
+    @GetMapping("/reservation/list")
     public ApiResponse<List<FormListViewResponse>> getReservationList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member member = memberAdapter.getMember();

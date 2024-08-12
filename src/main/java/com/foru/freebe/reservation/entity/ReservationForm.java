@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.hibernate.annotations.Type;
 
+import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.PreferredDate;
 
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ReservationForm {
+public class ReservationForm extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "reservation_form_id")

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class FormDetailsViewResponse {
     private Long reservationNumber;
-    private ReservationStatus status;
+    private ReservationStatus currentReservationStatus;
     private List<StatusHistory> statusHistory;
     private String productTitle;
     private CustomerDetails customerDetails;
@@ -23,12 +23,12 @@ public class FormDetailsViewResponse {
     private String requestMemo;
 
     @Builder
-    public FormDetailsViewResponse(Long reservationNumber, ReservationStatus status,
+    public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
         Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates, List<String> preferredImages,
         String requestMemo) {
         this.reservationNumber = reservationNumber;
-        this.status = status;
+        this.currentReservationStatus = currentReservationStatus;
         this.statusHistory = statusHistory;
         this.productTitle = productTitle;
         this.customerDetails = customerDetails;
@@ -38,12 +38,13 @@ public class FormDetailsViewResponse {
         this.requestMemo = requestMemo;
     }
 
-    public static FormDetailsViewResponseBuilder builder(Long reservationNumber, ReservationStatus status,
+    public static FormDetailsViewResponseBuilder builder(Long reservationNumber,
+        ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
         Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
-            .status(status)
+            .currentReservationStatus(currentReservationStatus)
             .statusHistory(statusHistory)
             .productTitle(productTitle)
             .customerDetails(customerDetails)

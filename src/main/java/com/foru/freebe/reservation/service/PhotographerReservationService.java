@@ -108,7 +108,7 @@ public class PhotographerReservationService {
 
     private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {
         return StatusHistory.builder()
-            .status(reservationHistory.getReservationStatus())
+            .reservationStatus(reservationHistory.getReservationStatus())
             .statusUpdateDate(reservationHistory.getStatusUpdateDate())
             .build();
     }

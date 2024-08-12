@@ -1,6 +1,5 @@
 package com.foru.freebe.reservation.entity;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.hibernate.annotations.Type;
@@ -68,11 +67,12 @@ public class ReservationForm {
 
     @Type(JsonType.class)
     @Column(name = "photo_info", columnDefinition = "longtext")
-    private Map<String, String> photoInfo = new HashMap<>();
+    private Map<String, String> photoInfo;
 
     @Type(JsonType.class)
     @Column(name = "preferred_date", columnDefinition = "longtext")
-    private Map<Integer, PreferredDate> preferredDate = new HashMap<>();
+    @NotNull(message = "Preferred Date must not be null")
+    private Map<Integer, PreferredDate> preferredDate;
 
     private String customerMemo;
 

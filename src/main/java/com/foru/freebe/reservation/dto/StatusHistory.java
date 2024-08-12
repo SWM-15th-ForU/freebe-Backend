@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class StatusHistory {
-    ReservationStatus status;
+    ReservationStatus reservationStatus;
     LocalDate statusUpdateDate;
 
     @Builder
-    public StatusHistory(ReservationStatus status, LocalDate statusUpdateDate, Boolean isChecked) {
-        this.status = status;
+    public StatusHistory(ReservationStatus reservationStatus, LocalDate statusUpdateDate) {
+        this.reservationStatus = reservationStatus;
         this.statusUpdateDate = statusUpdateDate;
     }
 }

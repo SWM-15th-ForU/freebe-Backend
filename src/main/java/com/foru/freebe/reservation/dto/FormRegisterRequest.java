@@ -1,5 +1,6 @@
 package com.foru.freebe.reservation.dto;
 
+import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,9 @@ public class FormRegisterRequest {
 
     private Map<String, String> photoInfo;
 
-    private Map<Integer, PreferredDate> preferredDate;
+    private Map<Integer, PreferredDate> preferredDates;
+
+    private List<String> preferredImages;
 
     private String customerMemo;
 

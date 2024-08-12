@@ -18,14 +18,14 @@ public class FormDetailsViewResponse {
     private String productTitle;
     private CustomerDetails customerDetails;
     private Map<String, String> photoInfo;
-    private Map<Integer, PreferredDate> preferredDate;
-    private List<String> preferredPhoto;
+    private Map<Integer, PreferredDate> preferredDates;
+    private List<String> preferredImages;
     private String requestMemo;
 
     @Builder
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus status,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate, List<String> preferredPhoto,
+        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates, List<String> preferredImages,
         String requestMemo) {
         this.reservationNumber = reservationNumber;
         this.status = status;
@@ -33,14 +33,14 @@ public class FormDetailsViewResponse {
         this.productTitle = productTitle;
         this.customerDetails = customerDetails;
         this.photoInfo = photoInfo;
-        this.preferredDate = preferredDate;
-        this.preferredPhoto = preferredPhoto;
+        this.preferredDates = preferredDates;
+        this.preferredImages = preferredImages;
         this.requestMemo = requestMemo;
     }
 
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber, ReservationStatus status,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate) {
+        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
             .status(status)
@@ -48,6 +48,6 @@ public class FormDetailsViewResponse {
             .productTitle(productTitle)
             .customerDetails(customerDetails)
             .photoInfo(photoInfo)
-            .preferredDate(preferredDate);
+            .preferredDates(preferredDates);
     }
 }

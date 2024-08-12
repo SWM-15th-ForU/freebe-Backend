@@ -16,9 +16,11 @@ import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PreferredDate;
 import com.foru.freebe.reservation.dto.StatusHistory;
+import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
+import com.foru.freebe.reservation.repository.ReferenceImageRepository;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 
@@ -29,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
+    private final ReferenceImageRepository referenceImageRepository;
 
     public ApiResponse<List<FormListViewResponse>> getReservationList(Long photographerId) {
         List<FormListViewResponse> data = getReservationListAsStatus(photographerId);
@@ -47,12 +50,13 @@ public class PhotographerReservationService {
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
         Map<String, String> shootDetails = reservationForm.getPhotoInfo();
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
+        List<String> preferredImages = getPreferredImages(reservationForm);
 
         FormDetailsViewResponse formDetailsViewResponse = FormDetailsViewResponse.builder(reservationForm.getId(),
                 reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
                 shootDetails, preferredDates)
-            .preferredPhoto(null)
-            .requestMemo(null)
+            .preferredImages(preferredImages)
+            .requestMemo(reservationForm.getCustomerMemo())
             .build();
 
         return ApiResponse.<FormDetailsViewResponse>builder()
@@ -115,5 +119,13 @@ public class PhotographerReservationService {
             .phoneNumber(reservationForm.getCustomer().getPhoneNumber())
             .instagramId(reservationForm.getInstagramId())
             .build();
+    }
+
+    private List<String> getPreferredImages(ReservationForm reservationForm) {
+        return referenceImageRepository.findAllByReservationForm(reservationForm)
+            .orElse(List.of())
+            .stream()
+            .map(ReferenceImage::getReferencingImage)
+            .collect(Collectors.toList());
     }
 }

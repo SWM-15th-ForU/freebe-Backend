@@ -12,10 +12,13 @@ import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.ProductComponentDto;
+import com.foru.freebe.product.dto.ProductOptionDto;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
+import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductComponentRepository;
+import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.ReservationFormRequest;
@@ -32,6 +35,7 @@ public class CustomerReservationFormService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final ProductComponentRepository productComponentRepository;
+    private final ProductOptionRepository productOptionRepository;
 
     public ApiResponse<Void> registerReservationForm(ReservationFormRequest reservationFormRequest) {
         Member customer = memberRepository.findById(reservationFormRequest.getCustomerId())
@@ -56,7 +60,7 @@ public class CustomerReservationFormService {
             .reservationStatus(ReservationStatus.NEW)
             .build();
 
-        validateActiveStatusOfProduct(reservationFormRequest, reservationForm);
+        validateActiveStatusOfProduct(reservationFormRequest);
         reservationFormRepository.save(reservationForm);
 
         return ApiResponse.<Void>builder()
@@ -78,10 +82,14 @@ public class CustomerReservationFormService {
         List<ProductComponentDto> productComponentDtoList = convertProductComponentDtoList(
             productComponents);
 
+        List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
+        List<ProductOptionDto> productOptionDtoList = convertProductOptionDtoList(productOptions);
+
         BasicReservationInfoResponse basicReservationInfoResponse = BasicReservationInfoResponse.builder()
             .name(customer.getName())
             .phoneNumber(customer.getPhoneNumber())
             .productComponentDtoList(productComponentDtoList)
+            .productOptionDtoList(productOptionDtoList)
             .build();
 
         return ApiResponse.<BasicReservationInfoResponse>builder()
@@ -89,6 +97,19 @@ public class CustomerReservationFormService {
             .message("Good Response")
             .data(basicReservationInfoResponse)
             .build();
+    }
+
+    private static List<ProductOptionDto> convertProductOptionDtoList(List<ProductOption> productOptions) {
+        List<ProductOptionDto> productOptionDtoList = new ArrayList<>();
+        for (ProductOption productOption : productOptions) {
+            ProductOptionDto productOptionDto = ProductOptionDto.builder()
+                .title(productOption.getTitle())
+                .price(productOption.getPrice())
+                .description(productOption.getDescription())
+                .build();
+            productOptionDtoList.add(productOptionDto);
+        }
+        return productOptionDtoList;
     }
 
     private static List<ProductComponentDto> convertProductComponentDtoList(List<ProductComponent> productComponents) {
@@ -104,8 +125,7 @@ public class CustomerReservationFormService {
         return productComponentDtoList;
     }
 
-    private void validateActiveStatusOfProduct(ReservationFormRequest reservationFormRequest,
-        ReservationForm reservationForm) {
+    private void validateActiveStatusOfProduct(ReservationFormRequest reservationFormRequest) {
         Product product = productRepository.findByTitle(reservationFormRequest.getProductTitle());
         if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
             throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);

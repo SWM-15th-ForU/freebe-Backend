@@ -13,8 +13,10 @@ import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
+import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
+import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomerReservationService {
     private final ReservationFormRepository reservationFormRepository;
+    private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
@@ -32,7 +35,9 @@ public class CustomerReservationService {
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
 
         validateReservationForm(formRegisterRequest);
-        reservationFormRepository.save(reservationForm);
+        ReservationForm newReservationForm = reservationFormRepository.save(reservationForm);
+        reservationHistoryRepository.save(
+            ReservationHistory.updateReservationStatus(newReservationForm, ReservationStatus.NEW));
 
         return ApiResponse.<Void>builder()
             .status(200)

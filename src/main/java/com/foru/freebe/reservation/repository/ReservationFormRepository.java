@@ -9,4 +9,6 @@ import com.foru.freebe.reservation.entity.ReservationForm;
 
 public interface ReservationFormRepository extends JpaRepository<ReservationForm, Long> {
     Optional<List<ReservationForm>> findAllByPhotographerId(Long photographerId);
+
+    Optional<ReservationForm> findByPhotographerIdAndId(Long photographerId, Long id);
 }

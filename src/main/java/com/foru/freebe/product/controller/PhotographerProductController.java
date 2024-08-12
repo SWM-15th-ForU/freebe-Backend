@@ -23,25 +23,25 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/photographer/product")
+@RequestMapping("/photographer")
 public class PhotographerProductController {
     private final PhotographerProductService productService;
 
-    @PostMapping("/")
+    @PostMapping("/product")
     public ApiResponse<Void> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @Valid @RequestBody ProductRegisterRequest productRegisterRequest) {
         Member photographer = memberAdapter.getMember();
         return productService.registerProduct(productRegisterRequest, photographer.getId());
     }
 
-    @GetMapping("/registered-product/{id}")
+    @GetMapping("/product/list")
     public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member photographer = memberAdapter.getMember();
         return productService.getRegisteredProductList(photographer.getId());
     }
 
-    @PutMapping("/update-status")
+    @PutMapping("/product/status")
     public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequest updateProductRequest) {
         return productService.updateProductActiveStatus(updateProductRequest);
     }

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductResponse {
+public class ProductDetailResponse {
     @NotNull
     private String productTitle;
     private String productDescription;
@@ -25,7 +25,7 @@ public class ProductResponse {
     private List<ProductDiscountDto> productDiscounts;
 
     @Builder
-    public ProductResponse(String productTitle, String productDescription, List<String> productImageUrls,
+    public ProductDetailResponse(String productTitle, String productDescription, List<String> productImageUrls,
         List<ProductComponentDto> productComponents, List<ProductOptionDto> productOptions,
         List<ProductDiscountDto> productDiscounts) {
         this.productTitle = productTitle;

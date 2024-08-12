@@ -10,6 +10,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FormListViewResponse {
-    private ReservationStatus status;
+    private ReservationStatus reservationStatus;
     private List<FormComponent> formComponent;
 }

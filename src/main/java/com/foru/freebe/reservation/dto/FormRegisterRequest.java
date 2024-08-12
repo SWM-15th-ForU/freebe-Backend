@@ -1,6 +1,6 @@
 package com.foru.freebe.reservation.dto;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ReservationFormRequest {
+public class FormRegisterRequest {
     private Long photographerId;
 
     @NotNull
@@ -20,9 +20,11 @@ public class ReservationFormRequest {
 
     private Map<String, String> photoInfo;
 
-    private Map<Integer, LocalDateTime> photoSchedule;
+    private Map<Integer, PreferredDate> preferredDates;
 
-    private String requestMemo;
+    private List<String> preferredImages;
+
+    private String customerMemo;
 
     @NotNull
     private Long totalPrice;

@@ -11,7 +11,7 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
-import com.foru.freebe.reservation.dto.ReservationFormRequest;
+import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
@@ -25,13 +25,13 @@ public class CustomerReservationService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
-    public ApiResponse<Void> registerReservationForm(Long customerId, ReservationFormRequest reservationFormRequest) {
+    public ApiResponse<Void> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
         Member customer = findMember(customerId);
-        Member photographer = findMember(reservationFormRequest.getPhotographerId());
+        Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
-        ReservationForm reservationForm = createReservationForm(reservationFormRequest, photographer, customer);
+        ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
 
-        validateReservationForm(reservationFormRequest);
+        validateReservationForm(formRegisterRequest);
         reservationFormRepository.save(reservationForm);
 
         return ApiResponse.<Void>builder()
@@ -46,7 +46,7 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private static ReservationForm createReservationForm(ReservationFormRequest request,
+    private static ReservationForm createReservationForm(FormRegisterRequest request,
         Member photographer, Member customer) {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
@@ -57,9 +57,9 @@ public class CustomerReservationService {
         return builder.build();
     }
 
-    private void validateReservationForm(ReservationFormRequest reservationFormRequest) {
-        validateProductTitleExists(reservationFormRequest.getProductTitle());
-        validateProductIsActive(reservationFormRequest.getProductTitle());
+    private void validateReservationForm(FormRegisterRequest formRegisterRequest) {
+        validateProductTitleExists(formRegisterRequest.getProductTitle());
+        validateProductIsActive(formRegisterRequest.getProductTitle());
     }
 
     private void validateProductIsActive(String productTitle) {

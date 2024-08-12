@@ -31,8 +31,10 @@ jobs:
           echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
           echo "AWS_ACCESS_KEY=${{ secrets.CICD_ACCESS_KEY }}" >> .env
           echo "AWS_SECRET_KEY=${{ secrets.CICD_SECRET_KEY }}" >> .env
+          echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+          echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
@@ -51,7 +53,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: S3에 jar 업로드(실행 파일)
-        run: aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2 
+        run: aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
 
       - name: S3에 zip 업로드(전체 파일)
         run: aws s3 cp freebe.zip s3://${{secrets.AWS_S3_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2

@@ -1,4 +1,4 @@
-package com.foru.freebe.product.dto;
+package com.foru.freebe.product.dto.photographer;
 
 import com.foru.freebe.product.entity.ActiveStatus;
 
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UpdateProductRequestDto {
+public class UpdateProductRequest {
     @NotNull
     private Long productId;
     @NotNull

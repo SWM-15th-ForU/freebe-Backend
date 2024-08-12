@@ -2,19 +2,21 @@ package com.foru.freebe.product.controller;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.foru.freebe.common.dto.ApiResponseDto;
-import com.foru.freebe.product.dto.ProductRegisterRequestDto;
-import com.foru.freebe.product.dto.RegisteredProductResponseDto;
-import com.foru.freebe.product.dto.UpdateProductRequestDto;
-import com.foru.freebe.product.service.ProductService;
+import com.foru.freebe.auth.model.MemberAdapter;
+import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
+import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
+import com.foru.freebe.product.service.PhotographerProductService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,23 +25,24 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/photographer/product")
 public class PhotographerProductController {
-    private final ProductService productService;
+    private final PhotographerProductService productService;
 
     @PostMapping("/")
-    public ApiResponseDto<Void> registerProduct(
-        @Valid @RequestBody ProductRegisterRequestDto productRegisterRequestDto) {
-        return productService.registerProduct(productRegisterRequestDto);
+    public ApiResponse<Void> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
+        @Valid @RequestBody ProductRegisterRequest productRegisterRequest) {
+        Member photographer = memberAdapter.getMember();
+        return productService.registerProduct(productRegisterRequest, photographer.getId());
     }
 
     @GetMapping("/registered-product/{id}")
-    public ApiResponseDto<List<RegisteredProductResponseDto>> getRegisteredProductList(
-        @PathVariable("id") Long memberId) {
-        return productService.getRegisteredProductList(memberId);
+    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(
+        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+        Member photographer = memberAdapter.getMember();
+        return productService.getRegisteredProductList(photographer.getId());
     }
 
     @PutMapping("/update-status")
-    public ApiResponseDto<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequestDto requestDto) {
-        return productService.updateProductActiveStatus(requestDto);
+    public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequest updateProductRequest) {
+        return productService.updateProductActiveStatus(updateProductRequest);
     }
-
 }

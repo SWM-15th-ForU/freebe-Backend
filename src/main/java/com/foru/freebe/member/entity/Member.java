@@ -1,8 +1,6 @@
 package com.foru.freebe.member.entity;
 
-import java.time.LocalDateTime;
-
-import org.hibernate.annotations.CreationTimestamp;
+import com.foru.freebe.common.entity.BaseEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,7 +20,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "member")
-public class Member {
+public class Member extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -30,8 +28,6 @@ public class Member {
 
     @NotNull
     private Long kakaoId;
-
-    private String instagramId;
 
     @Enumerated(EnumType.STRING)
     @NotNull
@@ -46,24 +42,31 @@ public class Member {
     @NotNull
     private String phoneNumber;
 
-    private Integer birthyear;
+    private Integer birthYear;
 
     private String gender;
 
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    private String instagramId;
+
+    public String getAuthority() {
+        return "ROLE_" + role.name();
+    }
+
+    public void assignRole(Role role) {
+        this.role = role;
+    }
 
     @Builder
-    public Member(Long kakaoId, String instagramId, String name, String email, String phoneNumber, Integer birthyear,
-        Role role, String gender) {
+    public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, Integer birthyear,
+        String gender, String instagramId) {
         this.kakaoId = kakaoId;
-        this.instagramId = instagramId;
         this.role = role;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.birthyear = birthyear;
+        this.birthYear = birthyear;
         this.gender = gender;
+        this.instagramId = instagramId;
     }
 
     public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {

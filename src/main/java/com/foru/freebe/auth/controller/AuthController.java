@@ -29,4 +29,10 @@ public class AuthController {
 
         return new ResponseEntity<>(headers, HttpStatusCode.valueOf(200));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest) {
+        String kakaoAccessToken = authService.exchangeToken(loginRequest.getCode());
+        return new ResponseEntity<>(HttpStatusCode.valueOf(200));
+    }
 }

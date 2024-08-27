@@ -31,8 +31,8 @@ public class CustomerProductController {
         return customerProductService.getDetailedInfoOfProduct(productId);
     }
 
-    @GetMapping("/product/images/{productId}")
-    public ApiResponse<List<String>> getReferenceImages(@PathVariable("productId") Long productId) {
-        return customerProductService.getReferenceImages(productId);
+    @GetMapping("/product/images/{photographerId}")
+    public ApiResponse<List<String>> getReferenceImages(@PathVariable("photographerId") Long photographerId) {
+        return customerProductService.getReferenceImages(photographerId);
     }
 }

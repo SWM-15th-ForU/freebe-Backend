@@ -38,8 +38,8 @@ public class CustomerProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    public ApiResponse<List<String>> getReferenceImages(Long productId) {
-        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
+    public ApiResponse<List<String>> getReferenceImages(Long photographerId) {
+        List<ProductImage> productImages = productImageRepository.findByProductId(photographerId);
 
         List<String> referenceImages = new ArrayList<>();
         for (ProductImage productImage : productImages) {

@@ -1,4 +1,4 @@
-package com.foru.freebe.auth.dto;
+package com.foru.freebe.auth.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class TokenResponse {
+public class KakaoToken {
     @JsonProperty("token_type")
     private String tokenType;
 
@@ -22,7 +22,7 @@ public class TokenResponse {
 
     @JsonProperty("refresh_token_expires_in")
     private long refreshTokenExpiresIn;
-    
+
     @JsonProperty("scope")
     private String scope;
 }

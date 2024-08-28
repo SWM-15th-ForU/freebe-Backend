@@ -13,7 +13,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.foru.freebe.jwt.filter.JwtAuthenticationFilter;
 import com.foru.freebe.jwt.filter.JwtExceptionFilter;
-import com.foru.freebe.jwt.handler.CustomAuthenticationSuccessHandler;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-    private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
 
@@ -37,10 +35,6 @@ public class SecurityConfig {
                 .requestMatchers("/customer").hasAnyRole("CUSTOMER")
                 .requestMatchers("/admin").hasAnyRole("ADMIN")
                 .anyRequest().permitAll())
-
-            .oauth2Login((oauth2) -> oauth2
-                .successHandler(customAuthenticationSuccessHandler)
-                .failureUrl("/"))
 
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);

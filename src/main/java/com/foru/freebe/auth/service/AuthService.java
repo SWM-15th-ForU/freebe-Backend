@@ -27,18 +27,18 @@ public class AuthService {
     @Value("${KAKAO_CLIENT_SECRET}")
     private String clientSecret;
 
-    public KakaoToken getToken(String code) {
-        Mono<KakaoToken> tokenResponseMono = webClient.post()
+    public String getToken(String code) {
+        Mono<KakaoToken> kakaoToken = webClient.post()
             .uri("/oauth/token")
             .body(BodyInserters.fromFormData(buildRequestBody(code)))
             .retrieve()
             .bodyToMono(KakaoToken.class);
 
-        return tokenResponseMono.block();
+        return kakaoToken.map(KakaoToken::getAccessToken).block();
     }
 
-    public KakaoUser getUserInfo(KakaoToken kakaoToken, String roleType) {
-        WebClient client = buildMutateWebClient(kakaoToken);
+    public KakaoUser getUserInfo(String accessToken) {
+        WebClient client = buildMutateWebClient(accessToken);
 
         return client.get()
             .uri(uriBuilder -> uriBuilder
@@ -62,10 +62,10 @@ public class AuthService {
         return requestBody;
     }
 
-    private WebClient buildMutateWebClient(KakaoToken kakaoToken) {
+    private WebClient buildMutateWebClient(String accessToken) {
         return webClient.mutate()
             .baseUrl("https://kapi.kakao.com")
-            .defaultHeader("Authorization", "Bearer " + kakaoToken.getAccessToken())
+            .defaultHeader("Authorization", "Bearer " + accessToken)
             .build();
     }
 }

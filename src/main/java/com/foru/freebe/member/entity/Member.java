@@ -52,10 +52,6 @@ public class Member extends BaseEntity {
         return "ROLE_" + role.name();
     }
 
-    public void assignRole(Role role) {
-        this.role = role;
-    }
-
     @Builder
     public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, Integer birthyear,
         String gender, String instagramId) {

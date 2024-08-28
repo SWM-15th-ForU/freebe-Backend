@@ -2,7 +2,6 @@ package com.foru.freebe.auth.model;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,17 +15,10 @@ import lombok.Getter;
 public class CustomUserDetails implements UserDetails {
     private final Member member;
     private final Collection<? extends GrantedAuthority> authorities;
-    private Map<String, Object> attributes;
 
     public CustomUserDetails(Member member) {
         this.member = member;
         this.authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getAuthority()));
-    }
-
-    public CustomUserDetails(Member member, Map<String, Object> attributes) {
-        this.member = member;
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getAuthority()));
-        this.attributes = attributes;
     }
 
     @Override

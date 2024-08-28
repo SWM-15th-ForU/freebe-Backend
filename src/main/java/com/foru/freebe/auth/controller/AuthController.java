@@ -5,8 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.foru.freebe.auth.dto.LoginRequest;
+import com.foru.freebe.auth.dto.TokenResponse;
+import com.foru.freebe.auth.service.AuthService;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 
@@ -17,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
     private final JwtService jwtService;
+    private final AuthService authService;
 
     @PostMapping("/reissue")
     public ResponseEntity<Void> reissueRefreshToken(HttpServletRequest request) {
@@ -32,7 +37,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody LoginRequest loginRequest) {
-        String kakaoAccessToken = authService.exchangeToken(loginRequest.getCode());
+        TokenResponse tokenResponse = authService.exchangeToken(loginRequest.getCode());
+        authService.getUserInfo(tokenResponse, loginRequest.getRoleType());
         return new ResponseEntity<>(HttpStatusCode.valueOf(200));
     }
 }

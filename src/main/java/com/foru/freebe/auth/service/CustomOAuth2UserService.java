@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.service.MemberService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         OAuth2User oAuth2User = oAuth2UserService.loadUser(userRequest);
 
         KakaoUser kakaoUser = new KakaoUser(oAuth2User);
-        Member member = memberService.findOrRegisterMember(kakaoUser);
+        String roleType = (String)userRequest.getAdditionalParameters().get("roleType");
+        Member member = memberService.findOrRegisterMember(kakaoUser, Role.valueOf(roleType.toUpperCase()));
 
         return new MemberAdapter(member, kakaoUser.getAttributes());
     }

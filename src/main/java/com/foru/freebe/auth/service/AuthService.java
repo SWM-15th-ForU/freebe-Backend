@@ -1,7 +1,9 @@
 package com.foru.freebe.auth.service;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -46,11 +48,15 @@ public class AuthService {
         return tokenResponseMono.block();
     }
 
-    public void getUserInfo(TokenResponse tokenResponse) {
+    public void getUserInfo(TokenResponse tokenResponse, String roleType) {
         ClientRegistration clientRegistration = buildClientRegistration();
         OAuth2AccessToken accessToken = buildOAuth2AccessToken(tokenResponse);
 
-        OAuth2UserRequest oAuth2UserRequest = new OAuth2UserRequest(clientRegistration, accessToken);
+        Map<String, Object> additionalParameters = new HashMap<>();
+        additionalParameters.put("roleType", roleType);
+
+        OAuth2UserRequest oAuth2UserRequest = new OAuth2UserRequest(clientRegistration, accessToken,
+            additionalParameters);
         customOAuth2UserService.loadUser(oAuth2UserRequest);
     }
 

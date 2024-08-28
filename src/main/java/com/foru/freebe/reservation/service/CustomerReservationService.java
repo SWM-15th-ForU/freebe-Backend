@@ -43,7 +43,7 @@ public class CustomerReservationService {
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
 
-    public ApiResponse<Void> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
+    public ApiResponse<Long> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
         Member customer = findMember(customerId);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
@@ -52,10 +52,10 @@ public class CustomerReservationService {
         validateReservationForm(formRegisterRequest);
         saveReservationForm(formRegisterRequest, reservationForm);
 
-        return ApiResponse.<Void>builder()
+        return ApiResponse.<Long>builder()
             .status(200)
             .message("Good Request")
-            .data(null)
+            .data(reservationForm.getId())
             .build();
     }
 

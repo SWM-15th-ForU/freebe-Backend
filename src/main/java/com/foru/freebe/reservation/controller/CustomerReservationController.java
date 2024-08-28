@@ -25,7 +25,7 @@ public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
 
     @PostMapping("/reservation")
-    public ApiResponse<Void> registerReservationForm(@Valid @RequestBody FormRegisterRequest request,
+    public ApiResponse<Long> registerReservationForm(@Valid @RequestBody FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member customer = memberAdapter.getMember();
         return customerReservationService.registerReservationForm(customer.getId(), request);

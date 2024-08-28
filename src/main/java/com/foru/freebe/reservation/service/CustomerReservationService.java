@@ -111,6 +111,7 @@ public class CustomerReservationService {
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(request.getPhotoInfo())
             .preferredDate(request.getPreferredDates())
+            .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
     }

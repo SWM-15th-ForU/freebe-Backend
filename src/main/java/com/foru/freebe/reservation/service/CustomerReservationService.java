@@ -22,6 +22,7 @@ import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
+import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
@@ -84,6 +85,23 @@ public class CustomerReservationService {
             .status(200)
             .message("Good Response")
             .data(basicReservationInfoResponse)
+            .build();
+    }
+
+    public ApiResponse<ReservationInfoResponse> getReservationInfo(Long reservationFormId) {
+        ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        ReservationInfoResponse reservationInfoResponse = new ReservationInfoResponse(
+            reservationForm.getReservationStatus(), reservationForm.getProductTitle(),
+            reservationForm.getPhotoInfo(), reservationForm.getPreferredDate(), reservationForm.getPhotoOption(),
+            reservationForm.getCustomerMemo(), reservationForm.getServiceTermAgreement(),
+            reservationForm.getPhotographerTermAgreement());
+
+        return ApiResponse.<ReservationInfoResponse>builder()
+            .status(200)
+            .message("Good Response")
+            .data(reservationInfoResponse)
             .build();
     }
 

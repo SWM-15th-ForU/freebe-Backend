@@ -13,6 +13,7 @@ import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
+import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.service.CustomerReservationService;
 
 import jakarta.validation.Valid;
@@ -36,5 +37,11 @@ public class CustomerReservationController {
         @AuthenticationPrincipal MemberAdapter memberAdapter, @Valid @PathVariable("productId") Long productId) {
         Member customer = memberAdapter.getMember();
         return customerReservationService.getBasicReservationForm(customer.getId(), productId);
+    }
+
+    @GetMapping("/reservation/{reservationFormId}")
+    public ApiResponse<ReservationInfoResponse> getReservationInfo(
+        @Valid @PathVariable("reservationFormId") Long reservationFormId) {
+        return customerReservationService.getReservationInfo(reservationFormId);
     }
 }

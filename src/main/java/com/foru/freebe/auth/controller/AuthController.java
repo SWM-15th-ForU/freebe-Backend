@@ -26,10 +26,10 @@ public class AuthController {
     private final MemberService memberService;
 
     @PostMapping("/reissue")
-    public ResponseEntity<Void> reissueRefreshToken(HttpServletRequest request) {
+    public ResponseEntity<Void> reissueToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("refreshToken");
 
-        JwtTokenModel token = jwtService.reissueRefreshToken(refreshToken);
+        JwtTokenModel token = jwtService.reissueToken(refreshToken);
         HttpHeaders headers = jwtService.setTokenHeaders(token);
 
         return new ResponseEntity<>(headers, HttpStatus.OK);

@@ -29,13 +29,8 @@ public class JwtService {
         return new JwtTokenModel(accessToken, refreshToken);
     }
 
-    public JwtTokenModel reissueRefreshToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
-        }
-        if (!jwtProvider.isTokenValidate(refreshToken)) {
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
-        }
+    public JwtTokenModel reissueToken(String refreshToken) {
+        validateRefreshToken(refreshToken);
 
         JwtToken jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
@@ -46,6 +41,13 @@ public class JwtService {
         return generateToken(memberId);
     }
 
+    public HttpHeaders setTokenHeaders(JwtTokenModel token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accessToken", token.getAccessToken());
+        headers.add("refreshToken", token.getRefreshToken());
+        return headers;
+    }
+
     private void saveRefreshToken(Long id, String refreshToken) {
         Optional<List<JwtToken>> jwtToken = jwtTokenRepository.findByMemberId(id);
         jwtToken.ifPresent(jwtTokenRepository::deleteAll);
@@ -53,10 +55,12 @@ public class JwtService {
         jwtTokenRepository.save(newToken);
     }
 
-    public HttpHeaders setTokenHeaders(JwtTokenModel token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("accessToken", token.getAccessToken());
-        headers.add("refreshToken", token.getRefreshToken());
-        return headers;
+    private void validateRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+        }
+        if (!jwtProvider.isTokenValidate(refreshToken)) {
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+        }
     }
 }

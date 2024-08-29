@@ -17,6 +17,7 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.member.repository.MemberTermAgreementRepository;
 import com.foru.freebe.profile.service.ProfileService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +28,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final MemberTermAgreementRepository memberTermAgreementRepository;
 
+    @Transactional
     public ResponseEntity<ApiResponse<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
             .orElseGet(() -> {
@@ -44,6 +46,7 @@ public class MemberService {
         return new ResponseEntity<>(body, headers, HttpStatus.OK);
     }
 
+    @Transactional
     public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request) {
         Member photographer = completePhotographerSignup(member, request.getInstagramId());
         savePhotographerAgreements(photographer, request);

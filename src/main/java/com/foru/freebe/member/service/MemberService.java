@@ -45,17 +45,8 @@ public class MemberService {
     }
 
     public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request) {
-        member.assignRole(Role.PHOTOGRAPHER);
-        member.assignInstagramId(request.getInstagramId());
-        memberRepository.save(member);
-
-        MemberTermAgreement memberTermAgreement = MemberTermAgreement.builder()
-            .member(member)
-            .termsOfServiceAgreement(request.getTermsOfServiceAgreement())
-            .privacyPolicyAgreement(request.getPrivacyPolicyAgreement())
-            .marketingAgreement(request.getMarketingAgreement())
-            .build();
-        memberTermAgreementRepository.save(memberTermAgreement);
+        Member photographer = completePhotographerSignup(member, request.getInstagramId());
+        savePhotographerAgreements(photographer, request);
 
         String url = profileService.getUniqueUrl(member.getId());
         return ApiResponse.<String>builder()
@@ -95,5 +86,21 @@ public class MemberService {
                 .build();
         }
         return apiResponse;
+    }
+
+    private Member completePhotographerSignup(Member member, String instagramId) {
+        member.assignRole(Role.PHOTOGRAPHER);
+        member.assignInstagramId(instagramId);
+        return memberRepository.save(member);
+    }
+
+    private void savePhotographerAgreements(Member member, PhotographerJoinRequest request) {
+        MemberTermAgreement memberTermAgreement = MemberTermAgreement.builder()
+            .member(member)
+            .termsOfServiceAgreement(request.getTermsOfServiceAgreement())
+            .privacyPolicyAgreement(request.getPrivacyPolicyAgreement())
+            .marketingAgreement(request.getMarketingAgreement())
+            .build();
+        memberTermAgreementRepository.save(memberTermAgreement);
     }
 }

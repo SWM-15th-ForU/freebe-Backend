@@ -9,9 +9,12 @@ import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
+import com.foru.freebe.member.dto.PhotographerJoinRequest;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.entity.MemberTermAgreement;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.member.repository.MemberTermAgreementRepository;
 import com.foru.freebe.profile.service.ProfileService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +25,7 @@ public class MemberService {
     private final ProfileService profileService;
     private final JwtService jwtService;
     private final MemberRepository memberRepository;
+    private final MemberTermAgreementRepository memberTermAgreementRepository;
 
     public ResponseEntity<ApiResponse<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
@@ -38,6 +42,27 @@ public class MemberService {
         HttpHeaders headers = jwtService.setTokenHeaders(token);
 
         return new ResponseEntity<>(body, headers, HttpStatus.OK);
+    }
+
+    public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request) {
+        member.assignRole(Role.PHOTOGRAPHER);
+        member.assignInstagramId(request.getInstagramId());
+        memberRepository.save(member);
+
+        MemberTermAgreement memberTermAgreement = MemberTermAgreement.builder()
+            .member(member)
+            .termsOfServiceAgreement(request.getTermsOfServiceAgreement())
+            .privacyPolicyAgreement(request.getPrivacyPolicyAgreement())
+            .marketingAgreement(request.getMarketingAgreement())
+            .build();
+        memberTermAgreementRepository.save(memberTermAgreement);
+
+        String url = profileService.getUniqueUrl(member.getId());
+        return ApiResponse.<String>builder()
+            .status(HttpStatus.OK.value())
+            .data(url)
+            .message("Successfully joined")
+            .build();
     }
 
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {

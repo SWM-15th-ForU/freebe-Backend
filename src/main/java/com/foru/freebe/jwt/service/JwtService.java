@@ -3,6 +3,7 @@ package com.foru.freebe.jwt.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
@@ -28,20 +29,8 @@ public class JwtService {
         return new JwtTokenModel(accessToken, refreshToken);
     }
 
-    private void saveRefreshToken(Long id, String refreshToken) {
-        Optional<List<JwtToken>> jwtToken = jwtTokenRepository.findByMemberId(id);
-        jwtToken.ifPresent(jwtTokenRepository::deleteAll);
-        JwtToken newToken = JwtToken.createJwtToken(id, refreshToken);
-        jwtTokenRepository.save(newToken);
-    }
-
-    public JwtTokenModel reissueRefreshToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
-        }
-        if (!jwtProvider.isTokenValidate(refreshToken)) {
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
-        }
+    public JwtTokenModel reissueToken(String refreshToken) {
+        validateRefreshToken(refreshToken);
 
         JwtToken jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
@@ -50,5 +39,28 @@ public class JwtService {
         jwtTokenRepository.delete(jwtToken);
 
         return generateToken(memberId);
+    }
+
+    public HttpHeaders setTokenHeaders(JwtTokenModel token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accessToken", token.getAccessToken());
+        headers.add("refreshToken", token.getRefreshToken());
+        return headers;
+    }
+
+    private void saveRefreshToken(Long id, String refreshToken) {
+        Optional<List<JwtToken>> jwtToken = jwtTokenRepository.findByMemberId(id);
+        jwtToken.ifPresent(jwtTokenRepository::deleteAll);
+        JwtToken newToken = JwtToken.createJwtToken(id, refreshToken);
+        jwtTokenRepository.save(newToken);
+    }
+
+    private void validateRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+        }
+        if (!jwtProvider.isTokenValidate(refreshToken)) {
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+        }
     }
 }

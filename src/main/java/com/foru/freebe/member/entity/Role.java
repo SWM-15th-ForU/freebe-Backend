@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 public enum Role {
     ANONYMOUS,
-    PENDING,
+    PHOTOGRAPHER_PENDING,
     PHOTOGRAPHER,
     CUSTOMER,
     ADMIN

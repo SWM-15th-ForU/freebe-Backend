@@ -33,7 +33,7 @@ public class MemberService {
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
             .orElseGet(() -> {
                 if (role == Role.PHOTOGRAPHER) {
-                    return registerNewMember(kakaoUser, Role.PENDING);
+                    return registerNewMember(kakaoUser, Role.PHOTOGRAPHER_PENDING);
                 }
                 return registerNewMember(kakaoUser, role);
             });
@@ -77,7 +77,7 @@ public class MemberService {
                 .message("photographer login")
                 .data(profileService.getUniqueUrl(member.getId()))
                 .build();
-        } else if (member.getRole() == Role.PENDING) {
+        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             apiResponse = ApiResponse.<Void>builder()
                 .status(HttpStatus.OK.value())
                 .message("photographer join")

@@ -31,7 +31,7 @@ public class SecurityConfig {
             .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
             .authorizeHttpRequests((request) -> request
-                .requestMatchers("/photographer/join").hasAnyRole("PENDING")
+                .requestMatchers("/photographer/join").hasAnyRole("PHOTOGRAPHER_PENDING")
                 .requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
                 .requestMatchers("/customer").hasAnyRole("CUSTOMER")
                 .requestMatchers("/admin").hasAnyRole("ADMIN")

@@ -19,13 +19,15 @@ public class FormDetailsViewResponse {
     private CustomerDetails customerDetails;
     private Map<String, String> photoInfo;
     private Map<Integer, PreferredDate> preferredDates;
-    private List<String> preferredImages;
+    private List<String> originalImage;
+    private List<String> thumbnailImage;
     private String requestMemo;
 
     @Builder
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates, List<String> preferredImages,
+        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates, List<String> originalImage,
+        List<String> thumbnailImage,
         String requestMemo) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
@@ -34,7 +36,8 @@ public class FormDetailsViewResponse {
         this.customerDetails = customerDetails;
         this.photoInfo = photoInfo;
         this.preferredDates = preferredDates;
-        this.preferredImages = preferredImages;
+        this.originalImage = originalImage;
+        this.thumbnailImage = thumbnailImage;
         this.requestMemo = requestMemo;
     }
 

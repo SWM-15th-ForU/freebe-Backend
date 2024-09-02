@@ -1,8 +1,5 @@
 package com.foru.freebe.jwt.service;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 
@@ -49,9 +46,13 @@ public class JwtService {
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
-        Optional<List<JwtToken>> jwtToken = jwtTokenRepository.findByMemberId(id);
-        jwtToken.ifPresent(jwtTokenRepository::deleteAll);
-        JwtToken newToken = JwtToken.createJwtToken(id, refreshToken);
+        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::deleteAll);
+
+        JwtToken newToken = JwtToken.builder()
+            .memberId(id)
+            .refreshToken(refreshToken)
+            .expiresAt(jwtProvider.getExpiration(refreshToken))
+            .build();
         jwtTokenRepository.save(newToken);
     }
 

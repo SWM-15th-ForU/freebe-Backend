@@ -1,5 +1,7 @@
 package com.foru.freebe.jwt.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -64,13 +66,6 @@ public class JwtProvider {
             .compact();
     }
 
-    private Jws<Claims> parseClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
-    }
-
     public boolean isTokenValidate(String token) {
         Jws<Claims> claims = parseClaims(token);
         return true;
@@ -83,4 +78,18 @@ public class JwtProvider {
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    public LocalDateTime getExpiration(String token) {
+        Jws<Claims> claims = parseClaims(token);
+        Date expiration = claims.getPayload().getExpiration();
+        return expiration.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    private Jws<Claims> parseClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
+    }
+
 }

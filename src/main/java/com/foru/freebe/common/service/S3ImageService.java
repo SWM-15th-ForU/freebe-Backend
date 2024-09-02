@@ -1,4 +1,4 @@
-package com.foru.freebe;
+package com.foru.freebe.common.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,7 +72,7 @@ public class S3ImageService {
 
             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
             Thumbnails.of(originalImageStream)
-                .size(50, 50)
+                .size(200, 200)
                 .toOutputStream(thumbnailOutputStream);
 
             InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());

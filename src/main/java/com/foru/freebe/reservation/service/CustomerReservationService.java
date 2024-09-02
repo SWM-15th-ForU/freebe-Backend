@@ -1,10 +1,13 @@
 package com.foru.freebe.reservation.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.foru.freebe.S3ImageService;
 import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
@@ -42,17 +45,22 @@ public class CustomerReservationService {
     private final ProductComponentRepository productComponentRepository;
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
+    private final S3ImageService s3ImageService;
 
-    public ApiResponse<Void> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
+    public ApiResponse<String> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest,
+        List<MultipartFile> images) throws IOException {
         Member customer = findMember(customerId);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
 
         validateReservationForm(formRegisterRequest);
-        saveReservationForm(formRegisterRequest, reservationForm);
+        // TODO 확인
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
+        saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);
 
-        return ApiResponse.<Void>builder()
+        return ApiResponse.<String>builder()
             .status(200)
             .message("Good Request")
             .data(null)
@@ -87,16 +95,18 @@ public class CustomerReservationService {
             .build();
     }
 
-    private void saveReservationForm(FormRegisterRequest formRegisterRequest, ReservationForm reservationForm) {
+    private void saveReservationForm(List<String> originalImageUrls, List<String> thumbnailImageUrls,
+        ReservationForm reservationForm) {
         ReservationForm newReservationForm = reservationFormRepository.save(reservationForm);
 
         reservationHistoryRepository.save(
             ReservationHistory.updateReservationStatus(newReservationForm, ReservationStatus.NEW));
 
-        formRegisterRequest.getPreferredImages()
-            .stream()
-            .map(referenceImage -> ReferenceImage.updateReferenceImage(referenceImage, reservationForm))
-            .forEach(referenceImageRepository::save);
+        for (int i = 0; i < originalImageUrls.size(); i++) {
+            ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originalImageUrls.get(i),
+                thumbnailImageUrls.get(i), reservationForm);
+            referenceImageRepository.save(referenceImage);
+        }
     }
 
     private Member findMember(Long id) {
@@ -111,6 +121,7 @@ public class CustomerReservationService {
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(request.getPhotoInfo())
             .preferredDate(request.getPreferredDates())
+            .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
     }

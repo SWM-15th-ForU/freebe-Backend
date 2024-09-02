@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.reservation.dto.PhotoOption;
 import com.foru.freebe.reservation.dto.PreferredDate;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
@@ -71,6 +72,11 @@ public class ReservationForm extends BaseEntity {
     private Map<String, String> photoInfo;
 
     @Type(JsonType.class)
+    @Column(name = "photo_option", columnDefinition = "longtext")
+    @NotNull(message = "PhotoOption must not be null")
+    private Map<Integer, PhotoOption> photoOption;
+
+    @Type(JsonType.class)
     @Column(name = "preferred_date", columnDefinition = "longtext")
     @NotNull(message = "Preferred Date must not be null")
     private Map<Integer, PreferredDate> preferredDate;
@@ -83,7 +89,7 @@ public class ReservationForm extends BaseEntity {
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
-        String customerMemo, String photographerMemo) {
+        Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
@@ -94,6 +100,7 @@ public class ReservationForm extends BaseEntity {
         this.reservationStatus = reservationStatus;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
+        this.photoOption = photoOption;
         this.customerMemo = customerMemo;
         this.photographerMemo = photographerMemo;
     }

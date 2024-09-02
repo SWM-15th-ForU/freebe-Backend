@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtExceptionFilter jwtExceptionFilter;
 
@@ -37,6 +38,8 @@ public class SecurityConfig {
                 .requestMatchers("/customer/**").hasAnyRole("CUSTOMER")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                 .anyRequest().permitAll())
+            .exceptionHandling((handler) -> handler
+                .accessDeniedHandler(customAccessDeniedHandler))
 
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);

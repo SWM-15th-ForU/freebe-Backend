@@ -127,12 +127,14 @@ public class PhotographerReservationService {
 
     private ReferenceImageUrls getPreferredImages(ReservationForm reservationForm) {
         List<ReferenceImage> referenceImages = referenceImageRepository.findAllByReservationForm(reservationForm);
-        List<String> originalImageUrls = new ArrayList<>();
-        List<String> thumbnailImageUrls = new ArrayList<>();
-        for (ReferenceImage referenceImage : referenceImages) {
-            originalImageUrls.add(referenceImage.getOrigin_url());
-            thumbnailImageUrls.add(referenceImage.getThumbnail_url());
-        }
+
+        List<String> originalImageUrls = referenceImages.stream()
+            .map(ReferenceImage::getOrigin_url)
+            .collect(Collectors.toList());
+
+        List<String> thumbnailImageUrls = referenceImages.stream()
+            .map(ReferenceImage::getThumbnail_url)
+            .collect(Collectors.toList());
 
         return ReferenceImageUrls.builder()
             .originalImage(originalImageUrls)

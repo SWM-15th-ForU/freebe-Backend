@@ -32,9 +32,10 @@ public class SecurityConfig {
 
             .authorizeHttpRequests((request) -> request
                 .requestMatchers("/photographer/join").hasAnyRole("PHOTOGRAPHER_PENDING")
-                .requestMatchers("/photographer").hasAnyRole("PHOTOGRAPHER")
-                .requestMatchers("/customer").hasAnyRole("CUSTOMER")
-                .requestMatchers("/admin").hasAnyRole("ADMIN")
+                .requestMatchers("/photographer/**").hasAnyRole("PHOTOGRAPHER")
+                .requestMatchers("/customer/product/**").permitAll()
+                .requestMatchers("/customer/**").hasAnyRole("CUSTOMER")
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                 .anyRequest().permitAll())
 
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

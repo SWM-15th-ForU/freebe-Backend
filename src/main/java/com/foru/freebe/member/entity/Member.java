@@ -31,6 +31,7 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Column(length = 20, nullable = false)
     private Role role;
 
     @NotNull

@@ -1,10 +1,13 @@
 package com.foru.freebe.jwt.filter;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -27,9 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-        String path = request.getRequestURI();
-        String[] excludePath = {"/login/redirect", "/login", "/reissue", "/"};
-        return Arrays.asList(excludePath).contains(path);
+        List<RequestMatcher> matchers = new ArrayList<>();
+        matchers.add(new AntPathRequestMatcher("/customer/product/**"));
+        matchers.add(new AntPathRequestMatcher("/login/**"));
+        matchers.add(new AntPathRequestMatcher("/reissue"));
+
+        return matchers.stream()
+            .anyMatch((matcher -> matcher.matches(request)));
     }
 
     @Override

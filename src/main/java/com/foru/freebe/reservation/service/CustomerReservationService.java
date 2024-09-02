@@ -3,6 +3,7 @@ package com.foru.freebe.reservation.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,11 +103,14 @@ public class CustomerReservationService {
         reservationHistoryRepository.save(
             ReservationHistory.updateReservationStatus(newReservationForm, ReservationStatus.NEW));
 
-        for (int i = 0; i < originalImageUrls.size(); i++) {
-            ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originalImageUrls.get(i),
-                thumbnailImageUrls.get(i), reservationForm);
+        IntStream.range(0, originalImageUrls.size()).forEach(i -> {
+            ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(
+                originalImageUrls.get(i),
+                thumbnailImageUrls.get(i),
+                reservationForm
+            );
             referenceImageRepository.save(referenceImage);
-        }
+        });
     }
 
     private Member findMember(Long id) {

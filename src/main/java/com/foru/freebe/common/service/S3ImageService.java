@@ -34,21 +34,20 @@ public class S3ImageService {
     @Value("${AWS_S3_BUCKET}")
     private String bucketName;
 
+    // public List<String> uploadOriginalImage(List<MultipartFile> images) throws IOException {
+    //     if (images.isEmpty()) {
+    //         throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+    //     }
+    //     return uploadImageToS3(images);
+    // }
+    // public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
+    //     if (images.isEmpty()) {
+    //         throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+    //     }
+    //     return createThumbnail(images);
+    // }
+
     public List<String> uploadOriginalImage(List<MultipartFile> images) throws IOException {
-        if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
-        return uploadImageToS3(images);
-    }
-
-    public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
-        if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
-        return createThumbnail(images);
-    }
-
-    private List<String> uploadImageToS3(List<MultipartFile> images) throws IOException {
         List<String> originalImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
             String originKey = "origin/" + image.getOriginalFilename();
@@ -65,7 +64,7 @@ public class S3ImageService {
         return originalImageUrls;
     }
 
-    private List<String> createThumbnail(List<MultipartFile> images) throws IOException {
+    public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
             InputStream originalImageStream = image.getInputStream();

@@ -6,8 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.entity.Role;
 
@@ -41,7 +43,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         } catch (JwtException e) {
             throw new JwtException(e.getMessage(), e);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RestApiException(CommonErrorCode.IO_EXCEPTION);
         }
     }
 }

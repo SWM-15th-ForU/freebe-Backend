@@ -1,6 +1,8 @@
 package com.foru.freebe.profile.service;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -9,7 +11,11 @@ import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.profile.dto.LinkInfo;
+import com.foru.freebe.profile.dto.ProfileResponse;
+import com.foru.freebe.profile.entity.Link;
 import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.LinkRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 public class ProfileService {
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
+    private final LinkRepository linkRepository;
 
     @Value("${FREEBE_BASE_URL}")
     private String freebeBaseUrl;
@@ -35,6 +42,26 @@ public class ProfileService {
         }
 
         return profile.getUniqueUrl();
+    }
+
+    public ProfileResponse getPhotographerProfile(String uniqueUrl) {
+        Profile photographerProfile = profileRepository.findByUniqueUrl(uniqueUrl)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        Member photographer = photographerProfile.getMember();
+
+        List<Link> links = linkRepository.findByProfile(photographerProfile);
+
+        List<LinkInfo> linkInfos = links.stream()
+            .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
+            .collect(Collectors.toList());
+
+        return new ProfileResponse(
+            photographerProfile.getBannerImageUrl(),
+            photographerProfile.getProfileImageUrl(),
+            photographer.getInstagramId(),
+            photographerProfile.getIntroductionContent(),
+            linkInfos);
     }
 
     private Profile createMemberProfile(Member member) {

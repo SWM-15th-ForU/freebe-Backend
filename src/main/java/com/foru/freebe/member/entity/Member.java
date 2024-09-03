@@ -31,6 +31,7 @@ public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @NotNull
+    @Column(length = 20, nullable = false)
     private Role role;
 
     @NotNull
@@ -48,12 +49,16 @@ public class Member extends BaseEntity {
 
     private String instagramId;
 
-    public String getAuthority() {
-        return "ROLE_" + role.name();
-    }
-
     public void assignRole(Role role) {
         this.role = role;
+    }
+
+    public void assignInstagramId(String instagramId) {
+        this.instagramId = instagramId;
+    }
+
+    public String getAuthority() {
+        return "ROLE_" + role.name();
     }
 
     @Builder

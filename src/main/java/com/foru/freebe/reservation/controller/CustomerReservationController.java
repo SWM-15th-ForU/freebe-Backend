@@ -41,7 +41,9 @@ public class CustomerReservationController {
 
     @GetMapping("/reservation/{reservationFormId}")
     public ApiResponse<ReservationInfoResponse> getReservationInfo(
+        @AuthenticationPrincipal MemberAdapter memberAdapter,
         @Valid @PathVariable("reservationFormId") Long reservationFormId) {
-        return customerReservationService.getReservationInfo(reservationFormId);
+        Member customer = memberAdapter.getMember();
+        return customerReservationService.getReservationInfo(reservationFormId, customer.getId());
     }
 }

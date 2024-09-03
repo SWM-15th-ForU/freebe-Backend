@@ -88,9 +88,11 @@ public class CustomerReservationService {
             .build();
     }
 
-    public ApiResponse<ReservationInfoResponse> getReservationInfo(Long reservationFormId) {
+    public ApiResponse<ReservationInfoResponse> getReservationInfo(Long reservationFormId, Long customerId) {
         ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        validateCustomerAccess(reservationForm, customerId);
 
         ReservationInfoResponse reservationInfoResponse = new ReservationInfoResponse(
             reservationForm.getReservationStatus(), reservationForm.getProductTitle(),
@@ -176,5 +178,12 @@ public class CustomerReservationService {
             productComponentDtoList.add(productComponentDto);
         }
         return productComponentDtoList;
+    }
+
+    private void validateCustomerAccess(ReservationForm reservationForm, Long customerId) {
+        Long reservationCustomerId = reservationForm.getCustomer().getId();
+        if (!reservationCustomerId.equals(customerId)) {
+            throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
+        }
     }
 }

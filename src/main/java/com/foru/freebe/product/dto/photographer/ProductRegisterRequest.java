@@ -13,8 +13,6 @@ public class ProductRegisterRequest {
     private String productTitle;
     private String productDescription;
     @NotNull
-    private List<String> productImageUrls;
-    @NotNull
     private List<ProductComponentDto> productComponents;
     private List<ProductOptionDto> productOptions;
     private List<ProductDiscountDto> productDiscounts;

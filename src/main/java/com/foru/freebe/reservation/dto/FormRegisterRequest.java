@@ -22,6 +22,8 @@ public class FormRegisterRequest {
 
     private Map<Integer, PreferredDate> preferredDates;
 
+    private Map<Integer, PhotoOption> photoOptions;
+
     private List<String> preferredImages;
 
     private String customerMemo;

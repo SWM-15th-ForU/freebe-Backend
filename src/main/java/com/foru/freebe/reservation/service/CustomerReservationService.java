@@ -22,6 +22,7 @@ import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
+import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
@@ -43,7 +44,7 @@ public class CustomerReservationService {
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
 
-    public ApiResponse<Void> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
+    public ApiResponse<Long> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest) {
         Member customer = findMember(customerId);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
@@ -52,10 +53,10 @@ public class CustomerReservationService {
         validateReservationForm(formRegisterRequest);
         saveReservationForm(formRegisterRequest, reservationForm);
 
-        return ApiResponse.<Void>builder()
+        return ApiResponse.<Long>builder()
             .status(200)
             .message("Good Request")
-            .data(null)
+            .data(reservationForm.getId())
             .build();
     }
 
@@ -87,6 +88,25 @@ public class CustomerReservationService {
             .build();
     }
 
+    public ApiResponse<ReservationInfoResponse> getReservationInfo(Long reservationFormId, Long customerId) {
+        ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        validateCustomerAccess(reservationForm, customerId);
+
+        ReservationInfoResponse reservationInfoResponse = new ReservationInfoResponse(
+            reservationForm.getReservationStatus(), reservationForm.getProductTitle(),
+            reservationForm.getPhotoInfo(), reservationForm.getPreferredDate(), reservationForm.getPhotoOption(),
+            reservationForm.getCustomerMemo(), reservationForm.getServiceTermAgreement(),
+            reservationForm.getPhotographerTermAgreement());
+
+        return ApiResponse.<ReservationInfoResponse>builder()
+            .status(200)
+            .message("Good Response")
+            .data(reservationInfoResponse)
+            .build();
+    }
+
     private void saveReservationForm(FormRegisterRequest formRegisterRequest, ReservationForm reservationForm) {
         ReservationForm newReservationForm = reservationFormRepository.save(reservationForm);
 
@@ -111,6 +131,7 @@ public class CustomerReservationService {
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(request.getPhotoInfo())
             .preferredDate(request.getPreferredDates())
+            .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
     }
@@ -157,5 +178,12 @@ public class CustomerReservationService {
             productComponentDtoList.add(productComponentDto);
         }
         return productComponentDtoList;
+    }
+
+    private void validateCustomerAccess(ReservationForm reservationForm, Long customerId) {
+        Long reservationCustomerId = reservationForm.getCustomer().getId();
+        if (!reservationCustomerId.equals(customerId)) {
+            throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
+        }
     }
 }

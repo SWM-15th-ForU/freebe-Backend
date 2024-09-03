@@ -10,7 +10,7 @@ public enum CommonErrorCode implements ErrorCode {
     INVALID_PARAMETER(400, "Invalid parameter included"),
     RESOURCE_NOT_FOUND(404, "Resource not exists"),
     INTERNAL_SERVER_ERROR(500, "Internal server error"),
-    INVALID_MEMBER_ROLE_TYPE(404, "Invalid member role type");
+    ACCESS_DENIED(403, "You don't have permission to access this resource.");
 
     private final int httpStatus;
     private final String message;

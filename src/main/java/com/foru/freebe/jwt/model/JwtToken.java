@@ -39,6 +39,10 @@ public class JwtToken {
     @NotNull
     private Boolean isRevoked;
 
+    public void revokeToken() {
+        isRevoked = true;
+    }
+
     @Builder
     private JwtToken(Long memberId, String refreshToken, LocalDateTime expiresAt) {
         this.memberId = memberId;

@@ -1,52 +1,62 @@
 package com.foru.freebe.jwt.service;
 
+import java.time.LocalDateTime;
+
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.auth.model.CustomUserDetails;
+import com.foru.freebe.auth.service.CustomUserDetailsService;
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
 import com.foru.freebe.jwt.model.JwtToken;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
+import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.entity.Role;
+import com.foru.freebe.member.repository.MemberRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class JwtService {
-    private final JwtTokenRepository jwtTokenRepository;
+    private final CustomUserDetailsService customUserDetailsService;
     private final JwtProvider jwtProvider;
+    private final JwtTokenRepository jwtTokenRepository;
+    private final MemberRepository memberRepository;
 
-    public JwtTokenModel generateToken(Long id) {
-        String accessToken = jwtProvider.generateAccessToken(id);
-        String refreshToken = jwtProvider.generateRefreshToken(id);
-
-        saveRefreshToken(id, refreshToken);
-
-        return new JwtTokenModel(accessToken, refreshToken);
+    private void checkTokenExpiration(String token) {
+        if (jwtProvider.getExpiration(token).isBefore(LocalDateTime.now())) {
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+        }
     }
 
-    public JwtTokenModel reissueToken(String refreshToken) {
-        validateRefreshToken(refreshToken);
-
-        JwtToken jwtToken = jwtTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
-
-        Long memberId = jwtToken.getMemberId();
-        jwtTokenRepository.delete(jwtToken);
-
-        return generateToken(memberId);
+    private void checkRefreshTokenRevocation(JwtToken refreshToken) {
+        if (refreshToken.getIsRevoked()) {
+            throw new JwtTokenException(JwtErrorCode.REVOKED_TOKEN);
+        }
     }
 
-    public HttpHeaders setTokenHeaders(JwtTokenModel token) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("accessToken", token.getAccessToken());
-        headers.add("refreshToken", token.getRefreshToken());
-        return headers;
+    private Long getMemberIdFromToken(String token) {
+        return Long.valueOf(jwtProvider.parseClaims(token).getPayload().get("memberId", String.class));
+    }
+
+    private JwtToken getTokenFromMemberId(Long memberId) {
+        return jwtTokenRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+    }
+
+    private void validateRefreshToken(JwtToken refreshToken) {
+        checkTokenExpiration(refreshToken.getRefreshToken());
+        checkRefreshTokenRevocation(refreshToken);
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
-        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::deleteAll);
+        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::delete);
 
         JwtToken newToken = JwtToken.builder()
             .memberId(id)
@@ -56,12 +66,70 @@ public class JwtService {
         jwtTokenRepository.save(newToken);
     }
 
-    private void validateRefreshToken(String refreshToken) {
+    public boolean isAccessTokenValid(String accessToken) {
+        checkTokenExpiration(accessToken);
+
+        Long memberId = getMemberIdFromToken(accessToken);
+        JwtToken refreshToken = getTokenFromMemberId(memberId);
+
+        validateRefreshToken(refreshToken);
+        return true;
+    }
+
+    public Authentication getAuthentication(String token) {
+        String memberId = String.valueOf(getMemberIdFromToken(token));
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
+    @Transactional
+    public JwtTokenModel generateToken(Long id) {
+        String accessToken = jwtProvider.generateAccessToken(id);
+        String refreshToken = jwtProvider.generateRefreshToken(id);
+
+        saveRefreshToken(id, refreshToken);
+
+        return new JwtTokenModel(accessToken, refreshToken);
+    }
+
+    @Transactional
+    public JwtTokenModel reissueToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
         }
-        if (!jwtProvider.isTokenValidate(refreshToken)) {
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
-        }
+
+        Long memberId = getMemberIdFromToken(refreshToken);
+        JwtToken oldToken = getTokenFromMemberId(memberId);
+        validateRefreshToken(oldToken);
+
+        jwtTokenRepository.delete(oldToken);
+
+        return generateToken(memberId);
+    }
+
+    public Role getMemberRole(String token) {
+        Long memberId = getMemberIdFromToken(token);
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
+
+        return member.getRole();
+    }
+
+    @Transactional
+    public void revokeToken(String token) {
+        Long memberId = getMemberIdFromToken(token);
+        JwtToken refreshToken = getTokenFromMemberId(memberId);
+
+        validateRefreshToken(refreshToken);
+        refreshToken.revokeToken();
+        jwtTokenRepository.save(refreshToken);
+    }
+
+    public HttpHeaders setTokenHeaders(JwtTokenModel token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("accessToken", token.getAccessToken());
+        headers.add("refreshToken", token.getRefreshToken());
+        return headers;
     }
 }

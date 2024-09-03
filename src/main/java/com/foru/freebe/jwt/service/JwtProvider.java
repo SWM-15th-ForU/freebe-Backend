@@ -7,12 +7,7 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
-import com.foru.freebe.auth.model.CustomUserDetails;
-import com.foru.freebe.auth.service.CustomUserDetailsService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -24,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
-    private final CustomUserDetailsService customUserDetailsService;
-
     @Value("${JWT_SECRET_KEY}")
     private String jwtSecretKey;
     private SecretKey secretKey;
@@ -66,17 +59,11 @@ public class JwtProvider {
             .compact();
     }
 
-    public boolean isTokenValidate(String token) {
-        Jws<Claims> claims = parseClaims(token);
-        return true;
-    }
-
-    public Authentication getAuthentication(String token) {
-        Jws<Claims> claims = parseClaims(token);
-        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(
-            claims.getPayload().get("memberId", String.class));
-
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    public Jws<Claims> parseClaims(String token) {
+        return Jwts.parser()
+            .verifyWith(secretKey)
+            .build()
+            .parseSignedClaims(token);
     }
 
     public LocalDateTime getExpiration(String token) {
@@ -84,12 +71,4 @@ public class JwtProvider {
         Date expiration = claims.getPayload().getExpiration();
         return expiration.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
-
-    private Jws<Claims> parseClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
-    }
-
 }

@@ -25,11 +25,15 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         } catch (JwtTokenException e) {
             response.setStatus(e.getHttpStatus());
             response.setContentType("application/json");
-            response.getWriter().write(e.getMessage());
+            response.getWriter()
+                .write(
+                    "{\"message\":\"" + e.getMessage() + "\"}");
         } catch (JwtException e) {
             response.setStatus(400);
             response.setContentType("application/json");
-            response.getWriter().write(e.getMessage());
+            response.getWriter()
+                .write(
+                    "{\"message\":\"" + e.getMessage() + "\"}");
         }
     }
 }

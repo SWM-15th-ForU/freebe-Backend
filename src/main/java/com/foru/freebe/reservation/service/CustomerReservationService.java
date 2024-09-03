@@ -54,9 +54,8 @@ public class CustomerReservationService {
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-
         validateReservationForm(formRegisterRequest);
-        // TODO 확인
+
         List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
         saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);

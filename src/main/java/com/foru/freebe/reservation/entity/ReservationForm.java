@@ -69,6 +69,7 @@ public class ReservationForm extends BaseEntity {
 
     @Type(JsonType.class)
     @Column(name = "photo_info", columnDefinition = "longtext")
+    @NotNull(message = "PhotoInfo must not be null")
     private Map<String, String> photoInfo;
 
     @Type(JsonType.class)
@@ -78,7 +79,6 @@ public class ReservationForm extends BaseEntity {
 
     @Type(JsonType.class)
     @Column(name = "photo_option", columnDefinition = "longtext")
-    @NotNull(message = "PhotoOption must not be null")
     private Map<Integer, PhotoOption> photoOption;
 
     private String customerMemo;

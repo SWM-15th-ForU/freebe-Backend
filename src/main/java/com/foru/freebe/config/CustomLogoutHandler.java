@@ -25,7 +25,7 @@ public class CustomLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         try {
             String refreshToken = request.getHeader("refreshToken");
-            if (refreshToken == null) {
+            if (refreshToken == null || refreshToken.isEmpty()) {
                 throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
             }
             Role role = jwtService.getMemberRole(refreshToken);

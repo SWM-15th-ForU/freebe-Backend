@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.profile.dto.LinkInfo;
 import com.foru.freebe.profile.dto.ProfileResponse;
@@ -45,15 +44,11 @@ public class ProfileService {
         return profile.getUniqueUrl();
     }
 
-    public ProfileResponse getPhotographerProfile(Long photographerId) {
-        Member photographer = memberRepository.findById(photographerId)
+    public ProfileResponse getPhotographerProfile(String uniqueUrl) {
+        Profile photographerProfile = profileRepository.findByUniqueUrl(uniqueUrl)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-        if (photographer.getRole() != Role.PHOTOGRAPHER) {
-            throw new RestApiException(CommonErrorCode.INVALID_MEMBER_ROLE_TYPE);
-        }
 
-        Profile photographerProfile = profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        Member photographer = photographerProfile.getMember();
 
         List<Link> links = linkRepository.findByProfile(photographerProfile);
 

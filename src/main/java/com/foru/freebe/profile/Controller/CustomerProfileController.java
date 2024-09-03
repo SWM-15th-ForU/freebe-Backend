@@ -18,10 +18,10 @@ import lombok.RequiredArgsConstructor;
 public class CustomerProfileController {
     private final ProfileService profileService;
 
-    @GetMapping("/profile/{photographerId}")
+    @GetMapping("/profile/{uniqueUrl}")
     public ApiResponse<ProfileResponse> getPhotographerProfile(
-        @Valid @PathVariable("photographerId") Long photographerId) {
-        ProfileResponse profileResponse = profileService.getPhotographerProfile(photographerId);
+        @Valid @PathVariable("uniqueUrl") String uniqueUrl) {
+        ProfileResponse profileResponse = profileService.getPhotographerProfile(uniqueUrl);
 
         return ApiResponse.<ProfileResponse>builder()
             .status(200)

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.CustomerDetails;
@@ -88,16 +89,16 @@ public class PhotographerReservationService {
             formComponents.sort((fc1, fc2) -> {
                 if (fc1.getShootingDate() != null && fc2.getShootingDate() != null) {
                     int dateComparison = fc1.getShootingDate().getDate().compareTo(fc2.getShootingDate().getDate());
-                    if (dateComparison != 0) {
-                        return dateComparison; // 날짜로 정렬
+                    if (dateComparison == SortConstants.EQUAL) {
+                        return fc1.getShootingDate().getStartTime().compareTo(fc2.getShootingDate().getStartTime());
                     }
-                    return fc1.getShootingDate().getStartTime().compareTo(fc2.getShootingDate().getStartTime());
+                    return dateComparison;
                 } else if (fc1.getShootingDate() != null) {
-                    return -1; // fc1은 날짜가 있지만 fc2는 없는 경우 fc1이 우선
+                    return SortConstants.LESS_THAN;
                 } else if (fc2.getShootingDate() != null) {
-                    return 1; // fc2는 날짜가 있지만 fc1은 없는 경우 fc2가 우선
+                    return SortConstants.GREATER_THAN;
                 }
-                return 0;
+                return SortConstants.EQUAL;
             });
             return formComponents;
         }

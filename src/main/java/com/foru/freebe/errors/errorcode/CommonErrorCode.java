@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum CommonErrorCode implements ErrorCode {
 
     INVALID_PARAMETER(400, "Invalid parameter included"),
+    ACCESS_DENIED(403, "You don't have permission to access this resource."),
     RESOURCE_NOT_FOUND(404, "Resource not exists"),
     INTERNAL_SERVER_ERROR(500, "Internal server error"),
     IO_EXCEPTION(500, "IoException occurred");

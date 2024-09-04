@@ -15,6 +15,7 @@ import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PreferredDate;
+import com.foru.freebe.reservation.dto.ReferenceImageUrls;
 import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -50,12 +51,13 @@ public class PhotographerReservationService {
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
         Map<String, String> shootDetails = reservationForm.getPhotoInfo();
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
-        List<String> preferredImages = getPreferredImages(reservationForm);
+        ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
         FormDetailsViewResponse formDetailsViewResponse = FormDetailsViewResponse.builder(reservationForm.getId(),
                 reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
                 shootDetails, preferredDates)
-            .preferredImages(preferredImages)
+            .originalImage(preferredImages.getOriginalImage())
+            .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())
             .build();
 
@@ -123,11 +125,20 @@ public class PhotographerReservationService {
             .build();
     }
 
-    private List<String> getPreferredImages(ReservationForm reservationForm) {
-        return referenceImageRepository.findAllByReservationForm(reservationForm)
-            .orElse(List.of())
-            .stream()
-            .map(ReferenceImage::getReferencingImage)
+    private ReferenceImageUrls getPreferredImages(ReservationForm reservationForm) {
+        List<ReferenceImage> referenceImages = referenceImageRepository.findAllByReservationForm(reservationForm);
+
+        List<String> originalImageUrls = referenceImages.stream()
+            .map(ReferenceImage::getOriginUrl)
             .collect(Collectors.toList());
+
+        List<String> thumbnailImageUrls = referenceImages.stream()
+            .map(ReferenceImage::getThumbnailUrl)
+            .collect(Collectors.toList());
+
+        return ReferenceImageUrls.builder()
+            .originalImage(originalImageUrls)
+            .thumbnailImage(thumbnailImageUrls)
+            .build();
     }
 }

@@ -24,8 +24,7 @@ public class ProductImage extends BaseEntity {
     @Column(name = "product_image_id")
     private Long id;
 
-    // TODO 추후 원본 이미지 리사이징 로직 구현 후 추가 예정
-    // @NotNull
+    @NotNull
     private String thumbnailUrl;
 
     @NotNull

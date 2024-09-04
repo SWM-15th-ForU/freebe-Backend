@@ -1,5 +1,6 @@
 package com.foru.freebe.product.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ApiResponse;
@@ -29,9 +32,10 @@ public class PhotographerProductController {
 
     @PostMapping("/product")
     public ApiResponse<Void> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @Valid @RequestBody ProductRegisterRequest productRegisterRequest) {
+        @RequestPart(value = "request") ProductRegisterRequest request,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
         Member photographer = memberAdapter.getMember();
-        return productService.registerProduct(productRegisterRequest, photographer.getId());
+        return productService.registerProduct(request, images, photographer.getId());
     }
 
     @GetMapping("/product/list")

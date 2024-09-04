@@ -40,6 +40,8 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
     implementation 'io.hypersistence:hypersistence-utils-hibernate-60:3.3.1'
     implementation 'com.fasterxml.jackson.module:jackson-module-jakarta-xmlbind-annotations'
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation group: 'net.coobird', name: 'thumbnailator', version: '0.4.1'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'

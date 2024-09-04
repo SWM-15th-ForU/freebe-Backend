@@ -29,23 +29,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class S3ImageService {
+    private static final int THUMBNAIL_SIZE = 200;
+
     private final AmazonS3 amazonS3;
 
     @Value("${AWS_S3_BUCKET}")
     private String bucketName;
-
-    // public List<String> uploadOriginalImage(List<MultipartFile> images) throws IOException {
-    //     if (images.isEmpty()) {
-    //         throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-    //     }
-    //     return uploadImageToS3(images);
-    // }
-    // public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
-    //     if (images.isEmpty()) {
-    //         throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-    //     }
-    //     return createThumbnail(images);
-    // }
 
     public List<String> uploadOriginalImage(List<MultipartFile> images) throws IOException {
         List<String> originalImageUrls = new ArrayList<>();
@@ -71,7 +60,7 @@ public class S3ImageService {
 
             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
             Thumbnails.of(originalImageStream)
-                .size(200, 200)
+                .size(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
                 .toOutputStream(thumbnailOutputStream);
 
             InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());

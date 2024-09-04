@@ -17,10 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import net.coobird.thumbnailator.Thumbnails;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 
@@ -82,8 +85,12 @@ public class S3ImageService {
         String key = getKeyFromImageAddress(imageAddress);
         try {
             amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
+        } catch (AmazonS3Exception e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_S3_EXCEPTION);
+        } catch (AmazonServiceException e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
         } catch (Exception e) {
-            throw new RestApiException(CommonErrorCode.IO_EXCEPTION);
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 

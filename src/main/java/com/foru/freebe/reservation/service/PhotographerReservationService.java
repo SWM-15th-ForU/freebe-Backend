@@ -129,11 +129,11 @@ public class PhotographerReservationService {
         List<ReferenceImage> referenceImages = referenceImageRepository.findAllByReservationForm(reservationForm);
 
         List<String> originalImageUrls = referenceImages.stream()
-            .map(ReferenceImage::getOrigin_url)
+            .map(ReferenceImage::getOriginUrl)
             .collect(Collectors.toList());
 
         List<String> thumbnailImageUrls = referenceImages.stream()
-            .map(ReferenceImage::getThumbnail_url)
+            .map(ReferenceImage::getThumbnailUrl)
             .collect(Collectors.toList());
 
         return ReferenceImageUrls.builder()

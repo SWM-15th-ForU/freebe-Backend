@@ -22,7 +22,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -48,10 +47,8 @@ public class S3ImageService {
             metadata.setContentLength(image.getSize());
             metadata.setContentType(image.getContentType());
 
-            amazonS3.putObject(bucketName, originKey, image.getInputStream(), metadata);
-
-            String imageUrl = amazonS3.getUrl(bucketName, originKey).toString();
-            originalImageUrls.add(imageUrl);
+            uploadToS3(originKey, image.getInputStream(), metadata);
+            addImageUrlFromS3(originKey, originalImageUrls);
         }
         return originalImageUrls;
     }
@@ -59,6 +56,7 @@ public class S3ImageService {
     public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
+            String thumbnailKey = "thumbnail/" + image.getOriginalFilename();
             InputStream originalImageStream = image.getInputStream();
 
             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
@@ -68,16 +66,31 @@ public class S3ImageService {
 
             InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
 
+            String contentType = image.getContentType();
             ObjectMetadata thumbnailMetadata = new ObjectMetadata();
-            thumbnailMetadata.setContentType("image/jpeg"); // 썸네일의 콘텐츠 타입 설정 (JPEG로 가정)
+            thumbnailMetadata.setContentType(contentType);
 
-            String thumbnailKey = "thumbnail/" + image.getOriginalFilename();
-            amazonS3.putObject(new PutObjectRequest(bucketName, thumbnailKey, thumbnailInputStream, thumbnailMetadata));
-
-            String imageUrl = amazonS3.getUrl(bucketName, thumbnailKey).toString();
-            thumbnailImageUrls.add(imageUrl);
+            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+            addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
         }
         return thumbnailImageUrls;
+    }
+
+    private void uploadToS3(String key, InputStream imageInputStream, ObjectMetadata metadata) {
+        try {
+            amazonS3.putObject(bucketName, key, imageInputStream, metadata);
+        } catch (AmazonS3Exception e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_S3_EXCEPTION);
+        } catch (AmazonServiceException e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
+        } catch (Exception e) {
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private void addImageUrlFromS3(String key, List<String> originalImageUrls) {
+        String imageUrl = amazonS3.getUrl(bucketName, key).toString();
+        originalImageUrls.add(imageUrl);
     }
 
     // TODO 추후 수정 및 삭제 API 티켓에서 사용할 예정

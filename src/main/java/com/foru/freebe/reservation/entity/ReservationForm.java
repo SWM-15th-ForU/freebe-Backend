@@ -78,6 +78,10 @@ public class ReservationForm extends BaseEntity {
     private Map<Integer, PreferredDate> preferredDate;
 
     @Type(JsonType.class)
+    @Column(name = "shooting_date", columnDefinition = "longtext")
+    private PreferredDate shootingDate;
+
+    @Type(JsonType.class)
     @Column(name = "photo_option", columnDefinition = "longtext")
     private Map<Integer, PhotoOption> photoOption;
 

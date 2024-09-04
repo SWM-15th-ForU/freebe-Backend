@@ -1,6 +1,7 @@
 package com.foru.freebe.reservation.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,35 +72,35 @@ public class PhotographerReservationService {
             .orElseGet(ArrayList::new);
 
         Map<ReservationStatus, List<FormComponent>> reservationStatusMap = groupingFormAsStatus(formList);
-        reservationStatusMap.forEach((status, formComponents) -> {
-            formComponents.sort((fc1, fc2) -> {
-                if (fc1.getReservationStatus() == ReservationStatus.NEW
-                    && fc2.getReservationStatus() == ReservationStatus.NEW) {
-                    return fc2.getReservationId().compareTo(fc1.getReservationId());
-                } else if (fc1.getReservationStatus() == ReservationStatus.IN_PROGRESS
-                    && fc2.getReservationStatus() == ReservationStatus.IN_PROGRESS) {
-                    return fc2.getReservationId().compareTo(fc1.getReservationId());
-                } else {
-                    if (fc1.getShootingDate() != null && fc2.getShootingDate() != null) {
-                        int dateComparison = fc1.getShootingDate().getDate().compareTo(fc2.getShootingDate().getDate());
-                        if (dateComparison != 0) {
-                            return dateComparison; // 날짜가 다르면 날짜로 정렬
-                        }
-                        // 날짜가 같은 경우, 시작 시간 비교
-                        return fc1.getShootingDate().getStartTime().compareTo(fc2.getShootingDate().getStartTime());
-                    } else if (fc1.getShootingDate() != null) {
-                        return -1; // fc1은 날짜가 있지만 fc2는 없는 경우 fc1이 우선
-                    } else if (fc2.getShootingDate() != null) {
-                        return 1; // fc2는 날짜가 있지만 fc1은 없는 경우 fc2가 우선
-                    }
-                    return 0; // 둘 다 null인 경우 정렬 순서 없음
-                }
-            });
-        });
 
         return reservationStatusMap.entrySet().stream()
-            .map(entry -> new FormListViewResponse(entry.getKey(), entry.getValue()))
+            .map(
+                entry -> new FormListViewResponse(entry.getKey(), sortFormComponents(entry.getKey(), entry.getValue())))
             .collect(Collectors.toList());
+    }
+
+    private List<FormComponent> sortFormComponents(ReservationStatus status, List<FormComponent> formComponents) {
+        if (status == ReservationStatus.NEW || status == ReservationStatus.IN_PROGRESS) {
+            return formComponents.stream()
+                .sorted(Comparator.comparingLong(FormComponent::getReservationId).reversed())
+                .collect(Collectors.toList());
+        } else {
+            formComponents.sort((fc1, fc2) -> {
+                if (fc1.getShootingDate() != null && fc2.getShootingDate() != null) {
+                    int dateComparison = fc1.getShootingDate().getDate().compareTo(fc2.getShootingDate().getDate());
+                    if (dateComparison != 0) {
+                        return dateComparison; // 날짜로 정렬
+                    }
+                    return fc1.getShootingDate().getStartTime().compareTo(fc2.getShootingDate().getStartTime());
+                } else if (fc1.getShootingDate() != null) {
+                    return -1; // fc1은 날짜가 있지만 fc2는 없는 경우 fc1이 우선
+                } else if (fc2.getShootingDate() != null) {
+                    return 1; // fc2는 날짜가 있지만 fc1은 없는 경우 fc2가 우선
+                }
+                return 0;
+            });
+            return formComponents;
+        }
     }
 
     private Map<ReservationStatus, List<FormComponent>> groupingFormAsStatus(

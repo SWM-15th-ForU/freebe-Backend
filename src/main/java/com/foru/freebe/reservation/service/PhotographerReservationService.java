@@ -86,6 +86,7 @@ public class PhotographerReservationService {
 
     private FormComponent toFormComponent(ReservationForm reservationForm) {
         return new FormComponent(
+            reservationForm.getId(),
             reservationForm.getReservationStatus(),
             reservationForm.getCustomer().getName(),
             reservationForm.getProductTitle(),

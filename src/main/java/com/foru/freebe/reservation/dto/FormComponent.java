@@ -8,6 +8,7 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class FormComponent {
+    private Long reservationId;
     private ReservationStatus reservationStatus;
     private String customerName;
     private String productTitle;

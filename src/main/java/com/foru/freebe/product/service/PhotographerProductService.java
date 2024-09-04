@@ -51,6 +51,10 @@ public class PhotographerProductService {
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member member = getMember(photographerId);
 
+        if (images.isEmpty()) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
+
         Product productAsActive = registerActiveProduct(productRegisterRequestDto, member);
         registerProductImage(images, productAsActive);
         registerProductComponent(productRegisterRequestDto.getProductComponents(), productAsActive);

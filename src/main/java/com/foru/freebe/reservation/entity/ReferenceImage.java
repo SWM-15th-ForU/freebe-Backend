@@ -27,19 +27,19 @@ public class ReferenceImage {
     private ReservationForm reservationForm;
 
     @NotNull
-    private String origin_url;
+    private String originUrl;
 
     @NotNull
-    private String thumbnail_url;
+    private String thumbnailUrl;
 
-    private ReferenceImage(String origin_url, String thumbnail_url, ReservationForm reservationForm) {
-        this.origin_url = origin_url;
-        this.thumbnail_url = thumbnail_url;
+    private ReferenceImage(String originUrl, String thumbnailUrl, ReservationForm reservationForm) {
+        this.originUrl = originUrl;
+        this.thumbnailUrl = thumbnailUrl;
         this.reservationForm = reservationForm;
     }
 
-    public static ReferenceImage updateReferenceImage(String origin_url, String thumbnail_url,
+    public static ReferenceImage updateReferenceImage(String originUrl, String thumbnailUrl,
         ReservationForm reservationForm) {
-        return new ReferenceImage(origin_url, thumbnail_url, reservationForm);
+        return new ReferenceImage(originUrl, thumbnailUrl, reservationForm);
     }
 }

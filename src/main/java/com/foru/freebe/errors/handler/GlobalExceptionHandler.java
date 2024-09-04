@@ -30,8 +30,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(JwtTokenException.class)
     public ResponseEntity<Object> handleJwtAuthenticationException(JwtTokenException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        return handleExceptionInternal(errorCode);
+        return handleExceptionInternal(e.getErrorCode());
     }
 
     // 메서드 인자 타입 예외 처리

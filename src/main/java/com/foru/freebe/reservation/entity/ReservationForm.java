@@ -69,17 +69,17 @@ public class ReservationForm extends BaseEntity {
 
     @Type(JsonType.class)
     @Column(name = "photo_info", columnDefinition = "longtext")
+    @NotNull(message = "PhotoInfo must not be null")
     private Map<String, String> photoInfo;
-
-    @Type(JsonType.class)
-    @Column(name = "photo_option", columnDefinition = "longtext")
-    @NotNull(message = "PhotoOption must not be null")
-    private Map<Integer, PhotoOption> photoOption;
 
     @Type(JsonType.class)
     @Column(name = "preferred_date", columnDefinition = "longtext")
     @NotNull(message = "Preferred Date must not be null")
     private Map<Integer, PreferredDate> preferredDate;
+
+    @Type(JsonType.class)
+    @Column(name = "photo_option", columnDefinition = "longtext")
+    private Map<Integer, PhotoOption> photoOption;
 
     private String customerMemo;
 

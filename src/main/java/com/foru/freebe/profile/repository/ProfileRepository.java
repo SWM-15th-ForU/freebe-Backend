@@ -9,4 +9,6 @@ import com.foru.freebe.profile.entity.Profile;
 
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByMember(Member member);
+
+    Optional<Profile> findByUniqueUrl(String uniqueUrl);
 }

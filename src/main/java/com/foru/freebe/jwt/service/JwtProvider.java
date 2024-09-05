@@ -1,16 +1,13 @@
 package com.foru.freebe.jwt.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
-import com.foru.freebe.auth.model.CustomUserDetails;
-import com.foru.freebe.auth.service.CustomUserDetailsService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -22,8 +19,6 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtProvider {
-    private final CustomUserDetailsService customUserDetailsService;
-
     @Value("${JWT_SECRET_KEY}")
     private String jwtSecretKey;
     private SecretKey secretKey;
@@ -34,6 +29,10 @@ public class JwtProvider {
     @PostConstruct
     public void init() {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
+    }
+
+    public Long getMemberIdFromToken(String token) {
+        return Long.valueOf(parseClaims(token).getPayload().get("memberId", String.class));
     }
 
     public String generateAccessToken(Long id) {
@@ -64,23 +63,16 @@ public class JwtProvider {
             .compact();
     }
 
-    private Jws<Claims> parseClaims(String token) {
+    public Jws<Claims> parseClaims(String token) {
         return Jwts.parser()
             .verifyWith(secretKey)
             .build()
             .parseSignedClaims(token);
     }
 
-    public boolean isTokenValidate(String token) {
+    public LocalDateTime getExpiration(String token) {
         Jws<Claims> claims = parseClaims(token);
-        return true;
-    }
-
-    public Authentication getAuthentication(String token) {
-        Jws<Claims> claims = parseClaims(token);
-        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(
-            claims.getPayload().get("memberId", String.class));
-
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        Date expiration = claims.getPayload().getExpiration();
+        return expiration.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.foru.freebe.errors.exception.JwtTokenException;
+import com.foru.freebe.errors.exception.RestApiException;
 
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -25,11 +26,22 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         } catch (JwtTokenException e) {
             response.setStatus(e.getHttpStatus());
             response.setContentType("application/json");
-            response.getWriter().write(e.getMessage());
+            response.getWriter()
+                .write(
+                    "{\"message\":\"" + e.getMessage() + "\"}");
         } catch (JwtException e) {
             response.setStatus(400);
             response.setContentType("application/json");
-            response.getWriter().write(e.getMessage());
+            response.getWriter()
+                .write(
+                    "{\"message\":\"" + e.getMessage() + "\"}");
+        } catch (RestApiException e) {
+            response.setStatus(e.getErrorCode().getHttpStatus());
+            response.setContentType("application/json");
+            response.getWriter()
+                .write(
+                    "{\"message\":\"" + e.getMessage() + "\"}"
+                );
         }
     }
 }

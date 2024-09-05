@@ -1,7 +1,5 @@
 package com.foru.freebe.jwt.service;
 
-import java.time.LocalDateTime;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,33 +24,13 @@ import lombok.RequiredArgsConstructor;
 public class JwtService {
     private final CustomUserDetailsService customUserDetailsService;
     private final JwtProvider jwtProvider;
+    private final JwtVerifier jwtVerifier;
     private final JwtTokenRepository jwtTokenRepository;
     private final MemberRepository memberRepository;
-
-    private void checkTokenExpiration(String token) {
-        if (jwtProvider.getExpiration(token).isBefore(LocalDateTime.now())) {
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
-        }
-    }
-
-    private void checkRefreshTokenRevocation(JwtToken refreshToken) {
-        if (refreshToken.getIsRevoked()) {
-            throw new JwtTokenException(JwtErrorCode.REVOKED_TOKEN);
-        }
-    }
-
-    private Long getMemberIdFromToken(String token) {
-        return Long.valueOf(jwtProvider.parseClaims(token).getPayload().get("memberId", String.class));
-    }
 
     private JwtToken getTokenFromMemberId(Long memberId) {
         return jwtTokenRepository.findByMemberId(memberId)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
-    }
-
-    private void validateRefreshToken(JwtToken refreshToken) {
-        checkTokenExpiration(refreshToken.getRefreshToken());
-        checkRefreshTokenRevocation(refreshToken);
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
@@ -66,18 +44,8 @@ public class JwtService {
         jwtTokenRepository.save(newToken);
     }
 
-    public boolean isAccessTokenValid(String accessToken) {
-        checkTokenExpiration(accessToken);
-
-        Long memberId = getMemberIdFromToken(accessToken);
-        JwtToken refreshToken = getTokenFromMemberId(memberId);
-
-        validateRefreshToken(refreshToken);
-        return true;
-    }
-
     public Authentication getAuthentication(String token) {
-        String memberId = String.valueOf(getMemberIdFromToken(token));
+        String memberId = String.valueOf(jwtProvider.getMemberIdFromToken(token));
         CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
 
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -99,9 +67,9 @@ public class JwtService {
             throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
         }
 
-        Long memberId = getMemberIdFromToken(refreshToken);
+        Long memberId = jwtProvider.getMemberIdFromToken(refreshToken);
         JwtToken oldToken = getTokenFromMemberId(memberId);
-        validateRefreshToken(oldToken);
+        jwtVerifier.validateRefreshToken(oldToken);
 
         jwtTokenRepository.delete(oldToken);
 
@@ -109,7 +77,7 @@ public class JwtService {
     }
 
     public Role getMemberRole(String token) {
-        Long memberId = getMemberIdFromToken(token);
+        Long memberId = jwtProvider.getMemberIdFromToken(token);
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
 
@@ -118,10 +86,10 @@ public class JwtService {
 
     @Transactional
     public void revokeToken(String token) {
-        Long memberId = getMemberIdFromToken(token);
-        JwtToken refreshToken = getTokenFromMemberId(memberId);
+        JwtToken refreshToken = jwtTokenRepository.findByRefreshToken(token)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
 
-        validateRefreshToken(refreshToken);
+        jwtVerifier.validateRefreshToken(refreshToken);
         refreshToken.revokeToken();
         jwtTokenRepository.save(refreshToken);
     }

@@ -31,6 +31,10 @@ public class JwtProvider {
         this.secretKey = Keys.hmacShaKeyFor(jwtSecretKey.getBytes());
     }
 
+    public Long getMemberIdFromToken(String token) {
+        return Long.valueOf(parseClaims(token).getPayload().get("memberId", String.class));
+    }
+
     public String generateAccessToken(Long id) {
         Claims claims = Jwts.claims()
             .issuer(String.valueOf(id))

@@ -14,6 +14,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
 import com.foru.freebe.jwt.service.JwtService;
+import com.foru.freebe.jwt.service.JwtVerifier;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -26,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final JwtVerifier jwtVerifier;
     private final JwtService jwtService;
 
     @Override
@@ -51,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             accessToken = accessToken.substring(7);
-            if (jwtService.isAccessTokenValid(accessToken)) {
+            if (jwtVerifier.isAccessTokenValid(accessToken)) {
                 Authentication auth = jwtService.getAuthentication(accessToken);
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }

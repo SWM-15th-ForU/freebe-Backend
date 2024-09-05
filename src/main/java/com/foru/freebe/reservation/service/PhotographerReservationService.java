@@ -58,9 +58,11 @@ public class PhotographerReservationService {
         FormDetailsViewResponse formDetailsViewResponse = FormDetailsViewResponse.builder(reservationForm.getId(),
                 reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
                 shootDetails, preferredDates)
+            .photoOptions(reservationForm.getPhotoOption())
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())
+            .photographerMemo(reservationForm.getPhotographerMemo())
             .build();
 
         return ApiResponse.<FormDetailsViewResponse>builder()

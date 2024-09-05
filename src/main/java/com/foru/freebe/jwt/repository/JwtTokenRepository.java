@@ -10,4 +10,6 @@ public interface JwtTokenRepository extends JpaRepository<JwtToken, Long> {
     Optional<JwtToken> findByMemberId(Long memberId);
 
     Optional<JwtToken> findByRefreshToken(String refreshToken);
+
+    Void deleteByRefreshToken(String refreshToken);
 }

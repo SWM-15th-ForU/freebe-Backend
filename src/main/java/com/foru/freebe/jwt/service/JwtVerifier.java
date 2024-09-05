@@ -17,8 +17,11 @@ public class JwtVerifier {
     private final JwtProvider jwtProvider;
     private final JwtTokenRepository jwtTokenRepository;
 
-    private void validateTokenExpiration(String token) {
+    private void validateTokenExpiration(String token, Boolean isRefreshToken) {
         if (jwtProvider.getExpiration(token).isBefore(LocalDateTime.now())) {
+            if (isRefreshToken) {
+                jwtTokenRepository.deleteByRefreshToken(token);
+            }
             throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
         }
     }
@@ -30,12 +33,12 @@ public class JwtVerifier {
     }
 
     public void validateRefreshToken(JwtToken refreshToken) {
-        validateTokenExpiration(refreshToken.getRefreshToken());
+        validateTokenExpiration(refreshToken.getRefreshToken(), true);
         validateRefreshTokenRevocation(refreshToken);
     }
 
     public boolean isAccessTokenValid(String accessToken) {
-        validateTokenExpiration(accessToken);
+        validateTokenExpiration(accessToken, false);
 
         Long memberId = jwtProvider.getMemberIdFromToken(accessToken);
         JwtToken refreshToken = jwtTokenRepository.findByMemberId(memberId)

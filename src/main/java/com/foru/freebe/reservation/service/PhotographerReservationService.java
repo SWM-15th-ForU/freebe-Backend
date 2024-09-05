@@ -1,6 +1,7 @@
 package com.foru.freebe.reservation.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -8,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.CustomerDetails;
@@ -75,8 +77,33 @@ public class PhotographerReservationService {
         Map<ReservationStatus, List<FormComponent>> reservationStatusMap = groupingFormAsStatus(formList);
 
         return reservationStatusMap.entrySet().stream()
-            .map(entry -> new FormListViewResponse(entry.getKey(), entry.getValue()))
+            .map(
+                entry -> new FormListViewResponse(entry.getKey(), sortFormComponents(entry.getKey(), entry.getValue())))
             .collect(Collectors.toList());
+    }
+
+    private List<FormComponent> sortFormComponents(ReservationStatus status, List<FormComponent> formComponents) {
+        if (status == ReservationStatus.NEW || status == ReservationStatus.IN_PROGRESS) {
+            return formComponents.stream()
+                .sorted(Comparator.comparingLong(FormComponent::getReservationId).reversed())
+                .collect(Collectors.toList());
+        } else {
+            formComponents.sort((fc1, fc2) -> {
+                if (fc1.getShootingDate() != null && fc2.getShootingDate() != null) {
+                    int dateComparison = fc1.getShootingDate().getDate().compareTo(fc2.getShootingDate().getDate());
+                    if (dateComparison == SortConstants.EQUAL) {
+                        return fc1.getShootingDate().getStartTime().compareTo(fc2.getShootingDate().getStartTime());
+                    }
+                    return dateComparison;
+                } else if (fc1.getShootingDate() != null) {
+                    return SortConstants.LESS_THAN;
+                } else if (fc2.getShootingDate() != null) {
+                    return SortConstants.GREATER_THAN;
+                }
+                return SortConstants.EQUAL;
+            });
+            return formComponents;
+        }
     }
 
     private Map<ReservationStatus, List<FormComponent>> groupingFormAsStatus(
@@ -88,12 +115,12 @@ public class PhotographerReservationService {
 
     private FormComponent toFormComponent(ReservationForm reservationForm) {
         return new FormComponent(
+            reservationForm.getId(),
+            reservationForm.getCreatedAt().toLocalDate(),
             reservationForm.getReservationStatus(),
             reservationForm.getCustomer().getName(),
             reservationForm.getProductTitle(),
-            reservationForm.getReservationStatus() == ReservationStatus.NEW ? null :
-                reservationForm.getPreferredDate().values().stream().findFirst().orElse(null)
-            //ToDo: 임의로 희망 촬영일정의 첫번째 값을 반환하였음. 추후 신청서 상태 변경 로직이 추가되면 확정된 촬영일자로 변경해주어야 함
+            reservationForm.getShootingDate() == null ? null : reservationForm.getShootingDate()
         );
     }
 

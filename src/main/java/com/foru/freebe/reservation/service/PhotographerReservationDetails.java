@@ -98,7 +98,7 @@ public class PhotographerReservationDetails {
                 throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
             }
         } else if (currentStatus == ReservationStatus.WAITING_FOR_DEPOSIT) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_DEPOSIT && updateStatus != ReservationStatus.CANCELLED) {
+            if (updateStatus != ReservationStatus.WAITING_FOR_PHOTO && updateStatus != ReservationStatus.CANCELLED) {
                 throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
             }
         } else if (currentStatus == ReservationStatus.WAITING_FOR_PHOTO) {

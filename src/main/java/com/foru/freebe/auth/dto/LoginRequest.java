@@ -7,9 +7,5 @@ import lombok.Getter;
 @Getter
 public class LoginRequest {
     private String code;
-    private String roleType;
-
-    public Role getRole() {
-        return Role.valueOf(roleType.toUpperCase());
-    }
+    private Role roleType;
 }

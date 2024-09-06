@@ -40,6 +40,6 @@ public class AuthController {
         String accessToken = authService.getToken(loginRequest.getCode());
         KakaoUser kakaoUser = authService.getUserInfo(accessToken);
 
-        return memberService.findOrRegisterMember(kakaoUser, loginRequest.getRole());
+        return memberService.findOrRegisterMember(kakaoUser, loginRequest.getRoleType());
     }
 }

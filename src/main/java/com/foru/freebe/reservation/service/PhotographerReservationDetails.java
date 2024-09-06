@@ -67,8 +67,7 @@ public class PhotographerReservationDetails {
         validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
 
         reservationForm.updateReservationStatus(request.getUpdateStatus());
-        ReservationHistory history = ReservationHistory.createReservationHistory(reservationForm,
-            request.getUpdateStatus());
+        ReservationHistory history = getReservationHistory(request, reservationForm);
 
         reservationFormRepository.save(reservationForm);
         reservationHistoryRepository.save(history);
@@ -77,6 +76,16 @@ public class PhotographerReservationDetails {
             .message("Successfully update reservation status")
             .status(200)
             .build();
+    }
+
+    private ReservationHistory getReservationHistory(ReservationStatusUpdateRequest request,
+        ReservationForm reservationForm) {
+        if (request.getCancellationReason() != null) {
+            return ReservationHistory.createCancelledReservationHistory(reservationForm, request.getUpdateStatus(),
+                request.getCancellationReason());
+        } else {
+            return ReservationHistory.createReservationHistory(reservationForm, request.getUpdateStatus());
+        }
     }
 
     private void validateStatusChange(ReservationStatus currentStatus, ReservationStatus updateStatus) {

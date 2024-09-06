@@ -36,6 +36,8 @@ public class ReservationHistory {
     @NotNull(message = "Reservation Status must not be null")
     private ReservationStatus reservationStatus;
 
+    private String cancellationReason;
+
     @CreationTimestamp
     private LocalDateTime statusUpdateDate;
 
@@ -44,8 +46,20 @@ public class ReservationHistory {
         this.reservationStatus = reservationStatus;
     }
 
+    private ReservationHistory(ReservationForm reservationForm, ReservationStatus reservationStatus,
+        String cancellationReason) {
+        this.reservationForm = reservationForm;
+        this.reservationStatus = reservationStatus;
+        this.cancellationReason = cancellationReason;
+    }
+
     public static ReservationHistory createReservationHistory(ReservationForm reservationForm,
         ReservationStatus reservationStatus) {
         return new ReservationHistory(reservationForm, reservationStatus);
+    }
+
+    public static ReservationHistory createCancelledReservationHistory(ReservationForm reservationForm,
+        ReservationStatus reservationStatus, String cancellationReason) {
+        return new ReservationHistory(reservationForm, reservationStatus, cancellationReason);
     }
 }

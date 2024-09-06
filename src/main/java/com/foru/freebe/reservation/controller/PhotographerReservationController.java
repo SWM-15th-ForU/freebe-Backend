@@ -13,6 +13,7 @@ import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
+import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/photographer")
 public class PhotographerReservationController {
     private final PhotographerReservationService photographerReservationService;
+    private final PhotographerReservationDetails photographerReservationDetails;
 
     @GetMapping("/reservation/list")
     public ApiResponse<List<FormListViewResponse>> getReservationList(
@@ -34,6 +36,6 @@ public class PhotographerReservationController {
     public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId) {
         Member member = memberAdapter.getMember();
-        return photographerReservationService.getReservationFormDetails(member.getId(), formId);
+        return photographerReservationDetails.getReservationFormDetails(member.getId(), formId);
     }
 }

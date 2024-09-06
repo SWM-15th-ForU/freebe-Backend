@@ -45,6 +45,29 @@ public class PhotographerReservationService {
             .collect(Collectors.toList());
     }
 
+    private Map<ReservationStatus, List<FormComponent>> groupingFormAsStatus(
+        List<ReservationForm> reservationFormList) {
+        return reservationFormList.stream()
+            .map(this::toFormComponent)
+            .filter(form -> isPublicStatus(form.getReservationStatus()))
+            .collect(Collectors.groupingBy(FormComponent::getReservationStatus, Collectors.toList()));
+    }
+
+    private boolean isPublicStatus(ReservationStatus status) {
+        return status != ReservationStatus.PHOTO_COMPLETED && status != ReservationStatus.CANCELLED;
+    }
+
+    private FormComponent toFormComponent(ReservationForm reservationForm) {
+        return new FormComponent(
+            reservationForm.getId(),
+            reservationForm.getCreatedAt().toLocalDate(),
+            reservationForm.getReservationStatus(),
+            reservationForm.getCustomer().getName(),
+            reservationForm.getProductTitle(),
+            reservationForm.getShootingDate() == null ? null : reservationForm.getShootingDate()
+        );
+    }
+
     private List<FormComponent> sortFormComponents(ReservationStatus status, List<FormComponent> formComponents) {
         if (status == ReservationStatus.NEW || status == ReservationStatus.IN_PROGRESS) {
             return formComponents.stream()
@@ -67,23 +90,5 @@ public class PhotographerReservationService {
             });
             return formComponents;
         }
-    }
-
-    private Map<ReservationStatus, List<FormComponent>> groupingFormAsStatus(
-        List<ReservationForm> reservationFormList) {
-        return reservationFormList.stream()
-            .map(this::toFormComponent)
-            .collect(Collectors.groupingBy(FormComponent::getReservationStatus, Collectors.toList()));
-    }
-
-    private FormComponent toFormComponent(ReservationForm reservationForm) {
-        return new FormComponent(
-            reservationForm.getId(),
-            reservationForm.getCreatedAt().toLocalDate(),
-            reservationForm.getReservationStatus(),
-            reservationForm.getCustomer().getName(),
-            reservationForm.getProductTitle(),
-            reservationForm.getShootingDate() == null ? null : reservationForm.getShootingDate()
-        );
     }
 }

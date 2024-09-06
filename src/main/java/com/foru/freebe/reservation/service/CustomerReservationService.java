@@ -120,7 +120,7 @@ public class CustomerReservationService {
         ReservationForm newReservationForm = reservationFormRepository.save(reservationForm);
 
         reservationHistoryRepository.save(
-            ReservationHistory.updateReservationStatus(newReservationForm, ReservationStatus.NEW));
+            ReservationHistory.createReservationHistory(newReservationForm, ReservationStatus.NEW));
 
         IntStream.range(0, originalImageUrls.size()).forEach(i -> {
             ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(

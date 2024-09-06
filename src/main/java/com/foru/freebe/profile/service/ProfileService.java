@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -62,6 +63,29 @@ public class ProfileService {
             photographer.getInstagramId(),
             photographerProfile.getIntroductionContent(),
             linkInfos);
+    }
+
+    public ApiResponse<ProfileResponse> getCurrentProfile(Member photographer) {
+        Profile photographerProfile = profileRepository.findByMember(photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        List<Link> links = linkRepository.findByProfile(photographerProfile);
+
+        List<LinkInfo> linkInfos = links.stream()
+            .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
+            .collect(Collectors.toList());
+
+        ProfileResponse profileResponse = new ProfileResponse(
+            photographerProfile.getBannerImageUrl(),
+            photographerProfile.getProfileImageUrl(),
+            photographer.getInstagramId(),
+            photographerProfile.getIntroductionContent(),
+            linkInfos);
+
+        return ApiResponse.<ProfileResponse>builder()
+            .status(200)
+            .message("Good Response")
+            .data(profileResponse).build();
     }
 
     private Profile createMemberProfile(Member member) {

@@ -52,6 +52,13 @@ jobs:
           name: test-results
           path: newman-reports/test-results.xml
 
+      - name: Fetch Artifacts
+        id: fetch_artifacts
+        run: |
+          curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+               "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" > artifacts.json
+          cat artifacts.json
+
       - name: Comment on Pull Request
         uses: marocchino/sticky-pull-request-comment@v2
         with:

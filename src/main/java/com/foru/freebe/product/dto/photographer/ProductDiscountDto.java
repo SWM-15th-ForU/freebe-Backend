@@ -2,8 +2,9 @@ package com.foru.freebe.product.dto.photographer;
 
 import com.foru.freebe.product.entity.DiscountType;
 
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,13 +12,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductDiscountDto {
-    @NotNull
+    @NotBlank
     private String title;
+
     @NotNull
     private DiscountType discountType;
+
     @NotNull
-    @Min(value = 1, message = "상품 할인 값은 0보다 큰 자연수여야 합니다.")
+    @Positive
     private Integer discountValue;
+
     private String description;
 
     @Builder

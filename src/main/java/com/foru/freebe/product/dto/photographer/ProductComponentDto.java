@@ -1,6 +1,6 @@
 package com.foru.freebe.product.dto.photographer;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductComponentDto {
-    @NotNull
+    @NotBlank
     private String title;
-    @NotNull
+
+    @NotBlank
     private String content;
+
     private String description;
 
     @Builder

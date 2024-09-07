@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FormRegisterRequest {
+    @NotNull
     private Long photographerId;
 
     @NotNull
@@ -19,6 +20,7 @@ public class FormRegisterRequest {
 
     private Map<String, String> photoInfo;
 
+    @NotNull
     private Map<Integer, PreferredDate> preferredDates;
 
     private Map<Integer, PhotoOption> photoOptions;

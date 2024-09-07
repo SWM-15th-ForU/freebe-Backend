@@ -6,6 +6,7 @@ import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,14 +15,19 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductDetailResponse {
-    @NotNull
+    @NotBlank
     private String productTitle;
+
     private String productDescription;
+
     @NotNull
     private List<String> productImageUrls;
+
     @NotNull
     private List<ProductComponentDto> productComponents;
+
     private List<ProductOptionDto> productOptions;
+
     private List<ProductDiscountDto> productDiscounts;
 
     @Builder

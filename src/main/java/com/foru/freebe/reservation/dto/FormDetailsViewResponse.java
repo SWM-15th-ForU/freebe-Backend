@@ -5,6 +5,8 @@ import java.util.Map;
 
 import com.foru.freebe.reservation.entity.ReservationStatus;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,17 +14,35 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FormDetailsViewResponse {
+    @NotNull
     private Long reservationNumber;
+
+    @NotNull
     private ReservationStatus currentReservationStatus;
+
+    @NotNull
     private List<StatusHistory> statusHistory;
+
+    @NotBlank
     private String productTitle;
+
+    @NotNull
     private CustomerDetails customerDetails;
+
+    @NotNull
     private Map<String, String> photoInfo;
+
     private Map<Integer, PhotoOption> photoOptions;
+
+    @NotNull
     private Map<Integer, PreferredDate> preferredDates;
+
     private List<String> originalImage;
+
     private List<String> thumbnailImage;
+
     private String requestMemo;
+
     private String photographerMemo;
 
     @Builder

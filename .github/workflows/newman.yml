@@ -59,6 +59,12 @@ jobs:
                "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" > artifacts.json
           cat artifacts.json
 
+      - name: Extract Artifact ID
+        id: extract_artifact_id
+        run: |
+          ARTIFACT_ID=$(jq -r '.artifacts[0].id' artifacts.json)
+          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_ENV
+
       - name: Comment on Pull Request
         uses: marocchino/sticky-pull-request-comment@v2
         with:
@@ -66,4 +72,4 @@ jobs:
           header: 'Newman Test Results'
           message: |
             **Test Results:**
-            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/{artifact_id}).
+            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ env.artifact_id }}).

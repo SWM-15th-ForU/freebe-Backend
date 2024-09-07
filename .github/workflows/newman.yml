@@ -24,8 +24,8 @@ jobs:
 
       - name: Download Postman Collection
         run: |
-          curl --location "https://api.getpostman.com/collections/{{secrets.POSTMAN_COLLECTION_ID}}" \
-          --header "X-Api-Key: {{secrets.POSTMAN_API_KEY}}" \
+          curl --location "https://api.getpostman.com/collections/{{ secrets.POSTMAN_COLLECTION_ID }}" \
+          --header "X-Api-Key: {{ secrets.POSTMAN_API_KEY }}" \
           --output postman_collection.json
 
       - name: Create reports directory

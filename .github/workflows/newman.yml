@@ -38,7 +38,7 @@ jobs:
 
       - name: Run Newman Tests
         run: |
-          newman run postman/freebe.postman_collection.json \
+          newman run postman_collection.json \
           --reporters cli,junit \
           --reporter-junit-export newman-reports/test-results.xml
 

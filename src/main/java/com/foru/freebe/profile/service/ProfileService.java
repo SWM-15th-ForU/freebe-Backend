@@ -88,6 +88,32 @@ public class ProfileService {
             .data(profileResponse).build();
     }
 
+    public ApiResponse<Void> addExternalLink(LinkInfo request, Member photographer) {
+        boolean isTitleDuplicate = linkRepository.findByTitle(request.getLinkTitle()).isPresent();
+        boolean isUrlDuplicate = linkRepository.findByUrl(request.getLinkUrl()).isPresent();
+
+        if (isTitleDuplicate || isUrlDuplicate) {
+            throw new RestApiException(CommonErrorCode.DUPLICATED_RESOURCE);
+        }
+
+        Profile photographerProfile = profileRepository.findByMember(photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        Link link = Link.builder()
+            .profile(photographerProfile)
+            .title(request.getLinkTitle())
+            .url(request.getLinkUrl())
+            .build();
+
+        linkRepository.save(link);
+
+        return ApiResponse.<Void>builder()
+            .status(200)
+            .message("Good Request")
+            .data(null)
+            .build();
+    }
+
     private Profile createMemberProfile(Member member) {
         return Profile.builder()
             .uniqueUrl(null)

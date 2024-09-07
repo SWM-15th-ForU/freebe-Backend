@@ -6,16 +6,9 @@ on:
   pull_request:
     branches: ["develop"]
 
-permissions:
-  issues: write
-  pull-requests: write
-  actions: read
-  contents: read
-
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -28,19 +21,14 @@ jobs:
       - name: Install Newman
         run: npm install -g newman
 
-      - name: env 설정
-        run: |
-          echo "POSTMAN_COLLECTION_ID=${{ secrets.POSTMAN_COLLECTION_ID }}" >> .env
-          echo "POSTMAN_API_KEY=${{ secrets.POSTMAN_API_KEY }}" >> .env
+      - name: Create reports directory
+        run: mkdir -p newman-reports
 
       - name: Download Postman Collection
         run: |
-          curl --location "https://api.getpostman.com/collections/$POSTMAN_COLLECTION_ID" \
-          --header "X-Api-Key: $POSTMAN_API_KEY" \
+          curl --location "https://api.getpostman.com/collections/$COLLECTION_ID" \
+          --header "X-Api-Key: $API_KEY" \
           --output postman_collection.json
-
-      - name: Create reports directory
-        run: mkdir -p newman-reports
 
       - name: Run Newman Tests
         run: |
@@ -60,18 +48,23 @@ jobs:
           curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" > artifacts.json
           cat artifacts.json
-
-      - name: Extract Artifact ID
-        id: extract_artifact_id
-        run: |
-          ARTIFACT_ID=$(jq -r '.artifacts[0].id // empty' artifacts.json)
-          echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_ENV
+        # Extract artifact_id from the JSON output if necessary
 
       - name: Comment on Pull Request
+        id: comment
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           header: 'Newman Test Results'
           message: |
             **Test Results:**
-            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ env.artifact_id }}).
+            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/{artifact_id}).
+
+      - name: Update Comment
+        if: success()
+        run: |
+          # Find existing comments and update or add a new one
+          COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                       "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.issue.number }}/comments")
+          # Check if a comment with the same header exists and update it
+          # If not, add a new comment

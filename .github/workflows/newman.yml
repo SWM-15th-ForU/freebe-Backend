@@ -47,3 +47,12 @@ jobs:
         with:
           name: test-results
           path: newman-reports/test-results.xml
+
+      - name: Comment on Pull Request
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: 'Newman Test Results'
+          message: |
+            **Test Results:**
+            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts).

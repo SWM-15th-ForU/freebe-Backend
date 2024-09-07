@@ -59,4 +59,4 @@ jobs:
           header: 'Newman Test Results'
           message: |
             **Test Results:**
-            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts).
+            Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/{artifact_id}).

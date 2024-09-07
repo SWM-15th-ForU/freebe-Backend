@@ -31,6 +31,8 @@ import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.reservation.entity.ReservationStatus;
+import com.foru.freebe.reservation.repository.ReservationFormRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class PhotographerProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
+    private final ReservationFormRepository reservationFormRepository;
 
     private final S3ImageService s3ImageService;
 
@@ -74,9 +77,7 @@ public class PhotographerProductService {
             .build();
     }
 
-    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Long photographerId) {
-        Member member = getMember(photographerId);
-
+    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Member member) {
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
@@ -85,6 +86,7 @@ public class PhotographerProductService {
                 .productId(product.getId())
                 .productTitle(product.getTitle())
                 .reservationCount(0) // TODO 예약체결 관련 로직 구현 후 추가
+                .reservationCount(getReservationCount(product.getTitle()))
                 .activeStatus(product.getActiveStatus())
                 .build())
             .collect(Collectors.toList());

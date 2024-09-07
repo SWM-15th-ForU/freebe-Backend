@@ -42,7 +42,7 @@ public class PhotographerProductController {
     public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member photographer = memberAdapter.getMember();
-        return productService.getRegisteredProductList(photographer.getId());
+        return productService.getRegisteredProductList(photographer);
     }
 
     @PutMapping("/product/status")

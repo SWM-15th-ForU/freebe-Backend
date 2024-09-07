@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class ReservationInfoResponse {
     @NotNull
     private ReservationStatus reservationStatus;
@@ -28,6 +28,16 @@ public class ReservationInfoResponse {
     private Map<Integer, PhotoOption> photoOptions;
 
     private String customerMemo;
-    private Boolean serviceTermAgreement;
-    private Boolean photographerTermAgreement;
+
+    @Builder
+    public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle,
+        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
+        Map<Integer, PhotoOption> photoOptions, String customerMemo) {
+        this.reservationStatus = reservationStatus;
+        this.productTitle = productTitle;
+        this.photoInfo = photoInfo;
+        this.preferredDate = preferredDate;
+        this.photoOptions = photoOptions;
+        this.customerMemo = customerMemo;
+    }
 }

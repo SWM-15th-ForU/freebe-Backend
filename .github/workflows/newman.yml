@@ -62,7 +62,7 @@ jobs:
       - name: Extract Artifact ID
         id: extract_artifact_id
         run: |
-          ARTIFACT_ID=$(jq -r '.artifacts[0].id' artifacts.json)
+          ARTIFACT_ID=$(jq -r '.artifacts[0].id // empty' artifacts.json)
           echo "artifact_id=$ARTIFACT_ID" >> $GITHUB_ENV
 
       - name: Comment on Pull Request

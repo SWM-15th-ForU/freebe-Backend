@@ -54,7 +54,9 @@ jobs:
           curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                "https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" > artifacts.json
           cat artifacts.json
-        # Extract artifact_id from the JSON output if necessary
+          # Extract artifact_id from the JSON output
+          artifact_id=$(jq -r '.artifacts[0].id' artifacts.json)
+          echo "artifact_id=$artifact_id" >> $GITHUB_ENV
 
       - name: Comment on Pull Request
         id: comment
@@ -69,8 +71,22 @@ jobs:
       - name: Update Comment
         if: success()
         run: |
-          # Find existing comments and update or add a new one
+          # Find existing comments
           COMMENTS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                        "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.issue.number }}/comments")
-          # Check if a comment with the same header exists and update it
-          # If not, add a new comment
+          
+          # Extract comment IDs and headers
+          COMMENT_ID=$(echo "$COMMENTS" | jq -r '.[] | select(.body | contains("Newman Test Results")) | .id')
+          
+          # Update or add a new comment
+          if [ -z "$COMMENT_ID" ]; then
+            # No existing comment found, create a new one
+            curl -s -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                 -d '{"body": "Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ env.artifact_id }})"}' \
+                 "https://api.github.com/repos/${{ github.repository }}/issues/${{ github.issue.number }}/comments"
+          else
+            # Update existing comment
+            curl -s -X PATCH -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                 -d '{"body": "Test results are available [here](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts/${{ env.artifact_id }})"}' \
+                 "https://api.github.com/repos/${{ github.repository }}/issues/comments/$COMMENT_ID"
+          fi

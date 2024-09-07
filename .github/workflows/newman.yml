@@ -8,7 +8,9 @@ on:
 
 permissions:
   issues: write
-  pull-requests: write    
+  pull-requests: write
+  actions: read
+  contents: read
 
 jobs:
   test:

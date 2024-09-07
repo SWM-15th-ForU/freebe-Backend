@@ -85,8 +85,8 @@ public class PhotographerProductService {
             .map(product -> RegisteredProductResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
-                .reservationCount(0) // TODO 예약체결 관련 로직 구현 후 추가
-                .reservationCount(getReservationCount(product.getTitle()))
+                .reservationCount(getReservationCount(member.getId(), product.getTitle()))
+                .reservationCount(getReservationCount(member.getId(), product.getTitle()))
                 .activeStatus(product.getActiveStatus())
                 .build())
             .collect(Collectors.toList());
@@ -96,6 +96,12 @@ public class PhotographerProductService {
             .message("Successfully retrieved list of registered products")
             .data(registeredProducts)
             .build();
+    }
+
+    private Integer getReservationCount(Long id, String productTitle) {
+        return (int)reservationFormRepository.findAllByPhotographerIdAndProductTitle(id, productTitle).stream()
+            .filter(form -> form.getReservationStatus() == ReservationStatus.PHOTO_COMPLETED)
+            .count();
     }
 
     @Transactional

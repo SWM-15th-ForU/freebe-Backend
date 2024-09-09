@@ -21,8 +21,6 @@ import com.foru.freebe.errors.response.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-
-    // 우리가 직접 커스텀한 에러 API
     @ExceptionHandler(RestApiException.class)
     public ResponseEntity<Object> handleCustomException(RestApiException e) {
         return handleExceptionInternal(e.getErrorCode());
@@ -33,7 +31,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(e.getErrorCode());
     }
 
-    // 메서드 인자 타입 예외 처리
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
@@ -43,11 +40,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // 메서드 인자의 유효성 검사가 실패했을 때 발생
     // 주로 Spring의 @Valid, @Validated 애노테이션을 사용한 검증 실패시 발생
     @Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException e,
-        HttpHeaders headers,
-        HttpStatusCode status,
-        WebRequest request) {
+    public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers,
+        HttpStatusCode status, WebRequest request) {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(e, errorCode);
     }

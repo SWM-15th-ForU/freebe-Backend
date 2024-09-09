@@ -5,6 +5,7 @@ import com.foru.freebe.product.entity.DiscountType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductDiscountDto {
     @NotBlank
+    @Size(max = 30, message = "Title cannot be longer than 30 characters")
     private String title;
 
     @NotNull
@@ -22,6 +24,7 @@ public class ProductDiscountDto {
     @Positive
     private Integer discountValue;
 
+    @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String description;
 
     @Builder

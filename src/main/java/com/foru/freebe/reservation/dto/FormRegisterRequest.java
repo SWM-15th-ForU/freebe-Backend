@@ -2,7 +2,9 @@ package com.foru.freebe.reservation.dto;
 
 import java.util.Map;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -12,10 +14,10 @@ public class FormRegisterRequest {
     @NotNull
     private Long photographerId;
 
-    @NotNull
+    @NotBlank
     private String instagramId;
 
-    @NotNull
+    @NotBlank
     private String productTitle;
 
     private Map<String, String> photoInfo;
@@ -25,6 +27,7 @@ public class FormRegisterRequest {
 
     private Map<Integer, PhotoOption> photoOptions;
 
+    @Size(max = 300, message = "Memo cannot be longer than 300 characters")
     private String customerMemo;
 
     @NotNull

@@ -49,12 +49,31 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {
         ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
-        return handleExceptionInternal(errorCode);
+        return handleExceptionInternal(ex, errorCode);
     }
 
     private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode) {
-        return ResponseEntity.status(errorCode.getHttpStatus())
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
             .body(makeErrorResponse(errorCode));
+    }
+
+    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message) {
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .body(makeErrorResponse(errorCode, message));
+    }
+
+    private ResponseEntity<Object> handleExceptionInternal(BindException e, ErrorCode errorCode) {
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .body(makeErrorResponse(e, errorCode));
+    }
+
+    private ResponseEntity<Object> handleExceptionInternal(Exception e, ErrorCode errorCode) {
+        return ResponseEntity
+            .status(errorCode.getHttpStatus())
+            .body(makeErrorResponse(errorCode, e.getMessage()));
     }
 
     private ErrorResponse makeErrorResponse(ErrorCode errorCode) {
@@ -64,21 +83,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .build();
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message) {
-        return ResponseEntity.status(errorCode.getHttpStatus())
-            .body(makeErrorResponse(errorCode, message));
-    }
-
     private ErrorResponse makeErrorResponse(ErrorCode errorCode, String message) {
         return ErrorResponse.builder()
             .code(errorCode.name())
             .message(message)
             .build();
-    }
-
-    private ResponseEntity<Object> handleExceptionInternal(BindException e, ErrorCode errorCode) {
-        return ResponseEntity.status(errorCode.getHttpStatus())
-            .body(makeErrorResponse(e, errorCode));
     }
 
     private ErrorResponse makeErrorResponse(BindException e, ErrorCode errorCode) {

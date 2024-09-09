@@ -86,7 +86,6 @@ public class PhotographerProductService {
                 .productId(product.getId())
                 .productTitle(product.getTitle())
                 .reservationCount(getReservationCount(member.getId(), product.getTitle()))
-                .reservationCount(getReservationCount(member.getId(), product.getTitle()))
                 .activeStatus(product.getActiveStatus())
                 .build())
             .collect(Collectors.toList());

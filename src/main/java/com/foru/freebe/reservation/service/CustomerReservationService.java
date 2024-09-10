@@ -83,8 +83,8 @@ public class CustomerReservationService {
         List<ProductOptionDto> productOptionDtoList = convertProductOptionDtoList(productOptions);
 
         BasicReservationInfoResponse basicReservationInfoResponse = BasicReservationInfoResponse.builder()
-            .customerName(customer.getName())
-            .customerPhoneNumber(customer.getPhoneNumber())
+            .name(customer.getName())
+            .phoneNumber(customer.getPhoneNumber())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();

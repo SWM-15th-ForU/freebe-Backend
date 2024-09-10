@@ -130,9 +130,9 @@ public class PhotographerReservationDetails {
 
     private CustomerDetails buildCustomerDetails(ReservationForm reservationForm) {
         return CustomerDetails.builder()
-            .customerName(reservationForm.getCustomer().getName())
-            .customerPhoneNumber(reservationForm.getCustomer().getPhoneNumber())
-            .customerInstagramId(reservationForm.getInstagramId())
+            .name(reservationForm.getCustomer().getName())
+            .phoneNumber(reservationForm.getCustomer().getPhoneNumber())
+            .instagramId(reservationForm.getInstagramId())
             .build();
     }
 

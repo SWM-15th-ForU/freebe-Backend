@@ -9,18 +9,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CustomerDetails {
     @NotBlank
-    private String customerName;
+    private String name;
 
     @NotBlank
-    private String customerPhoneNumber;
+    private String phoneNumber;
 
     @NotBlank
-    private String customerInstagramId;
+    private String instagramId;
 
     @Builder
-    public CustomerDetails(String customerName, String customerPhoneNumber, String customerInstagramId) {
-        this.customerName = customerName;
-        this.customerPhoneNumber = customerPhoneNumber;
-        this.customerInstagramId = customerInstagramId;
+    public CustomerDetails(String name, String phoneNumber, String instagramId) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.instagramId = instagramId;
     }
 }

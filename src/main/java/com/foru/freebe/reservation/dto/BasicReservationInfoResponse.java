@@ -15,10 +15,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BasicReservationInfoResponse {
     @NotBlank
-    private String customerName;
+    private String name;
 
     @NotBlank
-    private String customerPhoneNumber;
+    private String phoneNumber;
 
     @NotNull
     private List<ProductComponentDto> productComponentDtoList;
@@ -26,11 +26,11 @@ public class BasicReservationInfoResponse {
     private List<ProductOptionDto> productOptionDtoList;
 
     @Builder
-    public BasicReservationInfoResponse(String customerName, String customerPhoneNumber,
+    public BasicReservationInfoResponse(String name, String phoneNumber,
         List<ProductComponentDto> productComponentDtoList,
         List<ProductOptionDto> productOptionDtoList) {
-        this.customerName = customerName;
-        this.customerPhoneNumber = customerPhoneNumber;
+        this.name = name;
+        this.phoneNumber = phoneNumber;
         this.productComponentDtoList = productComponentDtoList;
         this.productOptionDtoList = productOptionDtoList;
     }

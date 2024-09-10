@@ -102,11 +102,14 @@ public class CustomerReservationService {
 
         validateCustomerAccess(reservationForm, customerId);
 
-        ReservationInfoResponse reservationInfoResponse = new ReservationInfoResponse(
-            reservationForm.getReservationStatus(), reservationForm.getProductTitle(),
-            reservationForm.getPhotoInfo(), reservationForm.getPreferredDate(), reservationForm.getPhotoOption(),
-            reservationForm.getCustomerMemo(), reservationForm.getServiceTermAgreement(),
-            reservationForm.getPhotographerTermAgreement());
+        ReservationInfoResponse reservationInfoResponse = ReservationInfoResponse.builder()
+            .reservationStatus(reservationForm.getReservationStatus())
+            .productTitle(reservationForm.getProductTitle())
+            .photoInfo(reservationForm.getPhotoInfo())
+            .preferredDate(reservationForm.getPreferredDate())
+            .photoOptions(reservationForm.getPhotoOption())
+            .customerMemo(reservationForm.getCustomerMemo())
+            .build();
 
         return ApiResponse.<ReservationInfoResponse>builder()
             .status(200)

@@ -13,8 +13,10 @@ import lombok.NoArgsConstructor;
 public class KakaoUser {
     @JsonProperty("id")
     private Long kakaoId;
+
     @JsonProperty("connected_at")
     private LocalDateTime connectedAt;
+
     @JsonProperty("kakao_account")
     private Map<String, Object> kakaoAccount;
 

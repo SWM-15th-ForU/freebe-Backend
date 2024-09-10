@@ -58,14 +58,14 @@ public class PhotographerReservationService {
     }
 
     private FormComponent toFormComponent(ReservationForm reservationForm) {
-        return new FormComponent(
-            reservationForm.getId(),
-            reservationForm.getCreatedAt().toLocalDate(),
-            reservationForm.getReservationStatus(),
-            reservationForm.getCustomer().getName(),
-            reservationForm.getProductTitle(),
-            reservationForm.getShootingDate() == null ? null : reservationForm.getShootingDate()
-        );
+        return FormComponent.builder()
+            .reservationId(reservationForm.getId())
+            .reservationSubmissionDate(reservationForm.getCreatedAt().toLocalDate())
+            .reservationStatus(reservationForm.getReservationStatus())
+            .customerName(reservationForm.getCustomer().getName())
+            .productTitle(reservationForm.getProductTitle())
+            .shootingDate(reservationForm.getShootingDate() == null ? null : reservationForm.getShootingDate())
+            .build();
     }
 
     private List<FormComponent> sortFormComponents(ReservationStatus status, List<FormComponent> formComponents) {

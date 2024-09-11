@@ -38,10 +38,15 @@ public class S3ImageService {
     @Value("${AWS_S3_BUCKET}")
     private String bucketName;
 
-    public List<String> uploadOriginalImage(List<MultipartFile> images) throws IOException {
+    @Value("${AWS_S3_ORIGIN_PATH}")
+    private String originPath;
+
+    @Value("${AWS_S3_THUMBNAIL_PATH}")
+    private String thumbnailPath;
+
         List<String> originalImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
-            String originKey = "origin/" + image.getOriginalFilename();
+            String originKey = originPath + image.getOriginalFilename();
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(image.getSize());
@@ -56,7 +61,7 @@ public class S3ImageService {
     public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
-            String thumbnailKey = "thumbnail/" + image.getOriginalFilename();
+            String thumbnailKey = thumbnailPath + image.getOriginalFilename();
             InputStream originalImageStream = image.getInputStream();
 
             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();

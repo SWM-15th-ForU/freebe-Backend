@@ -31,8 +31,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class S3ImageService {
-    private static final int THUMBNAIL_SIZE = 200;
-
     private final AmazonS3 amazonS3;
 
     @Value("${AWS_S3_BUCKET}")
@@ -44,9 +42,10 @@ public class S3ImageService {
     @Value("${AWS_S3_THUMBNAIL_PATH}")
     private String thumbnailPath;
 
+    public List<String> uploadOriginalImages(List<MultipartFile> images, String folderPath) throws IOException {
         List<String> originalImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
-            String originKey = originPath + image.getOriginalFilename();
+            String originKey = originPath + folderPath + image.getOriginalFilename();
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(image.getSize());
@@ -58,22 +57,22 @@ public class S3ImageService {
         return originalImageUrls;
     }
 
-    public List<String> uploadThumbnailImage(List<MultipartFile> images) throws IOException {
+    public List<String> uploadThumbnailImages(List<MultipartFile> images, String folderPath, int thumbnailSize) throws
+        IOException {
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
-            String thumbnailKey = thumbnailPath + image.getOriginalFilename();
+            String thumbnailKey = thumbnailPath + folderPath + image.getOriginalFilename();
             InputStream originalImageStream = image.getInputStream();
 
             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
             Thumbnails.of(originalImageStream)
-                .size(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                .size(thumbnailSize, thumbnailSize)
                 .toOutputStream(thumbnailOutputStream);
 
             InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
 
-            String contentType = image.getContentType();
             ObjectMetadata thumbnailMetadata = new ObjectMetadata();
-            thumbnailMetadata.setContentType(contentType);
+            thumbnailMetadata.setContentType(image.getContentType());
 
             uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
             addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);

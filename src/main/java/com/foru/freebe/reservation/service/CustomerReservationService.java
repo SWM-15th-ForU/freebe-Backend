@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +41,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerReservationService {
+    private static final int REFERENCE_THUMBNAIL_SIZE = 200;
+
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
@@ -49,6 +52,9 @@ public class CustomerReservationService {
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
 
+    @Value("${AWS_S3_REFERENCE_IMAGE_PATH}")
+    private String awsS3ReferenceImagePath;
+
     public ApiResponse<Long> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
         Member customer = findMember(customerId);
@@ -57,8 +63,9 @@ public class CustomerReservationService {
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
         validateReservationForm(formRegisterRequest);
 
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, awsS3ReferenceImagePath);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, awsS3ReferenceImagePath,
+            REFERENCE_THUMBNAIL_SIZE);
         saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);
 
         return ApiResponse.<Long>builder()

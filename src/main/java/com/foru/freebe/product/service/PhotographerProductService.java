@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,6 +41,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PhotographerProductService {
+    private static final int PRODUCT_THUMBNAIL_SIZE = 200;
+
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductComponentRepository productComponentRepository;
@@ -47,8 +50,10 @@ public class PhotographerProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
     private final ReservationFormRepository reservationFormRepository;
-
     private final S3ImageService s3ImageService;
+
+    @Value("${AWS_S3_PRODUCT_IMAGE_PATH}")
+    private String awsS3ProductImagePath;
 
     public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
@@ -144,8 +149,9 @@ public class PhotographerProductService {
     }
 
     private void registerProductImage(List<MultipartFile> images, Product product) throws IOException {
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, awsS3ProductImagePath);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, awsS3ProductImagePath,
+            PRODUCT_THUMBNAIL_SIZE);
 
         IntStream.range(0, originalImageUrls.size()).forEach(i -> {
             ProductImage productImage = ProductImage.createProductImage(

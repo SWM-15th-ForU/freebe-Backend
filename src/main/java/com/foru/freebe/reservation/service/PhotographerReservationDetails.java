@@ -18,7 +18,6 @@ import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
-import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReferenceImageRepository;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
@@ -32,6 +31,7 @@ public class PhotographerReservationDetails {
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final ReferenceImageRepository referenceImageRepository;
+    private final ReservationValidator reservationValidator;
 
     public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(Long photographerId, Long formId) {
         ReservationForm reservationForm = findReservationForm(photographerId, formId);
@@ -64,7 +64,7 @@ public class PhotographerReservationDetails {
         ReservationStatusUpdateRequest request) {
 
         ReservationForm reservationForm = findReservationForm(photographerId, formId);
-        validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
+        reservationValidator.validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
 
         reservationForm.updateReservationStatus(request.getUpdateStatus());
         ReservationHistory history = getReservationHistory(request, reservationForm);
@@ -85,26 +85,6 @@ public class PhotographerReservationDetails {
                 request.getCancellationReason());
         } else {
             return ReservationHistory.createReservationHistory(reservationForm, request.getUpdateStatus());
-        }
-    }
-
-    private void validateStatusChange(ReservationStatus currentStatus, ReservationStatus updateStatus) {
-        if (currentStatus == ReservationStatus.NEW) {
-            if (updateStatus != ReservationStatus.IN_PROGRESS && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.IN_PROGRESS) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_DEPOSIT && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_DEPOSIT) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_PHOTO && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_PHOTO) {
-            if (updateStatus != ReservationStatus.PHOTO_COMPLETED && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
         }
     }
 

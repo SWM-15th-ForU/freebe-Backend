@@ -34,6 +34,7 @@ import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 import com.foru.freebe.s3.S3ImageService;
 import com.foru.freebe.s3.S3ImageType;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -51,6 +52,7 @@ public class CustomerReservationService {
     private final S3ImageService s3ImageService;
     private final ReservationValidator reservationValidator;
 
+    @Transactional
     public ApiResponse<Long> registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
         Member customer = findMember(id);
@@ -143,7 +145,7 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private static ReservationForm createReservationForm(FormRegisterRequest request,
+    private ReservationForm createReservationForm(FormRegisterRequest request,
         Member photographer, Member customer) {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),

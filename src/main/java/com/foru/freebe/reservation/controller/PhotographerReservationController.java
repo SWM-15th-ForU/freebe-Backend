@@ -2,6 +2,7 @@ package com.foru.freebe.reservation.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +19,7 @@ import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
+import com.foru.freebe.reservation.service.ReservationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationController {
     private final PhotographerReservationService photographerReservationService;
     private final PhotographerReservationDetails photographerReservationDetails;
+    private final ReservationService reservationService;
 
     @GetMapping("/reservation/list")
     public ApiResponse<List<FormListViewResponse>> getReservationList(
@@ -46,11 +49,11 @@ public class PhotographerReservationController {
     }
 
     @PutMapping("/reservation/details/{formId}")
-    public ApiResponse<Void> updateReservationFormDetails(
+    public ResponseEntity<Void> updateReservationFormDetails(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member member = memberAdapter.getMember();
-        return photographerReservationDetails.updateReservationStatus(member.getId(), formId, request);
+        return reservationService.updateReservationStatus(member.getId(), formId, request, true);
     }
 }

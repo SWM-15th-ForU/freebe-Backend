@@ -12,5 +12,7 @@ public interface ReservationFormRepository extends JpaRepository<ReservationForm
 
     Optional<ReservationForm> findByPhotographerIdAndId(Long photographerId, Long id);
 
+    Optional<ReservationForm> findByCustomerIdAndId(Long customerId, Long id);
+
     List<ReservationForm> findAllByPhotographerIdAndProductTitle(Long photographerId, String productTitle);
 }

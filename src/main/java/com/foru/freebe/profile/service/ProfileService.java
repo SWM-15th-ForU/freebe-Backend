@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -23,6 +22,8 @@ import com.foru.freebe.profile.entity.ProfileImage;
 import com.foru.freebe.profile.repository.LinkRepository;
 import com.foru.freebe.profile.repository.ProfileImageRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
+import com.foru.freebe.s3.S3ImageService;
+import com.foru.freebe.s3.S3ImageType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +41,6 @@ public class ProfileService {
 
     @Value("${FREEBE_BASE_URL}")
     private String freebeBaseUrl;
-
-    @Value("${AWS_S3_PROFILE_IMAGE_PATH}")
-    private String awsS3ProfileImagePath;
 
     public String getUniqueUrl(Long id) {
         Member member = memberRepository.findById(id)
@@ -84,7 +82,7 @@ public class ProfileService {
         }
 
         Profile profile = createMemberProfile(photographer);
-        saveProfileImage(profile, profileImage);
+        saveProfileImage(profile, profileImage, photographer.getId());
     }
 
     private Profile createMemberProfile(Member member) {
@@ -105,12 +103,12 @@ public class ProfileService {
         return freebeBaseUrl + "/photographer/" + uniqueId;
     }
 
-    private void saveProfileImage(Profile profile, MultipartFile profileImage) throws IOException {
+    private void saveProfileImage(Profile profile, MultipartFile profileImage, Long id) throws IOException {
         deleteProfileImageIfExists(profile);
 
         List<MultipartFile> profileImages = Collections.singletonList(profileImage);
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(profileImages, awsS3ProfileImagePath);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(profileImages, awsS3ProfileImagePath,
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(profileImages, S3ImageType.PROFILE, id);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(profileImages, S3ImageType.PROFILE, id,
             PROFILE_THUMBNAIL_SIZE);
 
         String originalImageUrl = originalImageUrls.get(0);

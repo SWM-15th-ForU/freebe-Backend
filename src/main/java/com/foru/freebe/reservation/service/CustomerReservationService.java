@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ApiResponse;
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -35,6 +33,8 @@ import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReferenceImageRepository;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
+import com.foru.freebe.s3.S3ImageService;
+import com.foru.freebe.s3.S3ImageType;
 
 import lombok.RequiredArgsConstructor;
 
@@ -52,19 +52,16 @@ public class CustomerReservationService {
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
 
-    @Value("${AWS_S3_REFERENCE_IMAGE_PATH}")
-    private String awsS3ReferenceImagePath;
-
-    public ApiResponse<Long> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest,
+    public ApiResponse<Long> registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
-        Member customer = findMember(customerId);
+        Member customer = findMember(id);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
         validateReservationForm(formRegisterRequest);
 
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, awsS3ReferenceImagePath);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, awsS3ReferenceImagePath,
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
             REFERENCE_THUMBNAIL_SIZE);
         saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);
 

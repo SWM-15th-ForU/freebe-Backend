@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.common.dto.ApiResponse;
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
@@ -22,6 +21,7 @@ import com.foru.freebe.member.repository.MemberTermAgreementRepository;
 import com.foru.freebe.profile.repository.ProfileImageRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.profile.service.ProfileService;
+import com.foru.freebe.s3.S3ImageService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

@@ -29,6 +29,11 @@ public class Link {
     private String title;
     private String url;
 
+    public void assignLinkInfo(String title, String url) {
+        this.title = title;
+        this.url = url;
+    }
+
     @Builder
     public Link(Profile profile, String title, String url) {
         this.profile = profile;

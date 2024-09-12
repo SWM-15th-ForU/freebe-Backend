@@ -43,6 +43,18 @@ public class Profile extends BaseEntity {
         this.uniqueUrl = uniqueUrl;
     }
 
+    public void assignBannerImageUrl(String bannerImageUrl) {
+        this.bannerImageUrl = bannerImageUrl;
+    }
+
+    public void assignProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public void assignIntroductionContent(String introductionContent) {
+        this.introductionContent = introductionContent;
+    }
+
     @Builder
     public Profile(String uniqueUrl, String introductionContent, String profileImageUrl, String bannerImageUrl,
         Member member) {

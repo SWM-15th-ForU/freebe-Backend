@@ -20,20 +20,27 @@ jobs:
 
       - name: env 설정
         run: |
-          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
-          echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
-          echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
-          echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
-          echo "AWS_ACCESS_KEY=${{ secrets.CICD_ACCESS_KEY }}" >> .env
-          echo "AWS_SECRET_KEY=${{ secrets.CICD_SECRET_KEY }}" >> .env
-          echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
+          echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
+          echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
+          echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
+          echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL }}" >> .env
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "AWS_ACCESS_KEY=${{ secrets.CICD_ACCESS_KEY }}" >> .env
+          echo "AWS_SECRET_KEY=${{ secrets.CICD_SECRET_KEY }}" >> .env
+          echo "AWS_S3_BUCKET=${{ secrets.AWS_S3_BUCKET }}" >> .env
+          echo "AWS_S3_ORIGINAL_PATH=${{ secrets.AWS_S3_ORIGINAL_PATH }}" >> .env
+          echo "AWS_S3_THUMBNAIL_PATH=${{ secrets.AWS_S3_THUMBNAIL_PATH }}" >> .env
+          echo "AWS_S3_PHOTOGRAPHER_PATH=${{ secrets.AWS_S3_PHOTOGRAPHER_PATH }}" >> .env
+          echo "AWS_S3_CUSTOMER_PATH=${{ secrets.AWS_S3_CUSTOMER_PATH }}" >> .env
+          echo "AWS_S3_PRODUCT_PATH=${{ secrets.AWS_S3_PRODUCT_PATH }}" >> .env
+          echo "AWS_S3_PROFILE_PATH=${{ secrets.AWS_S3_PROFILE_PATH }}" >> .env
+          echo "AWS_S3_RESERVATION_PATH=${{ secrets.AWS_S3_RESERVATION_PATH }}" >> .env
+          echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
+          echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

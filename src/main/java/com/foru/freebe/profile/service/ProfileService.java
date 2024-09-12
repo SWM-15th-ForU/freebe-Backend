@@ -82,7 +82,9 @@ public class ProfileService {
         }
 
         Profile profile = createMemberProfile(photographer);
-        saveProfileImage(profile, profileImage, photographer.getId());
+        if (profileImage != null) {
+            saveProfileImage(profile, profileImage, photographer.getId());
+        }
     }
 
     private Profile createMemberProfile(Member member) {

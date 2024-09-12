@@ -44,6 +44,24 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+cloud:
+  aws:
+    credentials:
+      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${AWS_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+      base-path:
+        original: ${AWS_S3_ORIGINAL_PATH}
+        thumbnail: ${AWS_S3_THUMBNAIL_PATH}
+        photographer: ${AWS_S3_PHOTOGRAPHER_PATH}
+        customer: ${AWS_S3_CUSTOMER_PATH}
+        product: ${AWS_S3_PRODUCT_PATH}
+        profile: ${AWS_S3_PROFILE_PATH}
+        reservation: ${AWS_S3_RESERVATION_PATH}
+
 logging:
   level:
     web: debug

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ApiResponse;
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -33,6 +32,8 @@ import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
+import com.foru.freebe.s3.S3ImageService;
+import com.foru.freebe.s3.S3ImageType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PhotographerProductService {
+    private static final int PRODUCT_THUMBNAIL_SIZE = 200;
+
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductComponentRepository productComponentRepository;
@@ -47,7 +50,6 @@ public class PhotographerProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
     private final ReservationFormRepository reservationFormRepository;
-
     private final S3ImageService s3ImageService;
 
     public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto,
@@ -59,7 +61,7 @@ public class PhotographerProductService {
         }
 
         Product productAsActive = registerActiveProduct(productRegisterRequestDto, member);
-        registerProductImage(images, productAsActive);
+        registerProductImage(images, productAsActive, photographerId);
         registerProductComponent(productRegisterRequestDto.getProductComponents(), productAsActive);
 
         if (productRegisterRequestDto.getProductOptions() != null) {
@@ -143,9 +145,12 @@ public class PhotographerProductService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private void registerProductImage(List<MultipartFile> images, Product product) throws IOException {
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
+    private void registerProductImage(List<MultipartFile> images, Product product, Long id) throws
+        IOException {
+
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.PRODUCT, id);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.PRODUCT, id,
+            PRODUCT_THUMBNAIL_SIZE);
 
         IntStream.range(0, originalImageUrls.size()).forEach(i -> {
             ProductImage productImage = ProductImage.createProductImage(

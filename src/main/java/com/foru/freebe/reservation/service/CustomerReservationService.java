@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ApiResponse;
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -34,12 +33,16 @@ import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReferenceImageRepository;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
+import com.foru.freebe.s3.S3ImageService;
+import com.foru.freebe.s3.S3ImageType;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerReservationService {
+    private static final int REFERENCE_THUMBNAIL_SIZE = 200;
+
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
@@ -49,16 +52,17 @@ public class CustomerReservationService {
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
 
-    public ApiResponse<Long> registerReservationForm(Long customerId, FormRegisterRequest formRegisterRequest,
+    public ApiResponse<Long> registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
-        Member customer = findMember(customerId);
+        Member customer = findMember(id);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
         validateReservationForm(formRegisterRequest);
 
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImage(images);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImage(images);
+        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
+        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
+            REFERENCE_THUMBNAIL_SIZE);
         saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);
 
         return ApiResponse.<Long>builder()

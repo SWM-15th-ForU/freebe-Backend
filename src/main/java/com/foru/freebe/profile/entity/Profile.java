@@ -35,20 +35,13 @@ public class Profile extends BaseEntity {
 
     private String introductionContent;
 
-    private String profileImageUrl;
-
     private String bannerImageUrl;
-
-    public void assignUniqueUrl(String uniqueUrl) {
-        this.uniqueUrl = uniqueUrl;
-    }
 
     @Builder
     public Profile(String uniqueUrl, String introductionContent, String profileImageUrl, String bannerImageUrl,
         Member member) {
         this.uniqueUrl = uniqueUrl;
         this.introductionContent = introductionContent;
-        this.profileImageUrl = profileImageUrl;
         this.bannerImageUrl = bannerImageUrl;
         this.member = member;
     }

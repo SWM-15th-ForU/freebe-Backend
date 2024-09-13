@@ -12,6 +12,7 @@ import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
+import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 
@@ -21,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ReservationService {
-    private final ReservationValidator reservationValidator;
+    private final ReservationVerifier reservationVerifier;
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
 
@@ -30,9 +31,11 @@ public class ReservationService {
         ReservationStatusUpdateRequest request, Boolean isPhotographer) {
 
         ReservationForm reservationForm = findReservationForm(memberId, formId, isPhotographer);
+        ReservationStatus currentStatus = reservationForm.getReservationStatus();
+        ReservationStatus updateStatus = request.getUpdateStatus();
 
-        reservationValidator.validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
-        reservationForm.updateReservationStatus(request.getUpdateStatus());
+        reservationVerifier.validateStatusChange(currentStatus, request, isPhotographer);
+        reservationForm.updateReservationStatus(updateStatus);
 
         ReservationHistory reservationHistory = updateReservationHistory(request, reservationForm);
 

@@ -11,6 +11,7 @@ import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
+import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.entity.ReservationStatusTransition;
@@ -19,7 +20,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class ReservationValidator {
+public class ReservationVerifier {
     private final ProductRepository productRepository;
     private final MemberRepository memberRepository;
 
@@ -35,12 +36,19 @@ public class ReservationValidator {
         }
     }
 
-    public void validateStatusChange(ReservationStatus currentStatus, ReservationStatus updateStatus) {
-        ReservationStatusTransition transition = ReservationStatusTransition.valueOf(currentStatus.name());
+    public void validateStatusChange(ReservationStatus currentStatus, ReservationStatusUpdateRequest request,
+        Boolean isPhotographer) {
 
-        if (transition.isInvalidTransition(updateStatus)) {
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        if (!isPhotographer) {
+            validateCustomerAuthorityToChangeStatus(currentStatus, request.getUpdateStatus());
         }
+
+        if (request.getUpdateStatus() == ReservationStatus.CANCELLED_BY_PHOTOGRAPHER
+            || request.getUpdateStatus() == ReservationStatus.CANCELLED_BY_CUSTOMER) {
+            validateCancellationReason(request);
+        }
+
+        validateStatusTransition(currentStatus, request.getUpdateStatus());
     }
 
     private void validateProductTitleExists(FormRegisterRequest request) {
@@ -60,4 +68,23 @@ public class ReservationValidator {
         }
     }
 
+    private void validateCustomerAuthorityToChangeStatus(ReservationStatus currentStatus,
+        ReservationStatus updateStatus) {
+        if (!(currentStatus == ReservationStatus.NEW && updateStatus == ReservationStatus.CANCELLED_BY_CUSTOMER)) {
+            throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
+        }
+    }
+
+    private void validateCancellationReason(ReservationStatusUpdateRequest request) {
+        if (request.getCancellationReason() == null) {
+            throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
+        }
+    }
+
+    private void validateStatusTransition(ReservationStatus currentStatus, ReservationStatus updateStatus) {
+        ReservationStatusTransition transition = ReservationStatusTransition.valueOf(currentStatus.name());
+        if (transition.isInvalidTransition(updateStatus)) {
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

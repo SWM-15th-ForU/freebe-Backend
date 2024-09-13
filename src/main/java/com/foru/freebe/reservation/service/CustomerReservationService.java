@@ -50,7 +50,7 @@ public class CustomerReservationService {
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
-    private final ReservationValidator reservationValidator;
+    private final ReservationVerifier reservationVerifier;
 
     @Transactional
     public ApiResponse<Long> registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
@@ -60,7 +60,7 @@ public class CustomerReservationService {
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-        reservationValidator.validateReservationFormBeforeSave(formRegisterRequest);
+        reservationVerifier.validateReservationFormBeforeSave(formRegisterRequest);
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
@@ -106,7 +106,7 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        reservationValidator.validateCustomerAccess(reservationForm, customerId);
+        reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         ReservationInfoResponse reservationInfoResponse = ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())

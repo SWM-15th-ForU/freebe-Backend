@@ -11,7 +11,7 @@ import com.foru.freebe.product.entity.Product;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<List<Product>> findByMember(Member member);
 
-    Boolean existsByIdAndTitle(Long id, String title);
+    Boolean existsByMemberAndTitle(Member member, String title);
 
     Product findByTitle(String title);
 }

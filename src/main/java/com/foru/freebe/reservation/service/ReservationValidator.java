@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
@@ -19,9 +21,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservationValidator {
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
 
-    public void validateReservationFormBeforeSave(Long id, FormRegisterRequest formRegisterRequest) {
-        validateProductTitleExists(id, formRegisterRequest.getProductTitle());
+    public void validateReservationFormBeforeSave(FormRegisterRequest formRegisterRequest) {
+        validateProductTitleExists(formRegisterRequest);
         validateProductIsActive(formRegisterRequest.getProductTitle());
     }
 
@@ -40,8 +43,12 @@ public class ReservationValidator {
         }
     }
 
-    private void validateProductTitleExists(Long id, String productTitle) {
-        if (!productRepository.existsByIdAndTitle(id, productTitle)) {
+    private void validateProductTitleExists(FormRegisterRequest request) {
+        Long photographerId = request.getPhotographerId();
+        Member photographer = memberRepository.findById(photographerId)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        if (!productRepository.existsByMemberAndTitle(photographer, request.getProductTitle())) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
     }

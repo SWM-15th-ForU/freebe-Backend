@@ -54,7 +54,8 @@ public class PhotographerReservationService {
     }
 
     private boolean isPublicStatus(ReservationStatus status) {
-        return status != ReservationStatus.PHOTO_COMPLETED && status != ReservationStatus.CANCELLED;
+        return status != ReservationStatus.PHOTO_COMPLETED && status != ReservationStatus.CANCELLED_BY_PHOTOGRAPHER
+            && status != ReservationStatus.CANCELLED_BY_CUSTOMER;
     }
 
     private FormComponent toFormComponent(ReservationForm reservationForm) {

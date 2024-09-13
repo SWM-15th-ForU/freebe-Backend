@@ -32,22 +32,13 @@ public class ReservationValidator {
     }
 
     public void validateStatusChange(ReservationStatus currentStatus, ReservationStatus updateStatus) {
-        if (currentStatus == ReservationStatus.NEW) {
-            if (updateStatus != ReservationStatus.IN_PROGRESS && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.IN_PROGRESS) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_DEPOSIT && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_DEPOSIT) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_PHOTO && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_PHOTO) {
-            if (updateStatus != ReservationStatus.PHOTO_COMPLETED && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
+        ReservationStatusTransition transition = ReservationStatusTransition.valueOf(currentStatus.name());
+
+        if (transition.isInvalidTransition(updateStatus)) {
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
         }
     }
 

@@ -3,10 +3,9 @@ package com.foru.freebe.reservation.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
@@ -27,20 +26,22 @@ public class ReservationService {
     private final ReservationHistoryRepository reservationHistoryRepository;
 
     @Transactional
-    public ResponseEntity<Void> updateReservationStatus(Long id, Long formId, ReservationStatusUpdateRequest request,
-        Boolean isPhotographer) {
+    public ApiResponse<Void> updateReservationStatus(Long memberId, Long formId,
+        ReservationStatusUpdateRequest request, Boolean isPhotographer) {
 
-        ReservationForm reservationForm = findReservationForm(id, formId, isPhotographer);
+        ReservationForm reservationForm = findReservationForm(memberId, formId, isPhotographer);
+
         reservationValidator.validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
-
         reservationForm.updateReservationStatus(request.getUpdateStatus());
-        ReservationHistory history = getReservationHistory(request, reservationForm);
+
+        ReservationHistory reservationHistory = updateReservationHistory(request, reservationForm);
 
         reservationFormRepository.save(reservationForm);
-        reservationHistoryRepository.save(history);
+        reservationHistoryRepository.save(reservationHistory);
 
-        return ResponseEntity
-            .status(HttpStatus.OK.value())
+        return ApiResponse.<Void>builder()
+            .message("Successfully update reservation status")
+            .status(200)
             .build();
     }
 
@@ -68,8 +69,9 @@ public class ReservationService {
             .build();
     }
 
-    private ReservationHistory getReservationHistory(ReservationStatusUpdateRequest request,
+    private ReservationHistory updateReservationHistory(ReservationStatusUpdateRequest request,
         ReservationForm reservationForm) {
+
         if (request.getCancellationReason() != null) {
             return ReservationHistory.createCancelledReservationHistory(reservationForm, request.getUpdateStatus(),
                 request.getCancellationReason());

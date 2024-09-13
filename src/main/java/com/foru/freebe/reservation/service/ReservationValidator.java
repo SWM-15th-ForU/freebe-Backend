@@ -11,6 +11,7 @@ import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
+import com.foru.freebe.reservation.entity.ReservationStatusTransition;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,8 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class ReservationValidator {
     private final ProductRepository productRepository;
 
-    public void validateReservationFormBeforeSave(FormRegisterRequest formRegisterRequest) {
-        validateProductTitleExists(formRegisterRequest.getProductTitle());
+    public void validateReservationFormBeforeSave(Long id, FormRegisterRequest formRegisterRequest) {
+        validateProductTitleExists(id, formRegisterRequest.getProductTitle());
         validateProductIsActive(formRegisterRequest.getProductTitle());
     }
 
@@ -39,6 +40,9 @@ public class ReservationValidator {
         }
     }
 
+    private void validateProductTitleExists(Long id, String productTitle) {
+        if (!productRepository.existsByIdAndTitle(id, productTitle)) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
     }
 
@@ -49,9 +53,4 @@ public class ReservationValidator {
         }
     }
 
-    private void validateProductTitleExists(String productTitle) {
-        if (!productRepository.existsByTitle(productTitle)) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
-    }
 }

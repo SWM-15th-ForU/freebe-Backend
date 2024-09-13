@@ -67,6 +67,6 @@ public class CustomerReservationController {
         @Valid @PathVariable("formId") Long formId, @Valid ReservationStatusUpdateRequest request) {
 
         Member customer = memberAdapter.getMember();
-        reservationService.updateReservationStatus(customer.getId(), formId, request, false);
+        return reservationService.updateReservationStatus(customer.getId(), formId, request, false);
     }
 }

@@ -1,9 +1,12 @@
 package com.foru.freebe.member.service;
 
+import java.io.IOException;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.common.dto.ApiResponse;
@@ -15,7 +18,10 @@ import com.foru.freebe.member.entity.MemberTermAgreement;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.member.repository.MemberTermAgreementRepository;
+import com.foru.freebe.profile.repository.ProfileImageRepository;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.profile.service.ProfileService;
+import com.foru.freebe.s3.S3ImageService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +31,11 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
     private final ProfileService profileService;
     private final JwtService jwtService;
+    private final S3ImageService s3ImageService;
     private final MemberRepository memberRepository;
     private final MemberTermAgreementRepository memberTermAgreementRepository;
+    private final ProfileRepository profileRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     @Transactional
     public ResponseEntity<ApiResponse<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
@@ -47,11 +56,15 @@ public class MemberService {
     }
 
     @Transactional
-    public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request) {
+    public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request,
+        MultipartFile profileImage) throws IOException {
         Member photographer = completePhotographerSignup(member, request.getInstagramId());
+
         savePhotographerAgreements(photographer, request);
+        profileService.initialProfileSetting(photographer, profileImage);
 
         String url = profileService.getUniqueUrl(member.getId());
+
         return ApiResponse.<String>builder()
             .status(HttpStatus.OK.value())
             .data(url)

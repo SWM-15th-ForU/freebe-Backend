@@ -15,12 +15,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ApiResponse;
-import com.foru.freebe.common.service.S3ImageService;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.service.CustomerReservationService;
+import com.foru.freebe.s3.S3ImageService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

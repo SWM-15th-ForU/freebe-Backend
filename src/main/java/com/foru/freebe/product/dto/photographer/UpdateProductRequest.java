@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class UpdateProductRequest {
     @NotNull
     private Long productId;
+
     @NotNull
     private ActiveStatus activeStatus;
 }

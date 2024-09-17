@@ -1,6 +1,6 @@
 package com.foru.freebe.reservation.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -36,16 +36,30 @@ public class ReservationHistory {
     @NotNull(message = "Reservation Status must not be null")
     private ReservationStatus reservationStatus;
 
+    private String cancellationReason;
+
     @CreationTimestamp
-    private LocalDate statusUpdateDate;
+    private LocalDateTime statusUpdateDate;
 
     private ReservationHistory(ReservationForm reservationForm, ReservationStatus reservationStatus) {
         this.reservationForm = reservationForm;
         this.reservationStatus = reservationStatus;
     }
 
-    public static ReservationHistory updateReservationStatus(ReservationForm reservationForm,
+    private ReservationHistory(ReservationForm reservationForm, ReservationStatus reservationStatus,
+        String cancellationReason) {
+        this.reservationForm = reservationForm;
+        this.reservationStatus = reservationStatus;
+        this.cancellationReason = cancellationReason;
+    }
+
+    public static ReservationHistory createReservationHistory(ReservationForm reservationForm,
         ReservationStatus reservationStatus) {
         return new ReservationHistory(reservationForm, reservationStatus);
+    }
+
+    public static ReservationHistory createCancelledReservationHistory(ReservationForm reservationForm,
+        ReservationStatus reservationStatus, String cancellationReason) {
+        return new ReservationHistory(reservationForm, reservationStatus, cancellationReason);
     }
 }

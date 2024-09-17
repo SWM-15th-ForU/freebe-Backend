@@ -89,6 +89,10 @@ public class ReservationForm extends BaseEntity {
 
     private String photographerMemo;
 
+    public void updateReservationStatus(ReservationStatus updateStatus) {
+        this.reservationStatus = updateStatus;
+    }
+
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,

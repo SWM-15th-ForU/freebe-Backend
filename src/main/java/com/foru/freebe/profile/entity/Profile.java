@@ -35,8 +35,6 @@ public class Profile extends BaseEntity {
 
     private String introductionContent;
 
-    private String profileImageUrl;
-
     private String bannerImageUrl;
 
     public void assignUniqueUrl(String uniqueUrl) {
@@ -45,10 +43,6 @@ public class Profile extends BaseEntity {
 
     public void assignBannerImageUrl(String bannerImageUrl) {
         this.bannerImageUrl = bannerImageUrl;
-    }
-
-    public void assignProfileImageUrl(String profileImageUrl) {
-        this.profileImageUrl = profileImageUrl;
     }
 
     public void assignIntroductionContent(String introductionContent) {
@@ -60,7 +54,6 @@ public class Profile extends BaseEntity {
         Member member) {
         this.uniqueUrl = uniqueUrl;
         this.introductionContent = introductionContent;
-        this.profileImageUrl = profileImageUrl;
         this.bannerImageUrl = bannerImageUrl;
         this.member = member;
     }

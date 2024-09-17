@@ -8,7 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,10 +26,10 @@ public class ReferenceImage {
     @JoinColumn(name = "reservation_form_id")
     private ReservationForm reservationForm;
 
-    @NotNull
+    @NotBlank
     private String originUrl;
 
-    @NotNull
+    @NotBlank
     private String thumbnailUrl;
 
     private ReferenceImage(String originUrl, String thumbnailUrl, ReservationForm reservationForm) {

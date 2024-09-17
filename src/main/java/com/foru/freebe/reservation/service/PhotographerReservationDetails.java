@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.CustomerDetails;
@@ -33,7 +32,7 @@ public class PhotographerReservationDetails {
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final ReferenceImageRepository referenceImageRepository;
 
-    public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(Long photographerId, Long formId) {
+    public FormDetailsViewResponse getReservationFormDetails(Long photographerId, Long formId) {
         ReservationForm reservationForm = findReservationForm(photographerId, formId);
         List<StatusHistory> statusHistories = getStatusHistories(reservationForm);
 
@@ -42,7 +41,7 @@ public class PhotographerReservationDetails {
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
-        FormDetailsViewResponse formDetailsViewResponse = FormDetailsViewResponse.builder(reservationForm.getId(),
+        return FormDetailsViewResponse.builder(reservationForm.getId(),
                 reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
                 shootDetails, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
@@ -51,16 +50,10 @@ public class PhotographerReservationDetails {
             .requestMemo(reservationForm.getCustomerMemo())
             .photographerMemo(reservationForm.getPhotographerMemo())
             .build();
-
-        return ApiResponse.<FormDetailsViewResponse>builder()
-            .message("Successfully get reservation list")
-            .status(200)
-            .data(formDetailsViewResponse)
-            .build();
     }
 
     @Transactional
-    public ApiResponse<Void> updateReservationStatus(Long photographerId, Long formId,
+    public void updateReservationStatus(Long photographerId, Long formId,
         ReservationStatusUpdateRequest request) {
 
         ReservationForm reservationForm = findReservationForm(photographerId, formId);
@@ -71,11 +64,6 @@ public class PhotographerReservationDetails {
 
         reservationFormRepository.save(reservationForm);
         reservationHistoryRepository.save(history);
-
-        return ApiResponse.<Void>builder()
-            .message("Successfully update reservation status")
-            .status(200)
-            .build();
     }
 
     private ReservationHistory getReservationHistory(ReservationStatusUpdateRequest request,

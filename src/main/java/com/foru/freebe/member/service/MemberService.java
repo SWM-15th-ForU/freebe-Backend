@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.KakaoUser;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
@@ -18,10 +18,7 @@ import com.foru.freebe.member.entity.MemberTermAgreement;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.member.repository.MemberTermAgreementRepository;
-import com.foru.freebe.profile.repository.ProfileImageRepository;
-import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.profile.service.ProfileService;
-import com.foru.freebe.s3.S3ImageService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +28,11 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
     private final ProfileService profileService;
     private final JwtService jwtService;
-    private final S3ImageService s3ImageService;
     private final MemberRepository memberRepository;
     private final MemberTermAgreementRepository memberTermAgreementRepository;
-    private final ProfileRepository profileRepository;
-    private final ProfileImageRepository profileImageRepository;
 
     @Transactional
-    public ResponseEntity<ApiResponse<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
+    public ResponseEntity<ResponseBody<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
             .orElseGet(() -> {
                 if (role == Role.PHOTOGRAPHER) {
@@ -47,29 +41,25 @@ public class MemberService {
                 return registerNewMember(kakaoUser, role);
             });
 
-        ApiResponse<?> body = setResponseBody(member);
+        ResponseBody<?> body = setResponseBody(member);
 
         JwtTokenModel token = jwtService.generateToken(member.getId());
         HttpHeaders headers = jwtService.setTokenHeaders(token);
 
-        return new ResponseEntity<>(body, headers, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .headers(headers)
+            .body(body);
     }
 
     @Transactional
-    public ApiResponse<String> joinPhotographer(Member member, PhotographerJoinRequest request,
+    public String joinPhotographer(Member member, PhotographerJoinRequest request,
         MultipartFile profileImage) throws IOException {
         Member photographer = completePhotographerSignup(member, request.getInstagramId());
 
         savePhotographerAgreements(photographer, request);
         profileService.initialProfileSetting(photographer, profileImage);
 
-        String url = profileService.getUniqueUrl(member.getId());
-
-        return ApiResponse.<String>builder()
-            .status(HttpStatus.OK.value())
-            .data(url)
-            .message("Successfully joined")
-            .build();
+        return profileService.getUniqueUrl(member.getId());
     }
 
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {
@@ -81,23 +71,20 @@ public class MemberService {
         return memberRepository.save(newMember);
     }
 
-    private ApiResponse<?> setResponseBody(Member member) {
-        ApiResponse<?> apiResponse = null;
+    private ResponseBody<?> setResponseBody(Member member) {
+        ResponseBody<?> apiResponse = null;
 
         if (member.getRole() == Role.PHOTOGRAPHER) {
-            apiResponse = ApiResponse.<String>builder()
-                .status(HttpStatus.OK.value())
+            apiResponse = ResponseBody.<String>builder()
                 .message("photographer login")
                 .data(profileService.getUniqueUrl(member.getId()))
                 .build();
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
-            apiResponse = ApiResponse.<Void>builder()
-                .status(HttpStatus.OK.value())
+            apiResponse = ResponseBody.<Void>builder()
                 .message("photographer join")
                 .build();
         } else if (member.getRole() == Role.CUSTOMER) {
-            apiResponse = ApiResponse.<Void>builder()
-                .status(HttpStatus.OK.value())
+            apiResponse = ResponseBody.<Void>builder()
                 .message("customer login")
                 .build();
         }

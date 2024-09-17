@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.auth.dto.LoginRequest;
 import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.auth.service.AuthService;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.service.MemberService;
@@ -32,11 +32,13 @@ public class AuthController {
         JwtTokenModel token = jwtService.reissueToken(refreshToken);
         HttpHeaders headers = jwtService.setTokenHeaders(token);
 
-        return new ResponseEntity<>(headers, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .headers(headers)
+            .body(null);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<?>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<ResponseBody<?>> login(@RequestBody LoginRequest loginRequest) {
         String accessToken = authService.getToken(loginRequest.getCode());
         KakaoUser kakaoUser = authService.getUserInfo(accessToken);
 

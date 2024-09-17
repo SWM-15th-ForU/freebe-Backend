@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -52,7 +51,7 @@ public class PhotographerProductService {
     private final ReservationFormRepository reservationFormRepository;
     private final S3ImageService s3ImageService;
 
-    public ApiResponse<Void> registerProduct(ProductRegisterRequest productRegisterRequestDto,
+    public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member member = getMember(photographerId);
 
@@ -71,19 +70,13 @@ public class PhotographerProductService {
         if (productRegisterRequestDto.getProductDiscounts() != null) {
             registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
         }
-
-        return ApiResponse.<Void>builder()
-            .status(200)
-            .message("Successfully added")
-            .data(null)
-            .build();
     }
 
-    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(Member member) {
+    public List<RegisteredProductResponse> getRegisteredProductList(Member member) {
         List<Product> registeredProductList = productRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        List<RegisteredProductResponse> registeredProducts = registeredProductList.stream()
+        return registeredProductList.stream()
             .map(product -> RegisteredProductResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
@@ -91,12 +84,6 @@ public class PhotographerProductService {
                 .activeStatus(product.getActiveStatus())
                 .build())
             .collect(Collectors.toList());
-
-        return ApiResponse.<List<RegisteredProductResponse>>builder()
-            .status(200)
-            .message("Successfully retrieved list of registered products")
-            .data(registeredProducts)
-            .build();
     }
 
     private Integer getReservationCount(Long id, String productTitle) {
@@ -106,16 +93,10 @@ public class PhotographerProductService {
     }
 
     @Transactional
-    public ApiResponse<Void> updateProductActiveStatus(UpdateProductRequest requestDto) {
+    public void updateProductActiveStatus(UpdateProductRequest requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());
-
-        return ApiResponse.<Void>builder()
-            .status(200)
-            .message("Successfully updated product active status")
-            .data(null)
-            .build();
     }
 
     private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member member) {

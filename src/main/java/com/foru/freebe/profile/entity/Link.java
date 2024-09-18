@@ -29,8 +29,7 @@ public class Link {
     private String title;
     private String url;
 
-    public void assignLinkInfo(String title, String url) {
-        this.title = title;
+    public void assignLinkUrl(String url) {
         this.url = url;
     }
 

@@ -1,9 +1,10 @@
 package com.foru.freebe.profile.service;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -81,6 +82,8 @@ public class ProfileService {
         Profile photographerProfile = profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
+        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile);
+
         List<Link> links = linkRepository.findByProfile(photographerProfile);
 
         List<LinkInfo> linkInfos = links.stream()
@@ -89,7 +92,7 @@ public class ProfileService {
 
         ProfileResponse profileResponse = new ProfileResponse(
             photographerProfile.getBannerImageUrl(),
-            photographerProfile.getProfileImageUrl(),
+            profileImage.getThumbnailUrl(),
             photographer.getInstagramId(),
             photographerProfile.getIntroductionContent(),
             linkInfos);
@@ -101,23 +104,25 @@ public class ProfileService {
     }
 
     @Transactional
-    public ApiResponse<Void> updateProfile(UpdateProfileRequest updateRequest, Member photographer) {
-        Profile profile = profileRepository.findByMember(photographer)
+    public ApiResponse<Void> updateProfile(UpdateProfileRequest updateRequest, Member photographer,
+        MultipartFile profileImage) throws IOException {
+        Profile photographerProfile = profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
+        ProfileImage existingProfileImage = profileImageRepository.findByProfile(photographerProfile);
+        profileImageRepository.delete(existingProfileImage);
+
+        saveProfileImage(photographerProfile, profileImage, photographer.getId());
+
         // 변경 감지: 필요한 필드만 업데이트
-        if (!profile.getBannerImageUrl().equals(updateRequest.getBannerImageUrl())) {
-            profile.assignBannerImageUrl(updateRequest.getBannerImageUrl());
+        if (!Objects.equals(photographerProfile.getBannerImageUrl(), updateRequest.getBannerImageUrl())) {
+            photographerProfile.assignBannerImageUrl(updateRequest.getBannerImageUrl());
         }
-        if (!profile.getProfileImageUrl().equals(updateRequest.getProfileImageUrl())) {
-            profile.assignProfileImageUrl(updateRequest.getProfileImageUrl());
-        }
-        if (!profile.getIntroductionContent().equals(updateRequest.getIntroductionContent())) {
-            profile.assignIntroductionContent(updateRequest.getIntroductionContent());
+        if (!Objects.equals(photographerProfile.getIntroductionContent(), updateRequest.getIntroductionContent())) {
+            photographerProfile.assignIntroductionContent(updateRequest.getIntroductionContent());
         }
 
-        // Link 업데이트 로직
-        updateLinks(profile, updateRequest.getLinkInfos());
+        updateLinks(photographerProfile, updateRequest.getLinkInfos());
 
         return ApiResponse.<Void>builder()
             .status(200)
@@ -125,11 +130,9 @@ public class ProfileService {
             .data(null).build();
     }
 
-    @Transactional
-    protected void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
+    private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
         List<Link> existingLinks = linkRepository.findByProfile(profile);
 
-        // 갱신된 링크 식별
         List<String> incomingLinkTitles = new ArrayList<>();
         for (LinkInfo linkInfo : linkInfos) {
             if (linkInfo.getLinkTitle() != null) {
@@ -158,9 +161,9 @@ public class ProfileService {
                     .url(linkInfo.getLinkUrl())
                     .build();
                 linkRepository.save(newLink);
-            } else { // 기존 링크 갱신 (타이틀 또는 URL이 변경된 경우)
+            } else { // 기존 링크 갱신 (URL이 변경된 경우)
                 if (isLinkInfoChanged(existingLink, linkInfo)) {
-                    existingLink.assignLinkInfo(linkInfo.getLinkTitle(), linkInfo.getLinkUrl());
+                    existingLink.assignLinkUrl(linkInfo.getLinkUrl());
                 }
             }
         }

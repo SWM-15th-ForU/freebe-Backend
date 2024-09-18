@@ -10,5 +10,5 @@ public interface ProfileImageRepository extends JpaRepository<ProfileImage, Long
 
     ProfileImage findByProfile(Profile profile);
 
-    Void deleteByProfile(Profile profile);
+    void deleteByProfile(Profile profile);
 }

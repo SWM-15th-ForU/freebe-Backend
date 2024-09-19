@@ -40,6 +40,7 @@ public class SecurityConfig {
                 .requestMatchers("/photographer/join").hasAnyRole("PHOTOGRAPHER_PENDING")
                 .requestMatchers("/photographer/**").hasAnyRole("PHOTOGRAPHER")
                 .requestMatchers("/customer/product/**").permitAll()
+                .requestMatchers("/customer/profile/**").permitAll()
                 .requestMatchers("/customer/**").hasAnyRole("CUSTOMER")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                 .anyRequest().permitAll())

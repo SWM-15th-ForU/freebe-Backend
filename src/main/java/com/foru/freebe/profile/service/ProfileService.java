@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -68,21 +67,31 @@ public class ProfileService {
             .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
             .collect(Collectors.toList());
 
-        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile);
+        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
 
-        return new ProfileResponse(
-            photographerProfile.getBannerImageUrl(),
-            profileImage.getThumbnailUrl(),
-            photographer.getInstagramId(),
-            photographerProfile.getIntroductionContent(),
-            linkInfos);
+        if (profileImage != null) {
+            return new ProfileResponse(
+                photographerProfile.getBannerImageUrl(),
+                profileImage.getThumbnailUrl(),
+                photographer.getInstagramId(),
+                photographerProfile.getIntroductionContent(),
+                linkInfos);
+        } else {
+            return new ProfileResponse(
+                photographerProfile.getBannerImageUrl(),
+                null,
+                photographer.getInstagramId(),
+                photographerProfile.getIntroductionContent(),
+                linkInfos);
+        }
+
     }
 
-    public ApiResponse<ProfileResponse> getCurrentProfile(Member photographer) {
+    public ProfileResponse getCurrentProfile(Member photographer) {
         Profile photographerProfile = profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile);
+        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
 
         List<Link> links = linkRepository.findByProfile(photographerProfile);
 
@@ -90,44 +99,50 @@ public class ProfileService {
             .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
             .collect(Collectors.toList());
 
-        ProfileResponse profileResponse = new ProfileResponse(
-            photographerProfile.getBannerImageUrl(),
-            profileImage.getThumbnailUrl(),
-            photographer.getInstagramId(),
-            photographerProfile.getIntroductionContent(),
-            linkInfos);
-
-        return ApiResponse.<ProfileResponse>builder()
-            .status(200)
-            .message("Good Response")
-            .data(profileResponse).build();
+        if (profileImage != null) {
+            return new ProfileResponse(
+                photographerProfile.getBannerImageUrl(),
+                profileImage.getThumbnailUrl(),
+                photographer.getInstagramId(),
+                photographerProfile.getIntroductionContent(),
+                linkInfos);
+        } else {
+            return new ProfileResponse(
+                photographerProfile.getBannerImageUrl(),
+                null,
+                photographer.getInstagramId(),
+                photographerProfile.getIntroductionContent(),
+                linkInfos);
+        }
     }
 
     @Transactional
-    public ApiResponse<Void> updateProfile(UpdateProfileRequest updateRequest, Member photographer,
+    public void updateProfile(UpdateProfileRequest updateRequest, Member photographer,
         MultipartFile profileImage) throws IOException {
         Profile photographerProfile = profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        ProfileImage existingProfileImage = profileImageRepository.findByProfile(photographerProfile);
-        profileImageRepository.delete(existingProfileImage);
+        Member persistedPhotographer = memberRepository.findById(photographer.getId())
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        saveProfileImage(photographerProfile, profileImage, photographer.getId());
+        ProfileImage existingProfileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
+        if (existingProfileImage != null) {
+            profileImageRepository.delete(existingProfileImage);
+            saveProfileImage(photographerProfile, profileImage, photographer.getId());
+        }
 
         // 변경 감지: 필요한 필드만 업데이트
         if (!Objects.equals(photographerProfile.getBannerImageUrl(), updateRequest.getBannerImageUrl())) {
             photographerProfile.assignBannerImageUrl(updateRequest.getBannerImageUrl());
+        }
+        if (!Objects.equals(persistedPhotographer.getInstagramId(), updateRequest.getInstagramId())) {
+            persistedPhotographer.assignInstagramId(updateRequest.getInstagramId());
         }
         if (!Objects.equals(photographerProfile.getIntroductionContent(), updateRequest.getIntroductionContent())) {
             photographerProfile.assignIntroductionContent(updateRequest.getIntroductionContent());
         }
 
         updateLinks(photographerProfile, updateRequest.getLinkInfos());
-
-        return ApiResponse.<Void>builder()
-            .status(200)
-            .message("Updated successfully")
-            .data(null).build();
     }
 
     private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {

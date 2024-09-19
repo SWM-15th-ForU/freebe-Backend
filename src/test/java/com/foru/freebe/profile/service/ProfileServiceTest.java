@@ -120,6 +120,7 @@ class ProfileServiceTest {
             "file contents".getBytes());
 
         when(profileRepository.findByMember(photographer)).thenReturn(Optional.of(existingProfile));
+        when(memberRepository.findById(photographer.getId())).thenReturn(Optional.of(photographer));
 
         // When
         profileService.updateProfile(updateRequest, photographer, requestImage);
@@ -161,6 +162,7 @@ class ProfileServiceTest {
 
         when(profileRepository.findByMember(photographer)).thenReturn(Optional.of(existingProfile));
         when(linkRepository.findByProfile(existingProfile)).thenReturn(Arrays.asList(link1, link2));
+        when(memberRepository.findById(photographer.getId())).thenReturn(Optional.of(photographer));
 
         // When
         profileService.updateProfile(updateRequest, photographer, requestImage);

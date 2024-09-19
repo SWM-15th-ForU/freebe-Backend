@@ -57,7 +57,7 @@ public class CustomerReservationService {
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-        validateReservationForm(formRegisterRequest);
+        validateReservationForm(formRegisterRequest, photographer);
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
@@ -139,20 +139,20 @@ public class CustomerReservationService {
         return builder.build();
     }
 
-    private void validateReservationForm(FormRegisterRequest formRegisterRequest) {
-        validateProductTitleExists(formRegisterRequest.getProductTitle());
-        validateProductIsActive(formRegisterRequest.getProductTitle());
+    private void validateReservationForm(FormRegisterRequest formRegisterRequest, Member photographer) {
+        validateProductTitleExists(formRegisterRequest.getProductTitle(), photographer);
+        validateProductIsActive(formRegisterRequest.getProductTitle(), photographer);
     }
 
-    private void validateProductIsActive(String productTitle) {
-        Product product = productRepository.findByTitle(productTitle);
+    private void validateProductIsActive(String productTitle, Member photographer) {
+        Product product = productRepository.findByTitleAndMember(productTitle, photographer);
         if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
             throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);
         }
     }
 
-    private void validateProductTitleExists(String productTitle) {
-        if (!productRepository.existsByTitle(productTitle)) {
+    private void validateProductTitleExists(String productTitle, Member photographer) {
+        if (!productRepository.existsByTitleAndMember(productTitle, photographer)) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
     }

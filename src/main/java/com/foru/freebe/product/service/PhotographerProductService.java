@@ -53,13 +53,13 @@ public class PhotographerProductService {
 
     public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
-        Member member = getMember(photographerId);
+        Member photographer = getMember(photographerId);
 
         if (images.isEmpty()) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
 
-        Product productAsActive = registerActiveProduct(productRegisterRequestDto, member);
+        Product productAsActive = registerActiveProduct(productRegisterRequestDto, photographer);
         registerProductImage(images, productAsActive, photographerId);
         registerProductComponent(productRegisterRequestDto.getProductComponents(), productAsActive);
 
@@ -99,23 +99,23 @@ public class PhotographerProductService {
         product.updateProductActiveStatus(requestDto.getActiveStatus());
     }
 
-    private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member member) {
+    private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member photographer) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
         Product productAsActive;
         if (productDescription != null) {
-            productAsActive = Product.createProductAsActive(productTitle, productDescription, member);
+            productAsActive = Product.createProductAsActive(productTitle, productDescription, photographer);
         } else {
-            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, member);
+            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, photographer);
         }
 
-        validateProductTitle(productTitle);
+        validateProductTitle(productTitle, photographer);
         return productRepository.save(productAsActive);
     }
 
-    private void validateProductTitle(String productTitle) {
-        Product product = productRepository.findByTitle(productTitle);
+    private void validateProductTitle(String productTitle, Member photographer) {
+        Product product = productRepository.findByTitleAndMember(productTitle, photographer);
         if (product != null) {
             throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
         }

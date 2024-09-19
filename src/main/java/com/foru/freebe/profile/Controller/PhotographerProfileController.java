@@ -2,6 +2,8 @@ package com.foru.freebe.profile.Controller;
 
 import java.io.IOException;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.MemberAdapter;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
@@ -26,16 +28,34 @@ public class PhotographerProfileController {
     private final ProfileService profileService;
 
     @GetMapping("/profile")
-    public ApiResponse<ProfileResponse> getCurrentProfile(@AuthenticationPrincipal MemberAdapter memberAdapter) {
+    public ResponseEntity<ResponseBody<ProfileResponse>> getCurrentProfile(
+        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+
         Member photographer = memberAdapter.getMember();
-        return profileService.getCurrentProfile(photographer);
+        ProfileResponse responseData = profileService.getCurrentProfile(photographer);
+
+        ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
+            .message("Good Response")
+            .data(responseData).build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @PutMapping("/profile")
-    public ApiResponse<Void> updateProfile(@RequestPart(value = "request") UpdateProfileRequest updateRequest,
+    public ResponseEntity<ResponseBody<Void>> updateProfile(
+        @RequestPart(value = "request") UpdateProfileRequest updateRequest,
         @RequestPart(value = "image", required = false) MultipartFile profileImage,
         @AuthenticationPrincipal MemberAdapter memberAdapter) throws IOException {
+
         Member photographer = memberAdapter.getMember();
-        return profileService.updateProfile(updateRequest, photographer, profileImage);
+        profileService.updateProfile(updateRequest, photographer, profileImage);
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Updated successfully")
+            .data(null).build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 }

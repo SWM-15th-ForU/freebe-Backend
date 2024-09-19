@@ -52,11 +52,11 @@ public class CustomerProductController {
             .body(responseBody);
     }
 
-    @GetMapping("/product/images/{photographerId}")
+    @GetMapping("/product/images/{productId}")
     public ResponseEntity<ResponseBody<List<String>>> getReferenceImages(
-        @PathVariable("photographerId") Long photographerId) {
+        @PathVariable("productId") Long productId) {
 
-        List<String> responseData = customerProductService.getReferenceImages(photographerId);
+        List<String> responseData = customerProductService.getReferenceImages(productId);
 
         ResponseBody<List<String>> responseBody = ResponseBody.<List<String>>builder()
             .message("Good Response")

@@ -37,8 +37,8 @@ public class CustomerProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    public List<String> getReferenceImages(Long photographerId) {
-        List<ProductImage> productImages = productImageRepository.findByProductId(photographerId);
+    public List<String> getReferenceImages(Long productId) {
+        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
 
         List<String> referenceImages = new ArrayList<>();
         for (ProductImage productImage : productImages) {

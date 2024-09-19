@@ -77,6 +77,7 @@ class ProfileServiceTest {
 
         // When
         ProfileResponse result = profileService.getCurrentProfile(photographer);
+
         // Then
         assertNotNull(result);
         assertEquals("http://thumbnails.com", result.getProfileImageUrl());
@@ -124,6 +125,8 @@ class ProfileServiceTest {
 
         // When
         profileService.updateProfile(updateRequest, photographer, requestImage);
+
+        // then
         assertEquals("http://originurl.com", profileImage.getOriginUrl());
         assertEquals("changed content", existingProfile.getIntroductionContent());
         assertEquals("banner.jpg", existingProfile.getBannerImageUrl());
@@ -140,6 +143,7 @@ class ProfileServiceTest {
     @DisplayName("사진작가 측 프로필의 외부 링크 업데이트")
     @Test
     void testUpdateLinks() throws IOException {
+        // Given
         Member photographer = createNewMember();
         Profile existingProfile = createProfile(photographer);
 

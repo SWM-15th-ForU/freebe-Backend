@@ -2,14 +2,13 @@ package com.foru.freebe.member.service;
 
 import java.io.IOException;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.foru.freebe.auth.dto.LoginResponse;
 import com.foru.freebe.auth.model.KakaoUser;
-import com.foru.freebe.common.dto.ResponseBody;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
@@ -32,7 +31,7 @@ public class MemberService {
     private final MemberTermAgreementRepository memberTermAgreementRepository;
 
     @Transactional
-    public ResponseEntity<ResponseBody<?>> findOrRegisterMember(KakaoUser kakaoUser, Role role) {
+    public LoginResponse findOrRegisterMember(KakaoUser kakaoUser, Role role) {
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
             .orElseGet(() -> {
                 if (role == Role.PHOTOGRAPHER) {
@@ -41,14 +40,17 @@ public class MemberService {
                 return registerNewMember(kakaoUser, role);
             });
 
-        ResponseBody<?> body = setResponseBody(member);
-
         JwtTokenModel token = jwtService.generateToken(member.getId());
-        HttpHeaders headers = jwtService.setTokenHeaders(token);
 
-        return ResponseEntity.status(HttpStatus.OK.value())
-            .headers(headers)
-            .body(body);
+        // 빌더 시작
+        LoginResponse.LoginResponseBuilder builder = LoginResponse.builder();
+
+        // 값 설정
+        builder = builder.token(token);
+        builder = validateRoleType(builder, member);
+
+        // 최종적으로 build 호출하여 객체 생성
+        return builder.build();
     }
 
     @Transactional
@@ -62,6 +64,21 @@ public class MemberService {
         return profileService.getUniqueUrl(member.getId());
     }
 
+    private LoginResponse.LoginResponseBuilder validateRoleType(LoginResponse.LoginResponseBuilder builder,
+        Member member) {
+        if (member.getRole() == Role.PHOTOGRAPHER) {
+            return builder.message("photographer login")
+                .uniqueUrl(profileService.getUniqueUrl(member.getId()));
+        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
+            return builder.message("photographer join")
+                .uniqueUrl(null);
+        } else if (member.getRole() == Role.CUSTOMER) {
+            return builder.message("customer login")
+                .uniqueUrl(null);
+        }
+        throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+    }
+
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {
         Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
                 kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
@@ -69,26 +86,6 @@ public class MemberService {
             .gender(kakaoUser.getGender())
             .build();
         return memberRepository.save(newMember);
-    }
-
-    private ResponseBody<?> setResponseBody(Member member) {
-        ResponseBody<?> apiResponse = null;
-
-        if (member.getRole() == Role.PHOTOGRAPHER) {
-            apiResponse = ResponseBody.<String>builder()
-                .message("photographer login")
-                .data(profileService.getUniqueUrl(member.getId()))
-                .build();
-        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
-            apiResponse = ResponseBody.<Void>builder()
-                .message("photographer join")
-                .build();
-        } else if (member.getRole() == Role.CUSTOMER) {
-            apiResponse = ResponseBody.<Void>builder()
-                .message("customer login")
-                .build();
-        }
-        return apiResponse;
     }
 
     private Member completePhotographerSignup(Member member, String instagramId) {

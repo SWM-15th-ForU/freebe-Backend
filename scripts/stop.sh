@@ -14,6 +14,7 @@ else
   echo "[$NOW] 기존 프로세스 종료 시도: PID $SERVICE_PIDS" >> $STOP_LOG
 
   for PID in $SERVICE_PIDS; do
+    echo "[$NOW] kill $PID 실행 중" >> $STOP_LOG
     kill "$PID"
     sleep 1
 

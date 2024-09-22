@@ -33,6 +33,7 @@ import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 import com.foru.freebe.s3.S3ImageService;
 import com.foru.freebe.s3.S3ImageType;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,6 +51,7 @@ public class CustomerReservationService {
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
 
+    @Transactional
     public Long registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
         Member customer = findMember(id);

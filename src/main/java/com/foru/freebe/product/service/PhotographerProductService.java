@@ -53,6 +53,7 @@ public class PhotographerProductService {
     private final ReservationFormRepository reservationFormRepository;
     private final S3ImageService s3ImageService;
 
+    @Transactional
     public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);

@@ -13,6 +13,7 @@ import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
@@ -85,6 +86,15 @@ public class PhotographerProductService {
                 .activeStatus(product.getActiveStatus())
                 .build())
             .collect(Collectors.toList());
+    }
+
+    public ProductDetailResponse getRegisteredProductInfo(Long productId, Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        Product product = productRepository.findByIdAndMember(productId, photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        return productDetailConvertor.convertProductToProductDetailResponse(product);
     }
 
     @Transactional

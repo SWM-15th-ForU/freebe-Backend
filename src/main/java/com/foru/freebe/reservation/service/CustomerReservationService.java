@@ -1,7 +1,6 @@
 package com.foru.freebe.reservation.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -17,11 +16,10 @@ import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
-import com.foru.freebe.product.entity.ProductComponent;
-import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.product.service.ProductDetailConvertor;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
@@ -45,6 +43,7 @@ public class CustomerReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
+    private final ProductDetailConvertor productDetailConvertor;
     private final ProductRepository productRepository;
     private final ProductComponentRepository productComponentRepository;
     private final ProductOptionRepository productOptionRepository;
@@ -74,12 +73,9 @@ public class CustomerReservationService {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
-        List<ProductComponentDto> productComponentDtoList = convertProductComponentDtoList(
-            productComponents);
-
-        List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
-        List<ProductOptionDto> productOptionDtoList = convertProductOptionDtoList(productOptions);
+        List<ProductComponentDto> productComponentDtoList = productDetailConvertor.convertToProductComponentDtoList(
+            product);
+        List<ProductOptionDto> productOptionDtoList = productDetailConvertor.convertToProductOptionDtoList(product);
 
         return BasicReservationInfoResponse.builder()
             .name(customer.getName())
@@ -155,32 +151,6 @@ public class CustomerReservationService {
         if (!productRepository.existsByTitleAndMember(productTitle, photographer)) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
-    }
-
-    private List<ProductOptionDto> convertProductOptionDtoList(List<ProductOption> productOptions) {
-        List<ProductOptionDto> productOptionDtoList = new ArrayList<>();
-        for (ProductOption productOption : productOptions) {
-            ProductOptionDto productOptionDto = ProductOptionDto.builder()
-                .title(productOption.getTitle())
-                .price(productOption.getPrice())
-                .description(productOption.getDescription())
-                .build();
-            productOptionDtoList.add(productOptionDto);
-        }
-        return productOptionDtoList;
-    }
-
-    private List<ProductComponentDto> convertProductComponentDtoList(List<ProductComponent> productComponents) {
-        List<ProductComponentDto> productComponentDtoList = new ArrayList<>();
-        for (ProductComponent productComponent : productComponents) {
-            ProductComponentDto productComponentDto = ProductComponentDto.builder()
-                .title(productComponent.getTitle())
-                .content(productComponent.getContent())
-                .description(productComponent.getDescription())
-                .build();
-            productComponentDtoList.add(productComponentDto);
-        }
-        return productComponentDtoList;
     }
 
     private void validateCustomerAccess(ReservationForm reservationForm, Long customerId) {

@@ -42,6 +42,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerProductService {
     private static final int PRODUCT_THUMBNAIL_SIZE = 200;
 
+    private final ProductDetailConvertor productDetailConvertor;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductComponentRepository productComponentRepository;
@@ -86,17 +87,17 @@ public class PhotographerProductService {
             .collect(Collectors.toList());
     }
 
-    private Integer getReservationCount(Long id, String productTitle) {
-        return (int)reservationFormRepository.findAllByPhotographerIdAndProductTitle(id, productTitle).stream()
-            .filter(form -> form.getReservationStatus() == ReservationStatus.PHOTO_COMPLETED)
-            .count();
-    }
-
     @Transactional
     public void updateProductActiveStatus(UpdateProductRequest requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());
+    }
+
+    private Integer getReservationCount(Long id, String productTitle) {
+        return (int)reservationFormRepository.findAllByPhotographerIdAndProductTitle(id, productTitle).stream()
+            .filter(form -> form.getReservationStatus() == ReservationStatus.PHOTO_COMPLETED)
+            .count();
     }
 
     private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member photographer) {

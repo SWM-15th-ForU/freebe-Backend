@@ -13,7 +13,7 @@ APP_LOG="$ROOT_PATH/application.log"
 ERROR_LOG="$ROOT_PATH/error.log"
 START_LOG="$ROOT_PATH/start.log"
 
-NOW=$(date +%c)
+NOW=$(date "+%Y %b %d %a %H:%M:%S")
 
 # JAR 파일 복사
 echo "[$NOW] $JAR 복사 중..." >> $START_LOG

@@ -3,7 +3,7 @@
 ROOT_PATH="/home/ubuntu/freebe-backend"
 JAR="$ROOT_PATH/application.jar"
 STOP_LOG="$ROOT_PATH/stop.log"
-NOW=$(date +%c)
+NOW=$(date "+%Y %b %d %a %H:%M:%S")
 
 # 실행 중인 모든 프로세스의 PID를 가져옴
 SERVICE_PIDS=$(pgrep -f $JAR)
@@ -21,6 +21,7 @@ else
     if kill -0 "$PID" 2>/dev/null; then
       echo "[$NOW] 프로세스 강제 종료 시도: PID $PID" >> $STOP_LOG
       kill -9 "$PID"
+      echo "[$NOW] 프로세스 강제 종료됨: PID $PID" >> $STOP_LOG
     else
       echo "[$NOW] 프로세스가 성공적으로 종료됨: PID $PID" >> $STOP_LOG
     fi

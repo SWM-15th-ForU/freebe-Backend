@@ -6,7 +6,7 @@ STOP_LOG="$ROOT_PATH/stop.log"
 NOW=$(date "+%Y %b %d %a %H:%M:%S")
 
 # 실행 중인 모든 프로세스의 PID를 가져옴
-SERVICE_PIDS=$(pgrep -f $JAR)
+SERVICE_PIDS=$(pgrep -f $JAR | tr '\n' ' ')
 
 if [ -z "$SERVICE_PIDS" ]; then
   echo "[$NOW] 실행 중인 기존 프로세스 없음" >> $STOP_LOG

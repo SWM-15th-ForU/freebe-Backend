@@ -3,7 +3,7 @@ name: Backend Dev Server CD
 on:
   push:
     branches: [ "develop" ]
-    
+
 jobs:
   build:
     runs-on: ubuntu-22.04

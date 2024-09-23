@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,20 +82,22 @@ public class S3ImageService {
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
             String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
-            InputStream originalImageStream = image.getInputStream();
+            try (InputStream originalImageStream = image.getInputStream();
+                 ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
 
-            ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-            Thumbnails.of(originalImageStream)
-                .size(thumbnailSize, thumbnailSize)
-                .toOutputStream(thumbnailOutputStream);
+                Thumbnails.of(originalImageStream)
+                    .size(thumbnailSize, thumbnailSize)
+                    .toOutputStream(thumbnailOutputStream);
 
-            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+                InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
 
-            ObjectMetadata thumbnailMetadata = new ObjectMetadata();
-            thumbnailMetadata.setContentType(image.getContentType());
+                ObjectMetadata thumbnailMetadata = new ObjectMetadata();
+                thumbnailMetadata.setContentType(image.getContentType());
+                thumbnailMetadata.setContentLength(thumbnailOutputStream.size()); // Content-Length 설정
 
-            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
-            addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
+                uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+                addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
+            }
         }
         return thumbnailImageUrls;
     }
@@ -110,6 +113,12 @@ public class S3ImageService {
             throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
         } catch (Exception e) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public String calculateImageHash(InputStream inputStream) throws IOException {
+        try (InputStream is = inputStream) {
+            return DigestUtils.md2Hex(is);
         }
     }
 

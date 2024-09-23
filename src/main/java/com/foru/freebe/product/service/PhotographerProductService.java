@@ -51,13 +51,10 @@ public class PhotographerProductService {
     private final ReservationFormRepository reservationFormRepository;
     private final S3ImageService s3ImageService;
 
+    @Transactional
     public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);
-
-        if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
 
         Product productAsActive = registerActiveProduct(productRegisterRequestDto, photographer);
         registerProductImage(images, productAsActive, photographerId);
@@ -128,6 +125,10 @@ public class PhotographerProductService {
 
     private void registerProductImage(List<MultipartFile> images, Product product, Long id) throws
         IOException {
+
+        if (images.isEmpty()) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.PRODUCT, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.PRODUCT, id,

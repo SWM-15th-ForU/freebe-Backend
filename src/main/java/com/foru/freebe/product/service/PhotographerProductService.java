@@ -113,6 +113,10 @@ public class PhotographerProductService {
         Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);
 
+        if (images.isEmpty()) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
+
         Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
@@ -124,35 +128,14 @@ public class PhotographerProductService {
         List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
         List<ProductDiscount> productDiscounts = productDiscountRepository.findByProduct(product);
 
-        productImageRepository.deleteAll(productImages);
-        registerProductImage(images, product, photographerId);
+        updateProductImage(images, photographerId, productImages, product);
+        updateProductComponent(updateProductDetailRequest, productComponents, product);
+        updateProductOption(updateProductDetailRequest, productOptions, product);
+        updateProductDiscount(updateProductDetailRequest, productDiscounts, product);
+    }
 
-        productComponentRepository.deleteAll(productComponents);
-        List<ProductComponentDto> updateProductComponents = updateProductDetailRequest.getProductComponents();
-        for (ProductComponentDto productComponentDto : updateProductComponents) {
-            ProductComponent productComponent = ProductComponent.builder()
-                .title(productComponentDto.getTitle())
-                .description(productComponentDto.getDescription())
-                .content(productComponentDto.getContent())
-                .product(product)
-                .build();
-
-            productComponentRepository.save(productComponent);
-        }
-
-        productOptionRepository.deleteAll(productOptions);
-        List<ProductOptionDto> updateProductOptions = updateProductDetailRequest.getProductOptions();
-        for (ProductOptionDto productOptionDto : updateProductOptions) {
-            ProductOption productOption = ProductOption.builder()
-                .title(productOptionDto.getTitle())
-                .price(productOptionDto.getPrice())
-                .description(productOptionDto.getDescription())
-                .product(product)
-                .build();
-
-            productOptionRepository.save(productOption);
-        }
-
+    private void updateProductDiscount(UpdateProductDetailRequest updateProductDetailRequest,
+        List<ProductDiscount> productDiscounts, Product product) {
         productDiscountRepository.deleteAll(productDiscounts);
         List<ProductDiscountDto> updateProductDiscounts = updateProductDetailRequest.getProductDiscounts();
         for (ProductDiscountDto productDiscountDto : updateProductDiscounts) {
@@ -166,6 +149,45 @@ public class PhotographerProductService {
 
             productDiscountRepository.save(productDiscount);
         }
+    }
+
+    private void updateProductOption(UpdateProductDetailRequest updateProductDetailRequest,
+        List<ProductOption> productOptions,
+        Product product) {
+        productOptionRepository.deleteAll(productOptions);
+        List<ProductOptionDto> updateProductOptions = updateProductDetailRequest.getProductOptions();
+        for (ProductOptionDto productOptionDto : updateProductOptions) {
+            ProductOption productOption = ProductOption.builder()
+                .title(productOptionDto.getTitle())
+                .price(productOptionDto.getPrice())
+                .description(productOptionDto.getDescription())
+                .product(product)
+                .build();
+
+            productOptionRepository.save(productOption);
+        }
+    }
+
+    private void updateProductComponent(UpdateProductDetailRequest updateProductDetailRequest,
+        List<ProductComponent> productComponents, Product product) {
+        productComponentRepository.deleteAll(productComponents);
+        List<ProductComponentDto> updateProductComponents = updateProductDetailRequest.getProductComponents();
+        for (ProductComponentDto productComponentDto : updateProductComponents) {
+            ProductComponent productComponent = ProductComponent.builder()
+                .title(productComponentDto.getTitle())
+                .description(productComponentDto.getDescription())
+                .content(productComponentDto.getContent())
+                .product(product)
+                .build();
+
+            productComponentRepository.save(productComponent);
+        }
+    }
+
+    private void updateProductImage(List<MultipartFile> images, Long photographerId, List<ProductImage> productImages,
+        Product product) throws IOException {
+        productImageRepository.deleteAll(productImages);
+        registerProductImage(images, product, photographerId);
     }
 
     private Integer getReservationCount(Long id, String productTitle) {

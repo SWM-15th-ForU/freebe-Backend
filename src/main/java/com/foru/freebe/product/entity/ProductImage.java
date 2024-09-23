@@ -30,17 +30,23 @@ public class ProductImage extends BaseEntity {
     @NotNull
     private String originUrl;
 
+    @NotNull
+    private String imageHash;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;
 
-    private ProductImage(String thumbnailUrl, String originUrl, Product product) {
+    public static ProductImage createProductImage(String thumbnailUrl, String originUrl, String imageHash,
+        Product product) {
+        return new ProductImage(thumbnailUrl, originUrl, imageHash, product);
+    }
+
+    private ProductImage(String thumbnailUrl, String originUrl, String imageHash, Product product) {
         this.thumbnailUrl = thumbnailUrl;
         this.originUrl = originUrl;
+        this.imageHash = imageHash;
         this.product = product;
     }
 
-    public static ProductImage createProductImage(String thumbnailUrl, String originUrl, Product product) {
-        return new ProductImage(thumbnailUrl, originUrl, product);
-    }
 }

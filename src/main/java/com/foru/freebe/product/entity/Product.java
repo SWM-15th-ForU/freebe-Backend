@@ -63,4 +63,12 @@ public class Product extends BaseEntity {
         }
         this.activeStatus = newStatus;
     }
+
+    public void assignTitle(String newTitle) {
+        this.title = newTitle;
+    }
+
+    public void assignDescription(String newDescription) {
+        this.description = newDescription;
+    }
 }

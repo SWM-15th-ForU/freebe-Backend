@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductRegisterRequest {
+public class UpdateProductDetailRequest {
+    @NotNull
+    private Long productId;
+
     @NotBlank
     @Size(max = 30, message = "Title cannot be longer than 30 characters")
     private String productTitle;
@@ -18,7 +21,7 @@ public class ProductRegisterRequest {
     @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String productDescription;
 
-    @NotNull
+    // @NotNull
     private List<ProductComponentDto> productComponents;
 
     private List<ProductOptionDto> productOptions;

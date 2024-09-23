@@ -20,8 +20,9 @@ import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
-import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.ProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
+import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
 import com.foru.freebe.product.service.PhotographerProductService;
 
@@ -36,7 +37,7 @@ public class PhotographerProductController {
 
     @PostMapping("/product")
     public ResponseEntity<ResponseBody<Void>> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "request") ProductRegisterRequest request,
+        @RequestPart(value = "request") ProductDetailRequest request,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member photographer = memberAdapter.getMember();
@@ -84,7 +85,6 @@ public class PhotographerProductController {
             .body(responseBody);
     }
 
-    // 상품 정보 조회
     @GetMapping("/product/{productId}")
     public ResponseEntity<ResponseBody<ProductDetailResponse>> getProductById(
         @PathVariable("productId") Long productId,
@@ -103,7 +103,21 @@ public class PhotographerProductController {
             .body(responseBody);
     }
 
-    // 상품 정보 수정
+    @PutMapping("/product")
+    public ResponseEntity<ResponseBody<Void>> updateProduct(
+        @RequestPart(value = "request") UpdateProductDetailRequest request,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images,
+        @AuthenticationPrincipal MemberAdapter memberAdapter) throws IOException {
 
-    // 상품 삭제
+        Member photographer = memberAdapter.getMember();
+        photographerProductService.updateProductDetail(images, request, photographer.getId());
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully updated product info")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
 }

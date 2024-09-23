@@ -15,10 +15,11 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
+import com.foru.freebe.product.dto.photographer.ProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
-import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
+import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
@@ -37,9 +38,11 @@ import com.foru.freebe.s3.S3ImageType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PhotographerProductService {
     private static final int PRODUCT_THUMBNAIL_SIZE = 200;
 
@@ -54,7 +57,7 @@ public class PhotographerProductService {
     private final S3ImageService s3ImageService;
 
     @Transactional
-    public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
+    public void registerProduct(ProductDetailRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);
 
@@ -105,13 +108,73 @@ public class PhotographerProductService {
         product.updateProductActiveStatus(requestDto.getActiveStatus());
     }
 
+    @Transactional
+    public void updateProductDetail(List<MultipartFile> images, UpdateProductDetailRequest updateProductDetailRequest,
+        Long photographerId) throws IOException {
+        Member photographer = getMember(photographerId);
+
+        Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        product.assignTitle(updateProductDetailRequest.getProductTitle());
+        product.assignDescription(updateProductDetailRequest.getProductDescription());
+
+        List<ProductImage> productImages = productImageRepository.findByProduct(product);
+        List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
+        List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
+        List<ProductDiscount> productDiscounts = productDiscountRepository.findByProduct(product);
+
+        productImageRepository.deleteAll(productImages);
+        registerProductImage(images, product, photographerId);
+
+        productComponentRepository.deleteAll(productComponents);
+        List<ProductComponentDto> updateProductComponents = updateProductDetailRequest.getProductComponents();
+        for (ProductComponentDto productComponentDto : updateProductComponents) {
+            ProductComponent productComponent = ProductComponent.builder()
+                .title(productComponentDto.getTitle())
+                .description(productComponentDto.getDescription())
+                .content(productComponentDto.getContent())
+                .product(product)
+                .build();
+
+            productComponentRepository.save(productComponent);
+        }
+
+        productOptionRepository.deleteAll(productOptions);
+        List<ProductOptionDto> updateProductOptions = updateProductDetailRequest.getProductOptions();
+        for (ProductOptionDto productOptionDto : updateProductOptions) {
+            ProductOption productOption = ProductOption.builder()
+                .title(productOptionDto.getTitle())
+                .price(productOptionDto.getPrice())
+                .description(productOptionDto.getDescription())
+                .product(product)
+                .build();
+
+            productOptionRepository.save(productOption);
+        }
+
+        productDiscountRepository.deleteAll(productDiscounts);
+        List<ProductDiscountDto> updateProductDiscounts = updateProductDetailRequest.getProductDiscounts();
+        for (ProductDiscountDto productDiscountDto : updateProductDiscounts) {
+            ProductDiscount productDiscount = ProductDiscount.builder()
+                .title(productDiscountDto.getTitle())
+                .discountType(productDiscountDto.getDiscountType())
+                .discountValue(productDiscountDto.getDiscountValue())
+                .description(productDiscountDto.getDescription())
+                .product(product)
+                .build();
+
+            productDiscountRepository.save(productDiscount);
+        }
+    }
+
     private Integer getReservationCount(Long id, String productTitle) {
         return (int)reservationFormRepository.findAllByPhotographerIdAndProductTitle(id, productTitle).stream()
             .filter(form -> form.getReservationStatus() == ReservationStatus.PHOTO_COMPLETED)
             .count();
     }
 
-    private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member photographer) {
+    private Product registerActiveProduct(ProductDetailRequest productRegisterRequestDto, Member photographer) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 
@@ -146,10 +209,16 @@ public class PhotographerProductService {
             PRODUCT_THUMBNAIL_SIZE);
 
         IntStream.range(0, originalImageUrls.size()).forEach(i -> {
-            ProductImage productImage = ProductImage.createProductImage(
-                thumbnailImageUrls.get(i),
-                originalImageUrls.get(i),
-                product);
+            ProductImage productImage = null;
+            try {
+                productImage = ProductImage.createProductImage(
+                    thumbnailImageUrls.get(i),
+                    originalImageUrls.get(i),
+                    s3ImageService.calculateImageHash(images.get(i).getInputStream()),
+                    product);
+            } catch (IOException e) {
+                throw new RestApiException(CommonErrorCode.IO_EXCEPTION);
+            }
             productImageRepository.save(productImage);
         });
     }

@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -114,6 +115,22 @@ public class PhotographerProductController {
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully updated product info")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @DeleteMapping("/product/{productId}")
+    public ResponseEntity<ResponseBody<Void>> deleteProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
+        @PathVariable("productId") Long productId) {
+
+        Member photographer = memberAdapter.getMember();
+        photographerProductService.deleteProduct(productId, photographer.getId());
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully delete product")
             .data(null)
             .build();
 

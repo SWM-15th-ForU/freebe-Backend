@@ -2,6 +2,7 @@ package com.foru.freebe.config;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,9 @@ import lombok.RequiredArgsConstructor;
 public class CustomLogoutHandler implements LogoutHandler {
     private final JwtService jwtService;
 
+    @Value("${FREEBE_BASE_URL}")
+    private String freebeBaseUrl;
+
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         try {
@@ -34,9 +38,9 @@ public class CustomLogoutHandler implements LogoutHandler {
             jwtService.revokeToken(refreshToken);
 
             switch (role) {
-                case CUSTOMER -> response.sendRedirect("/login/customer");
-                case PHOTOGRAPHER, PHOTOGRAPHER_PENDING -> response.sendRedirect("/login/photographer");
-                default -> response.sendRedirect("/login");
+                case CUSTOMER -> response.sendRedirect(freebeBaseUrl + "/login/customer");
+                case PHOTOGRAPHER, PHOTOGRAPHER_PENDING -> response.sendRedirect(freebeBaseUrl + "/login/photographer");
+                default -> response.sendRedirect(freebeBaseUrl + "/login");
             }
         } catch (JwtTokenException e) {
             throw new JwtTokenException(e.getErrorCode());

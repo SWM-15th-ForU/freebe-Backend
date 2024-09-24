@@ -1,8 +1,10 @@
 package com.foru.freebe.errors.handler;
 
+import java.sql.DataTruncation;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -35,6 +37,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
         return handleExceptionInternal(errorCode, e.getMessage());
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataTruncation(DataTruncation e) {
+        ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        String message = e.getMessage();
+
+        return handleExceptionInternal(errorCode, message);
     }
 
     // 메서드 인자의 유효성 검사가 실패했을 때 발생

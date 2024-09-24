@@ -14,4 +14,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Boolean existsByMemberAndTitle(Member member, String title);
 
     Optional<Product> findByTitle(String title);
+
+    Optional<Product> findByTitleAndMember(String title, Member member);
 }

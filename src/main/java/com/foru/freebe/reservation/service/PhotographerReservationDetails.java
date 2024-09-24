@@ -6,7 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.CustomerDetails;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.PreferredDate;
@@ -24,7 +25,7 @@ public class PhotographerReservationDetails {
     private final ReservationService reservationService;
     private final ReferenceImageRepository referenceImageRepository;
 
-    public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(Long photographerId, Long formId) {
+    public FormDetailsViewResponse getReservationFormDetails(Long photographerId, Long formId) {
         ReservationForm reservationForm = reservationService.findReservationForm(photographerId, formId, true);
         List<StatusHistory> statusHistories = reservationService.getStatusHistories(reservationForm);
 
@@ -33,7 +34,7 @@ public class PhotographerReservationDetails {
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
-        FormDetailsViewResponse formDetailsViewResponse = FormDetailsViewResponse.builder(reservationForm.getId(),
+        return FormDetailsViewResponse.builder(reservationForm.getId(),
                 reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
                 shootDetails, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
@@ -41,12 +42,6 @@ public class PhotographerReservationDetails {
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())
             .photographerMemo(reservationForm.getPhotographerMemo())
-            .build();
-
-        return ApiResponse.<FormDetailsViewResponse>builder()
-            .message("Successfully get reservation list")
-            .status(200)
-            .data(formDetailsViewResponse)
             .build();
     }
 

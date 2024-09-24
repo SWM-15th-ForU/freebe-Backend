@@ -2,6 +2,8 @@ package com.foru.freebe.reservation.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -48,11 +50,13 @@ public class PhotographerReservationController {
     }
 
     @PutMapping("/reservation/details/{formId}")
-    public ApiResponse<Void> updateReservationFormDetails(
+    public ResponseEntity<Void> updateReservationFormDetails(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member member = memberAdapter.getMember();
-        return reservationService.updateReservationStatus(member.getId(), formId, request, true);
+        reservationService.updateReservationStatus(member.getId(), formId, request, true);
+
+        return ResponseEntity.status(HttpStatus.OK.value()).build();
     }
 }

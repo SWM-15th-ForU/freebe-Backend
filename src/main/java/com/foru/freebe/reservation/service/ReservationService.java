@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
@@ -27,7 +26,7 @@ public class ReservationService {
     private final ReservationHistoryRepository reservationHistoryRepository;
 
     @Transactional
-    public ApiResponse<Void> updateReservationStatus(Long memberId, Long formId,
+    public void updateReservationStatus(Long memberId, Long formId,
         ReservationStatusUpdateRequest request, Boolean isPhotographer) {
 
         ReservationForm reservationForm = findReservationForm(memberId, formId, isPhotographer);
@@ -41,11 +40,6 @@ public class ReservationService {
 
         reservationFormRepository.save(reservationForm);
         reservationHistoryRepository.save(reservationHistory);
-
-        return ApiResponse.<Void>builder()
-            .message("Successfully update reservation status")
-            .status(200)
-            .build();
     }
 
     public ReservationForm findReservationForm(Long id, Long formId, Boolean isPhotographer) {

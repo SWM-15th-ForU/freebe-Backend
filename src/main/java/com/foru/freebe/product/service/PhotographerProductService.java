@@ -2,6 +2,7 @@ package com.foru.freebe.product.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -134,8 +135,8 @@ public class PhotographerProductService {
     }
 
     private void validateProductTitle(String productTitle) {
-        Product product = productRepository.findByTitle(productTitle);
-        if (product != null) {
+        Optional<Product> product = productRepository.findByTitle(productTitle);
+        if (product.isPresent()) {
             throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
         }
     }

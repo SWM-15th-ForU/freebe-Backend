@@ -63,7 +63,9 @@ public class ReservationVerifier {
     }
 
     private void validateProductIsActive(String productTitle) {
-        Product product = productRepository.findByTitle(productTitle);
+        Product product = productRepository.findByTitle(productTitle)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
         if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
             throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);
         }

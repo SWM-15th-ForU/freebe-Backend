@@ -108,7 +108,7 @@ class ReservationServiceTest {
             // when, then
             RestApiException exception = assertThrows(RestApiException.class,
                 () -> reservationService.updateReservationStatus(memberId, formId, request, isPhotographer));
-            assertEquals(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION, exception.getErrorCode());
+            assertEquals(ReservationErrorCode.INVALID_STATUS_TRANSITION, exception.getErrorCode());
         }
 
         @Test

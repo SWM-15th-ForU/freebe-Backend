@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -71,7 +72,7 @@ public class ReservationVerifier {
     private void validateCustomerAuthorityToChangeStatus(ReservationStatus currentStatus,
         ReservationStatus updateStatus) {
         if (!(currentStatus == ReservationStatus.NEW && updateStatus == ReservationStatus.CANCELLED_BY_CUSTOMER)) {
-            throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
+            throw new RestApiException(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION);
         }
     }
 
@@ -84,7 +85,7 @@ public class ReservationVerifier {
     private void validateStatusTransition(ReservationStatus currentStatus, ReservationStatus updateStatus) {
         ReservationStatusTransition transition = ReservationStatusTransition.valueOf(currentStatus.name());
         if (transition.isInvalidTransition(updateStatus)) {
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            throw new RestApiException(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION);
         }
     }
 }

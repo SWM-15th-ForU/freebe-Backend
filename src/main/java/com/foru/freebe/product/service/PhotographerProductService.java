@@ -107,13 +107,12 @@ public class PhotographerProductService {
             productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, photographer);
         }
 
-        validateProductTitle(productTitle, photographer);
+        validateProductTitleBeforeRegister(productTitle, photographer);
         return productRepository.save(productAsActive);
     }
 
-    private void validateProductTitle(String productTitle, Member photographer) {
-        Product product = productRepository.findByTitleAndMember(productTitle, photographer);
-        if (product != null) {
+    private void validateProductTitleBeforeRegister(String productTitle, Member photographer) {
+        if (productRepository.existsByMemberAndTitle(photographer, productTitle)) {
             throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
         }
     }

@@ -9,13 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
-import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
-import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductOption;
@@ -35,6 +33,7 @@ import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 import com.foru.freebe.s3.S3ImageService;
 import com.foru.freebe.s3.S3ImageType;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,14 +49,17 @@ public class CustomerReservationService {
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
+    private final ReservationVerifier reservationVerifier;
 
+    @Transactional
     public Long registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
+
         Member customer = findMember(id);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-        validateReservationForm(formRegisterRequest, photographer);
+        reservationVerifier.validateReservationFormBeforeSave(formRegisterRequest);
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
@@ -93,7 +95,7 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        validateCustomerAccess(reservationForm, customerId);
+        reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
@@ -127,7 +129,7 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private static ReservationForm createReservationForm(FormRegisterRequest request,
+    private ReservationForm createReservationForm(FormRegisterRequest request,
         Member photographer, Member customer) {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
@@ -137,24 +139,6 @@ public class CustomerReservationService {
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
-    }
-
-    private void validateReservationForm(FormRegisterRequest formRegisterRequest, Member photographer) {
-        validateProductTitleExists(formRegisterRequest.getProductTitle(), photographer);
-        validateProductIsActive(formRegisterRequest.getProductTitle(), photographer);
-    }
-
-    private void validateProductIsActive(String productTitle, Member photographer) {
-        Product product = productRepository.findByTitleAndMember(productTitle, photographer);
-        if (product.getActiveStatus() != ActiveStatus.ACTIVE) {
-            throw new RestApiException(ProductErrorCode.PRODUCT_INACTIVE_STATUS);
-        }
-    }
-
-    private void validateProductTitleExists(String productTitle, Member photographer) {
-        if (!productRepository.existsByTitleAndMember(productTitle, photographer)) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
     }
 
     private List<ProductOptionDto> convertProductOptionDtoList(List<ProductOption> productOptions) {
@@ -181,12 +165,5 @@ public class CustomerReservationService {
             productComponentDtoList.add(productComponentDto);
         }
         return productComponentDtoList;
-    }
-
-    private void validateCustomerAccess(ReservationForm reservationForm, Long customerId) {
-        Long reservationCustomerId = reservationForm.getCustomer().getId();
-        if (!reservationCustomerId.equals(customerId)) {
-            throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
-        }
     }
 }

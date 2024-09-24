@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -38,22 +37,18 @@ public class CustomerProductService {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    public ApiResponse<List<String>> getReferenceImages(Long photographerId) {
-        List<ProductImage> productImages = productImageRepository.findByProductId(photographerId);
+    public List<String> getReferenceImages(Long productId) {
+        List<ProductImage> productImages = productImageRepository.findByProductId(productId);
 
         List<String> referenceImages = new ArrayList<>();
         for (ProductImage productImage : productImages) {
             referenceImages.add(productImage.getOriginUrl());
         }
 
-        return ApiResponse.<List<String>>builder()
-            .status(200)
-            .message("Good Response")
-            .data(referenceImages)
-            .build();
+        return referenceImages;
     }
 
-    public ApiResponse<ProductDetailResponse> getDetailedInfoOfProduct(Long productId) {
+    public ProductDetailResponse getDetailedInfoOfProduct(Long productId) {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
@@ -62,7 +57,7 @@ public class CustomerProductService {
         List<ProductOptionDto> productOptions = getProductOptions(product);
         List<ProductDiscountDto> productDiscounts = getProductDiscounts(product);
 
-        ProductDetailResponse productDetailResponse = ProductDetailResponse.builder()
+        return ProductDetailResponse.builder()
             .productTitle(product.getTitle())
             .productDescription(product.getDescription())
             .productImageUrls(productImageUrls)
@@ -70,15 +65,9 @@ public class CustomerProductService {
             .productOptions(productOptions)
             .productDiscounts(productDiscounts)
             .build();
-
-        return ApiResponse.<ProductDetailResponse>builder()
-            .status(200)
-            .message("Good Response")
-            .data(productDetailResponse)
-            .build();
     }
 
-    public ApiResponse<List<ProductListResponse>> getProductList(Long photographerId) {
+    public List<ProductListResponse> getProductList(Long photographerId) {
         Member photographer = memberRepository.findById(photographerId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
@@ -97,11 +86,8 @@ public class CustomerProductService {
 
             productListResponseList.add(productListResponse);
         }
-        return ApiResponse.<List<ProductListResponse>>builder()
-            .status(200)
-            .message("Good Request")
-            .data(productListResponseList)
-            .build();
+
+        return productListResponseList;
     }
 
     private List<ProductDiscountDto> getProductDiscounts(Product product) {

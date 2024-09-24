@@ -8,7 +8,6 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -53,7 +52,7 @@ public class CustomerReservationService {
     private final ReservationVerifier reservationVerifier;
 
     @Transactional
-    public ApiResponse<Long> registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
+    public Long registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
 
         Member customer = findMember(id);
@@ -67,15 +66,11 @@ public class CustomerReservationService {
             REFERENCE_THUMBNAIL_SIZE);
         saveReservationForm(originalImageUrls, thumbnailImageUrls, reservationForm);
 
-        return ApiResponse.<Long>builder()
-            .status(200)
-            .message("Good Request")
-            .data(reservationForm.getId())
-            .build();
+        return reservationForm.getId();
     }
 
     // TODO 추후 사진작가의 촬영 오픈일정 관련 로직이 추가되면 예약신청서 작성할 때 사진작가의 일정 조회 로직이 필요함
-    public ApiResponse<BasicReservationInfoResponse> getBasicReservationForm(Long customerId, Long productId) {
+    public BasicReservationInfoResponse getBasicReservationForm(Long customerId, Long productId) {
         Member customer = findMember(customerId);
 
         Product product = productRepository.findById(productId)
@@ -88,39 +83,27 @@ public class CustomerReservationService {
         List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
         List<ProductOptionDto> productOptionDtoList = convertProductOptionDtoList(productOptions);
 
-        BasicReservationInfoResponse basicReservationInfoResponse = BasicReservationInfoResponse.builder()
+        return BasicReservationInfoResponse.builder()
             .name(customer.getName())
             .phoneNumber(customer.getPhoneNumber())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();
-
-        return ApiResponse.<BasicReservationInfoResponse>builder()
-            .status(200)
-            .message("Good Response")
-            .data(basicReservationInfoResponse)
-            .build();
     }
 
-    public ApiResponse<ReservationInfoResponse> getReservationInfo(Long reservationFormId, Long customerId) {
+    public ReservationInfoResponse getReservationInfo(Long reservationFormId, Long customerId) {
         ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
-        ReservationInfoResponse reservationInfoResponse = ReservationInfoResponse.builder()
+        return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
-            .build();
-
-        return ApiResponse.<ReservationInfoResponse>builder()
-            .status(200)
-            .message("Good Response")
-            .data(reservationInfoResponse)
             .build();
     }
 

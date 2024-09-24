@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.auth.model.MemberAdapter;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
@@ -34,29 +34,51 @@ public class PhotographerReservationController {
     private final ReservationService reservationService;
 
     @GetMapping("/reservation/list")
-    public ApiResponse<List<FormListViewResponse>> getReservationList(
+    public ResponseEntity<ResponseBody<List<FormListViewResponse>>> getReservationList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member member = memberAdapter.getMember();
-        return photographerReservationService.getReservationList(member.getId());
+        List<FormListViewResponse> responseData = photographerReservationService.getReservationList(member.getId());
+
+        ResponseBody<List<FormListViewResponse>> responseBody = ResponseBody.<List<FormListViewResponse>>builder()
+            .message("Successfully get reservation list")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @GetMapping("/reservation/details/{formId}")
-    public ApiResponse<FormDetailsViewResponse> getReservationFormDetails(
+    public ResponseEntity<ResponseBody<FormDetailsViewResponse>> getReservationFormDetails(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId) {
 
         Member member = memberAdapter.getMember();
-        return photographerReservationDetails.getReservationFormDetails(member.getId(), formId);
+        FormDetailsViewResponse responseData = photographerReservationDetails.getReservationFormDetails(
+            member.getId(), formId);
+
+        ResponseBody<FormDetailsViewResponse> responseBody = ResponseBody.<FormDetailsViewResponse>builder()
+            .message("Successfully get reservation list")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @PutMapping("/reservation/details/{formId}")
-    public ResponseEntity<Void> updateReservationFormDetails(
+    public ResponseEntity<ResponseBody<Void>> updateReservationFormDetails(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member member = memberAdapter.getMember();
         reservationService.updateReservationStatus(member.getId(), formId, request, true);
 
-        return ResponseEntity.status(HttpStatus.OK.value()).build();
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully update reservation status")
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 }

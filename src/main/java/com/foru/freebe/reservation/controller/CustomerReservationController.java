@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.MemberAdapter;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
@@ -39,29 +39,56 @@ public class CustomerReservationController {
 
     @PostMapping(value = "/reservation", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
         MediaType.APPLICATION_JSON_VALUE})
-    public ApiResponse<Long> registerReservationForm(@RequestPart("request") FormRegisterRequest request,
+    public ResponseEntity<ResponseBody<Long>> registerReservationForm(
+        @RequestPart("request") FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member customer = memberAdapter.getMember();
-        return customerReservationService.registerReservationForm(customer.getId(), request, images);
+        Long responseData = customerReservationService.registerReservationForm(customer.getId(), request, images);
+
+        ResponseBody<Long> responseBody = ResponseBody.<Long>builder()
+            .message("Good Request")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @GetMapping("/reservation/form/{productId}")
-    public ApiResponse<BasicReservationInfoResponse> getBasicReservationForm(
+    public ResponseEntity<ResponseBody<BasicReservationInfoResponse>> getBasicReservationForm(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @Valid @PathVariable("productId") Long productId) {
 
         Member customer = memberAdapter.getMember();
-        return customerReservationService.getBasicReservationForm(customer.getId(), productId);
+        BasicReservationInfoResponse responseData = customerReservationService.getBasicReservationForm(
+            customer.getId(), productId);
+
+        ResponseBody<BasicReservationInfoResponse> responseBody = ResponseBody.<BasicReservationInfoResponse>builder()
+            .message("Good Response")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @GetMapping("/reservation/{reservationFormId}")
-    public ApiResponse<ReservationInfoResponse> getReservationInfo(
+    public ResponseEntity<ResponseBody<ReservationInfoResponse>> getReservationInfo(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @Valid @PathVariable("reservationFormId") Long reservationFormId) {
 
         Member customer = memberAdapter.getMember();
-        return customerReservationService.getReservationInfo(reservationFormId, customer.getId());
+        ReservationInfoResponse responseData = customerReservationService.getReservationInfo(reservationFormId,
+            customer.getId());
+
+        ResponseBody<ReservationInfoResponse> responseBody = ResponseBody.<ReservationInfoResponse>builder()
+            .message("Good Response")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @PutMapping("/reservation/{formId}")

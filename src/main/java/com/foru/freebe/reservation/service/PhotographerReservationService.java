@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.common.dto.ApiResponse;
 import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
@@ -23,14 +22,8 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
 
-    public ApiResponse<List<FormListViewResponse>> getReservationList(Long photographerId) {
-        List<FormListViewResponse> data = getReservationListAsStatus(photographerId);
-
-        return ApiResponse.<List<FormListViewResponse>>builder()
-            .message("Successfully get reservation list")
-            .status(200)
-            .data(data)
-            .build();
+    public List<FormListViewResponse> getReservationList(Long photographerId) {
+        return getReservationListAsStatus(photographerId);
     }
 
     private List<FormListViewResponse> getReservationListAsStatus(Long id) {

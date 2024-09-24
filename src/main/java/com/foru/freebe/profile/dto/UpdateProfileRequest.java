@@ -8,19 +8,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProfileResponse {
+public class UpdateProfileRequest {
     private String bannerImageUrl;
-    private String profileImageUrl;
     private String instagramId;
     private String introductionContent;
     private List<LinkInfo> linkInfos;
 
     @Builder
-    public ProfileResponse(String bannerImageUrl, String profileImageUrl, String instagramId,
-        String introductionContent,
+    public UpdateProfileRequest(String bannerImageUrl, String instagramId, String introductionContent,
         List<LinkInfo> linkInfos) {
         this.bannerImageUrl = bannerImageUrl;
-        this.profileImageUrl = profileImageUrl;
         this.instagramId = instagramId;
         this.introductionContent = introductionContent;
         this.linkInfos = linkInfos;

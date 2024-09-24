@@ -3,6 +3,8 @@ package com.foru.freebe.product.controller;
 import java.io.IOException;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.model.MemberAdapter;
-import com.foru.freebe.common.dto.ApiResponse;
+import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
@@ -31,22 +33,51 @@ public class PhotographerProductController {
     private final PhotographerProductService productService;
 
     @PostMapping("/product")
-    public ApiResponse<Void> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
+    public ResponseEntity<ResponseBody<Void>> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @RequestPart(value = "request") ProductRegisterRequest request,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+
         Member photographer = memberAdapter.getMember();
-        return productService.registerProduct(request, images, photographer.getId());
+        productService.registerProduct(request, images, photographer.getId());
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully added")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED.value())
+            .body(responseBody);
     }
 
     @GetMapping("/product/list")
-    public ApiResponse<List<RegisteredProductResponse>> getRegisteredProductList(
+    public ResponseEntity<ResponseBody<List<RegisteredProductResponse>>> getRegisteredProductList(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
+
         Member photographer = memberAdapter.getMember();
-        return productService.getRegisteredProductList(photographer);
+        List<RegisteredProductResponse> responseData = productService.getRegisteredProductList(photographer);
+
+        ResponseBody<List<RegisteredProductResponse>> responseBody = ResponseBody
+            .<List<RegisteredProductResponse>>builder()
+            .message("Successfully retrieved list of registered products")
+            .data(responseData)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 
     @PutMapping("/product/status")
-    public ApiResponse<Void> updateProductActiveStatus(@Valid @RequestBody UpdateProductRequest updateProductRequest) {
-        return productService.updateProductActiveStatus(updateProductRequest);
+    public ResponseEntity<ResponseBody<Void>> updateProductActiveStatus(
+        @Valid @RequestBody UpdateProductRequest updateProductRequest) {
+
+        productService.updateProductActiveStatus(updateProductRequest);
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully updated product active status")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
     }
 }

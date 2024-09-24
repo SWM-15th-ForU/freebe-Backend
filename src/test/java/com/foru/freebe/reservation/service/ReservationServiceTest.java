@@ -52,8 +52,8 @@ class ReservationServiceTest {
     }
 
     @Nested
-    @DisplayName("신청서 상태 변경 테스트")
-    class updateReservationStatusTest {
+    @DisplayName("고객측 신청서 취소 테스트")
+    class CustomerReservationCancellationTest {
         private void prepareMockReservationForm(Long memberId, Long formId, ReservationStatus currentStatus,
             Boolean isPhotographer) {
             mockReservationForm = mock(ReservationForm.class);
@@ -69,8 +69,8 @@ class ReservationServiceTest {
         }
 
         @Test
-        @DisplayName("(성공) 고객이 신청서 접수 단계에서 예약을 취소한다")
-        void successfulUpdateReservationStatus() {
+        @DisplayName("(성공) 고객이 '새 신청' 단계에서 예약을 취소한다")
+        void successfullyCancelsReservation() {
             // given
             Long memberId = 1L;
             Long formId = 1L;
@@ -86,14 +86,14 @@ class ReservationServiceTest {
             reservationService.updateReservationStatus(memberId, formId, request, isPhotographer);
 
             // then
-            verify(mockReservationForm).updateReservationStatus(ReservationStatus.CANCELLED_BY_CUSTOMER);
+            verify(mockReservationForm).changeReservationStatus(ReservationStatus.CANCELLED_BY_CUSTOMER);
             verify(reservationFormRepository).save(any(ReservationForm.class));
             verify(reservationHistoryRepository).save(any(ReservationHistory.class));
         }
 
         @Test
-        @DisplayName("(실패) 고객이 상담중 단계에서 예약을 취소한다")
-        void unsuccessfulUpdateReservationStatus() {
+        @DisplayName("(실패) 고객이 '상담중' 단계에서 예약을 취소한다")
+        void failsToCancelReservation() {
             // given
             Long memberId = 1L;
             Long formId = 1L;
@@ -111,9 +111,9 @@ class ReservationServiceTest {
             assertEquals(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION, exception.getErrorCode());
         }
 
-        @DisplayName("(실패) 고객이 신청 사유를 입력하지 않고 예약을 취소한다")
         @Test
-        void test() {
+        @DisplayName("(실패) 고객이 취소 사유를 입력하지 않고 예약을 취소한다")
+        void failsToCancelReservationWithoutReason() {
             // given
             Long memberId = 1L;
             Long formId = 1L;

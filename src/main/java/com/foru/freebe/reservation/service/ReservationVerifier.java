@@ -74,7 +74,7 @@ public class ReservationVerifier {
     private void validateCustomerAuthorityToChangeStatus(ReservationStatus currentStatus,
         ReservationStatus updateStatus) {
         if (!(currentStatus == ReservationStatus.NEW && updateStatus == ReservationStatus.CANCELLED_BY_CUSTOMER)) {
-            throw new RestApiException(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION);
+            throw new RestApiException(ReservationErrorCode.INVALID_STATUS_TRANSITION);
         }
     }
 
@@ -87,7 +87,7 @@ public class ReservationVerifier {
     private void validateStatusTransition(ReservationStatus currentStatus, ReservationStatus updateStatus) {
         ReservationStatusTransition transition = ReservationStatusTransition.valueOf(currentStatus.name());
         if (transition.isInvalidTransition(updateStatus)) {
-            throw new RestApiException(ReservationErrorCode.INVALID_RESERVATION_STATUS_FOR_CANCELLATION);
+            throw new RestApiException(ReservationErrorCode.INVALID_STATUS_TRANSITION);
         }
     }
 }

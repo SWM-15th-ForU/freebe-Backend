@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ReservationErrorCode implements ErrorCode {
-    INVALID_RESERVATION_STATUS_FOR_CANCELLATION(400, "예약 취소가 불가능한 상태입니다");
+    INVALID_STATUS_TRANSITION(400, "상태 전환이 불가능합니다");
 
     private final int httpStatus;
     private final String message;

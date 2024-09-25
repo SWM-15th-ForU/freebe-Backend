@@ -20,6 +20,7 @@ import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
+import com.foru.freebe.reservation.service.ReservationService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationController {
     private final PhotographerReservationService photographerReservationService;
     private final PhotographerReservationDetails photographerReservationDetails;
+    private final ReservationService reservationService;
 
     @GetMapping("/reservation/list")
     public ResponseEntity<ResponseBody<List<FormListViewResponse>>> getReservationList(
@@ -70,7 +72,7 @@ public class PhotographerReservationController {
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member member = memberAdapter.getMember();
-        photographerReservationDetails.updateReservationStatus(member.getId(), formId, request);
+        reservationService.updateReservationStatus(member.getId(), formId, request, true);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update reservation status")

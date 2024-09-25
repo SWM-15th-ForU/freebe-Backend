@@ -1,10 +1,12 @@
 package com.foru.freebe.reservation.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
@@ -16,6 +18,8 @@ import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
+import com.foru.freebe.product.entity.ProductComponent;
+import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
@@ -33,7 +37,6 @@ import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 import com.foru.freebe.s3.S3ImageService;
 import com.foru.freebe.s3.S3ImageType;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -50,15 +53,17 @@ public class CustomerReservationService {
     private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
+    private final ReservationVerifier reservationVerifier;
 
     @Transactional
     public Long registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
         List<MultipartFile> images) throws IOException {
+
         Member customer = findMember(id);
         Member photographer = findMember(formRegisterRequest.getPhotographerId());
 
         ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-        validateReservationForm(formRegisterRequest, photographer);
+        reservationVerifier.validateReservationFormBeforeSave(formRegisterRequest);
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
@@ -91,7 +96,7 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        validateCustomerAccess(reservationForm, customerId);
+        reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
@@ -125,7 +130,7 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private static ReservationForm createReservationForm(FormRegisterRequest request,
+    private ReservationForm createReservationForm(FormRegisterRequest request,
         Member photographer, Member customer) {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
@@ -150,7 +155,7 @@ public class CustomerReservationService {
     }
 
     private void validateProductTitleExists(String productTitle, Member photographer) {
-        if (!productRepository.existsByTitleAndMember(productTitle, photographer)) {
+        if (!productRepository.existsByMemberAndTitle(photographer, productTitle)) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
     }
@@ -160,5 +165,31 @@ public class CustomerReservationService {
         if (!reservationCustomerId.equals(customerId)) {
             throw new RestApiException(CommonErrorCode.ACCESS_DENIED);
         }
+    }
+
+    private List<ProductOptionDto> convertProductOptionDtoList(List<ProductOption> productOptions) {
+        List<ProductOptionDto> productOptionDtoList = new ArrayList<>();
+        for (ProductOption productOption : productOptions) {
+            ProductOptionDto productOptionDto = ProductOptionDto.builder()
+                .title(productOption.getTitle())
+                .price(productOption.getPrice())
+                .description(productOption.getDescription())
+                .build();
+            productOptionDtoList.add(productOptionDto);
+        }
+        return productOptionDtoList;
+    }
+
+    private List<ProductComponentDto> convertProductComponentDtoList(List<ProductComponent> productComponents) {
+        List<ProductComponentDto> productComponentDtoList = new ArrayList<>();
+        for (ProductComponent productComponent : productComponents) {
+            ProductComponentDto productComponentDto = ProductComponentDto.builder()
+                .title(productComponent.getTitle())
+                .content(productComponent.getContent())
+                .description(productComponent.getDescription())
+                .build();
+            productComponentDtoList.add(productComponentDto);
+        }
+        return productComponentDtoList;
     }
 }

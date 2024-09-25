@@ -12,29 +12,22 @@ import com.foru.freebe.reservation.dto.CustomerDetails;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.PreferredDate;
 import com.foru.freebe.reservation.dto.ReferenceImageUrls;
-import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
-import com.foru.freebe.reservation.entity.ReservationHistory;
-import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReferenceImageRepository;
-import com.foru.freebe.reservation.repository.ReservationFormRepository;
-import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PhotographerReservationDetails {
-    private final ReservationFormRepository reservationFormRepository;
-    private final ReservationHistoryRepository reservationHistoryRepository;
+    private final ReservationService reservationService;
     private final ReferenceImageRepository referenceImageRepository;
 
     public FormDetailsViewResponse getReservationFormDetails(Long photographerId, Long formId) {
-        ReservationForm reservationForm = findReservationForm(photographerId, formId);
-        List<StatusHistory> statusHistories = getStatusHistories(reservationForm);
+        ReservationForm reservationForm = reservationService.findReservationForm(photographerId, formId, true);
+        List<StatusHistory> statusHistories = reservationService.getStatusHistories(reservationForm);
 
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
         Map<String, String> shootDetails = reservationForm.getPhotoInfo();
@@ -49,70 +42,6 @@ public class PhotographerReservationDetails {
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())
             .photographerMemo(reservationForm.getPhotographerMemo())
-            .build();
-    }
-
-    @Transactional
-    public void updateReservationStatus(Long photographerId, Long formId,
-        ReservationStatusUpdateRequest request) {
-
-        ReservationForm reservationForm = findReservationForm(photographerId, formId);
-        validateStatusChange(reservationForm.getReservationStatus(), request.getUpdateStatus());
-
-        reservationForm.updateReservationStatus(request.getUpdateStatus());
-        ReservationHistory history = getReservationHistory(request, reservationForm);
-
-        reservationFormRepository.save(reservationForm);
-        reservationHistoryRepository.save(history);
-    }
-
-    private ReservationHistory getReservationHistory(ReservationStatusUpdateRequest request,
-        ReservationForm reservationForm) {
-        if (request.getCancellationReason() != null) {
-            return ReservationHistory.createCancelledReservationHistory(reservationForm, request.getUpdateStatus(),
-                request.getCancellationReason());
-        } else {
-            return ReservationHistory.createReservationHistory(reservationForm, request.getUpdateStatus());
-        }
-    }
-
-    private void validateStatusChange(ReservationStatus currentStatus, ReservationStatus updateStatus) {
-        if (currentStatus == ReservationStatus.NEW) {
-            if (updateStatus != ReservationStatus.IN_PROGRESS && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.IN_PROGRESS) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_DEPOSIT && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_DEPOSIT) {
-            if (updateStatus != ReservationStatus.WAITING_FOR_PHOTO && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        } else if (currentStatus == ReservationStatus.WAITING_FOR_PHOTO) {
-            if (updateStatus != ReservationStatus.PHOTO_COMPLETED && updateStatus != ReservationStatus.CANCELLED) {
-                throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
-            }
-        }
-    }
-
-    private ReservationForm findReservationForm(Long photographerId, Long formId) {
-        return reservationFormRepository.findByPhotographerIdAndId(photographerId, formId)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-    }
-
-    private List<StatusHistory> getStatusHistories(ReservationForm reservationForm) {
-        return reservationHistoryRepository.findAllByReservationForm(reservationForm)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND))
-            .stream()
-            .map(this::toStatusHistory)
-            .collect(Collectors.toList());
-    }
-
-    private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {
-        return StatusHistory.builder()
-            .reservationStatus(reservationHistory.getReservationStatus())
-            .statusUpdateDate(reservationHistory.getStatusUpdateDate().toLocalDate())
             .build();
     }
 

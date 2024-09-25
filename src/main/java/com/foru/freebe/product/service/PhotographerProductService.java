@@ -38,11 +38,9 @@ import com.foru.freebe.s3.S3ImageType;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PhotographerProductService {
     private static final int PRODUCT_THUMBNAIL_SIZE = 200;
 
@@ -60,10 +58,6 @@ public class PhotographerProductService {
     public void registerProduct(ProductDetailRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);
-
-        if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
-        }
 
         Product productAsActive = registerActiveProduct(productRegisterRequestDto, photographer);
         registerProductImage(images, productAsActive, photographerId);
@@ -149,7 +143,7 @@ public class PhotographerProductService {
             s3ImageService.deleteImageFromS3(originUrl);
             s3ImageService.deleteImageFromS3(thumbnailUrl);
         }
-        
+
         productImageRepository.deleteByProduct(product);
         productComponentRepository.deleteByProduct(product);
         productOptionRepository.deleteByProduct(product);
@@ -231,13 +225,12 @@ public class PhotographerProductService {
             productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, photographer);
         }
 
-        validateProductTitle(productTitle, photographer);
+        validateProductTitleBeforeRegister(productTitle, photographer);
         return productRepository.save(productAsActive);
     }
 
-    private void validateProductTitle(String productTitle, Member photographer) {
-        Product product = productRepository.findByTitleAndMember(productTitle, photographer);
-        if (product != null) {
+    private void validateProductTitleBeforeRegister(String productTitle, Member photographer) {
+        if (productRepository.existsByMemberAndTitle(photographer, productTitle)) {
             throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
         }
     }
@@ -249,6 +242,10 @@ public class PhotographerProductService {
 
     private void registerProductImage(List<MultipartFile> images, Product product, Long id) throws
         IOException {
+
+        if (images.isEmpty()) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.PRODUCT, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.PRODUCT, id,

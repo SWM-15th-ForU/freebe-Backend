@@ -212,7 +212,7 @@ public class ProfileService {
 
     private String createUniqueUrl() {
         String uniqueId = UUID.randomUUID().toString();
-        return freebeBaseUrl + "/photographer/" + uniqueId;
+        return freebeBaseUrl + "/" + uniqueId;
     }
 
     private void saveProfileImage(Profile profile, MultipartFile profileImage, Long id) throws IOException {

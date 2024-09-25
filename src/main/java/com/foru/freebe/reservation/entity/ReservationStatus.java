@@ -18,6 +18,9 @@ public enum ReservationStatus {
     @JsonProperty("PHOTO_COMPLETED")
     PHOTO_COMPLETED,
 
-    @JsonProperty("CANCELLED")
-    CANCELLED
+    @JsonProperty("CANCELLED_BY_PHOTOGRAPHER")
+    CANCELLED_BY_PHOTOGRAPHER,
+
+    @JsonProperty("CANCELLED_BY_CUSTOMER")
+    CANCELLED_BY_CUSTOMER
 }

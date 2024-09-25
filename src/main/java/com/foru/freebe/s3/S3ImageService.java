@@ -102,7 +102,6 @@ public class S3ImageService {
         return thumbnailImageUrls;
     }
 
-    // TODO 추후 수정 및 삭제 API 티켓에서 사용할 예정
     public void deleteImageFromS3(String imageAddress) {
         String key = getKeyFromImageAddress(imageAddress);
         try {

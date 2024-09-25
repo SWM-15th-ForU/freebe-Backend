@@ -23,6 +23,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -58,7 +59,23 @@ public class S3ImageService {
     @Value("${cloud.aws.s3.base-path.reservation}")
     private String reservationPath;
 
-    public List<String> uploadOriginalImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
+    public ImageLinkSet imageUploadToS3(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
+        IOException {
+
+        List<String> originUrl = uploadOriginalImages(images, s3ImageType, memberId);
+        return new ImageLinkSet(originUrl, null);
+    }
+
+    public ImageLinkSet imageUploadToS3(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
+        int thumbnailSize) throws IOException {
+
+        List<String> originUrl = uploadOriginalImages(images, s3ImageType, memberId);
+        List<String> thumbnailUrl = uploadThumbnailImages(images, s3ImageType, memberId, thumbnailSize);
+
+        return new ImageLinkSet(originUrl, thumbnailUrl);
+    }
+
+    private List<String> uploadOriginalImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
         IOException {
 
         List<String> originalImageUrls = new ArrayList<>();
@@ -75,7 +92,7 @@ public class S3ImageService {
         return originalImageUrls;
     }
 
-    public List<String> uploadThumbnailImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
+    private List<String> uploadThumbnailImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
         int thumbnailSize) throws IOException {
 
         List<String> thumbnailImageUrls = new ArrayList<>();
@@ -99,7 +116,6 @@ public class S3ImageService {
         return thumbnailImageUrls;
     }
 
-    // TODO 추후 수정 및 삭제 API 티켓에서 사용할 예정
     public void deleteImageFromS3(String imageAddress) {
         String key = getKeyFromImageAddress(imageAddress);
         try {

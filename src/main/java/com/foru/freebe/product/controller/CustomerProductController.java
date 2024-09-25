@@ -22,11 +22,11 @@ import lombok.RequiredArgsConstructor;
 public class CustomerProductController {
     private final CustomerProductService customerProductService;
 
-    @GetMapping("/product/list/{photographerId}")
+    @GetMapping("/product/list/{profileName}")
     public ResponseEntity<ResponseBody<List<ProductListResponse>>> getProductList(
-        @PathVariable("photographerId") Long photographerId) {
+        @PathVariable("profileName") String profileName) {
 
-        List<ProductListResponse> responseData = customerProductService.getProductList(photographerId);
+        List<ProductListResponse> responseData = customerProductService.getProductList(profileName);
 
         ResponseBody<List<ProductListResponse>> responseBody = ResponseBody.<List<ProductListResponse>>builder()
             .message("Good Request")

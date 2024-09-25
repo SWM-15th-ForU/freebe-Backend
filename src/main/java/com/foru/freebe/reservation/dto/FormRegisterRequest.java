@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FormRegisterRequest {
-    @NotNull
-    private Long photographerId;
+    @NotBlank(message = "Profile name must not be blank")
+    private String profileName;
 
-    @NotBlank
+    @NotBlank(message = "Instagram ID must not be blank")
     private String instagramId;
 
-    @NotBlank
+    @NotBlank(message = "Product title must not be blank")
     private String productTitle;
 
     private Map<String, String> photoInfo;

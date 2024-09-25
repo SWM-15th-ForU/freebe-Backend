@@ -11,17 +11,16 @@ import lombok.NoArgsConstructor;
 public class ProfileResponse {
     private String bannerImageUrl;
     private String profileImageUrl;
-    private String instagramId;
+    private String profileName;
     private String introductionContent;
     private List<LinkInfo> linkInfos;
 
     @Builder
-    public ProfileResponse(String bannerImageUrl, String profileImageUrl, String instagramId,
-        String introductionContent,
-        List<LinkInfo> linkInfos) {
+    public ProfileResponse(String bannerImageUrl, String profileImageUrl, String profileName,
+        String introductionContent, List<LinkInfo> linkInfos) {
         this.bannerImageUrl = bannerImageUrl;
         this.profileImageUrl = profileImageUrl;
-        this.instagramId = instagramId;
+        this.profileName = profileName;
         this.introductionContent = introductionContent;
         this.linkInfos = linkInfos;
     }

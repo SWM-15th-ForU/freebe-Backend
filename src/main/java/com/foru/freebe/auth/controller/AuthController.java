@@ -49,7 +49,7 @@ public class AuthController {
 
         ResponseBody<?> responseBody = ResponseBody.builder()
             .message(loginResponse.getMessage())
-            .data(loginResponse.getUniqueUrl())
+            .data(loginResponse.getProfileName())
             .build();
 
         HttpHeaders headers = jwtService.setTokenHeaders(loginResponse.getToken());

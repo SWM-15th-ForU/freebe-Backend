@@ -16,8 +16,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
@@ -32,7 +32,7 @@ class ReservationServiceTest {
     private ProductRepository productRepository;
 
     @Mock
-    private MemberRepository memberRepository;
+    private ProfileRepository profileRepository;
 
     @Mock
     ReservationFormRepository reservationFormRepository;
@@ -46,7 +46,7 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        ReservationVerifier reservationVerifier = spy(new ReservationVerifier(productRepository, memberRepository));
+        ReservationVerifier reservationVerifier = spy(new ReservationVerifier(productRepository, profileRepository));
         reservationService = new ReservationService(reservationVerifier, reservationFormRepository,
             reservationHistoryRepository);
     }

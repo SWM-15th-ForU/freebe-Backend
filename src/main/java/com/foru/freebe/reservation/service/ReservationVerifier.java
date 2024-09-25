@@ -7,10 +7,11 @@ import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -23,11 +24,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ReservationVerifier {
     private final ProductRepository productRepository;
-    private final MemberRepository memberRepository;
+    private final ProfileRepository profileRepository;
 
-    public void validateReservationFormBeforeSave(FormRegisterRequest formRegisterRequest) {
-        validateProductTitleExists(formRegisterRequest);
-        validateProductIsActive(formRegisterRequest.getProductTitle());
+    public void validateReservationFormBeforeSave(FormRegisterRequest request) {
+        validateProductTitleExists(request);
+        validateProductIsActive(request.getProductTitle());
     }
 
     public void validateCustomerAccess(ReservationForm reservationForm, Long customerId) {
@@ -53,9 +54,9 @@ public class ReservationVerifier {
     }
 
     private void validateProductTitleExists(FormRegisterRequest request) {
-        Long photographerId = request.getPhotographerId();
-        Member photographer = memberRepository.findById(photographerId)
+        Profile photographerProfile = profileRepository.findByProfileName(request.getProfileName())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        Member photographer = photographerProfile.getMember();
 
         if (!productRepository.existsByMemberAndTitle(photographer, request.getProductTitle())) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);

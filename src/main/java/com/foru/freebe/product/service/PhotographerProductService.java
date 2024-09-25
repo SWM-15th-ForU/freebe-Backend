@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -129,14 +130,13 @@ public class PhotographerProductService {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
 
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.PRODUCT, id);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.PRODUCT, id,
+        ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, product.getId(),
             PRODUCT_THUMBNAIL_SIZE);
 
-        IntStream.range(0, originalImageUrls.size()).forEach(i -> {
+        IntStream.range(0, productImageLinkSet.getOriginUrl().size()).forEach(i -> {
             ProductImage productImage = ProductImage.createProductImage(
-                thumbnailImageUrls.get(i),
-                originalImageUrls.get(i),
+                productImageLinkSet.getThumbnailUrl().get(i),
+                productImageLinkSet.getOriginUrl().get(i),
                 product);
             productImageRepository.save(productImage);
         });

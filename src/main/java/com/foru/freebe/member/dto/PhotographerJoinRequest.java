@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Getter
 public class PhotographerJoinRequest {
-    @NotBlank(message = "Instagram ID must not be blank")
-    private String instagramId;
+    @NotBlank(message = "Profile name must not be blank")
+    private String profileName;
 
     @AssertTrue
     private Boolean termsOfServiceAgreement;

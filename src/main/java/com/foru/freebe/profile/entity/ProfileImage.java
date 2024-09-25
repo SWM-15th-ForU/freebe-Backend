@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
-import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,16 +26,29 @@ public class ProfileImage {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    @NotNull
-    private String thumbnailUrl;
+    private String bannerOriginUrl;
 
-    @NotNull
-    private String originUrl;
+    private String profileOriginUrl;
+
+    private String profileThumbnailUrl;
+
+    public void assignBannerOriginUrl(String bannerOriginUrl) {
+        this.bannerOriginUrl = bannerOriginUrl;
+    }
+
+    public void assignProfileOriginUrl(String profileOriginUrl) {
+        this.profileOriginUrl = profileOriginUrl;
+    }
+
+    public void assignProfileThumbnailUrl(String profileThumbnailUrl) {
+        this.profileThumbnailUrl = profileThumbnailUrl;
+    }
 
     @Builder
-    public ProfileImage(Profile profile, String thumbnailUrl, String originUrl) {
+    public ProfileImage(Profile profile, String profileThumbnailUrl, String profileOriginUrl, String bannerOriginUrl) {
         this.profile = profile;
-        this.thumbnailUrl = thumbnailUrl;
-        this.originUrl = originUrl;
+        this.profileThumbnailUrl = profileThumbnailUrl;
+        this.profileOriginUrl = profileOriginUrl;
+        this.bannerOriginUrl = bannerOriginUrl;
     }
 }

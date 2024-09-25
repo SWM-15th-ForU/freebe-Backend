@@ -35,22 +35,14 @@ public class Profile extends BaseEntity {
 
     private String introductionContent;
 
-    private String bannerImageUrl;
-
-    public void assignBannerImageUrl(String bannerImageUrl) {
-        this.bannerImageUrl = bannerImageUrl;
-    }
-
-    public void assignIntroductionContent(String introductionContent) {
+    public void updateIntroductionContent(String introductionContent) {
         this.introductionContent = introductionContent;
     }
 
     @Builder
-    public Profile(String profileName, String introductionContent, String profileImageUrl, String bannerImageUrl,
-        Member member) {
+    public Profile(String profileName, String introductionContent, Member member) {
         this.profileName = profileName;
         this.introductionContent = introductionContent;
-        this.bannerImageUrl = bannerImageUrl;
         this.member = member;
     }
 }

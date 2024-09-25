@@ -8,9 +8,5 @@ import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.entity.ProfileImage;
 
 public interface ProfileImageRepository extends JpaRepository<ProfileImage, Long> {
-    Boolean existsByProfile(Profile profile);
-
     Optional<ProfileImage> findByProfile(Profile profile);
-
-    void deleteByProfile(Profile profile);
 }

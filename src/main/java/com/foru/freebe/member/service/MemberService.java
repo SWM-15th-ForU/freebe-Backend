@@ -54,12 +54,12 @@ public class MemberService {
     }
 
     @Transactional
-    public String joinPhotographer(Member member, PhotographerJoinRequest request,
-        MultipartFile profileImage) throws IOException {
-        Member photographer = completePhotographerSignup(member, request.getInstagramId());
+    public String joinPhotographer(Member member, PhotographerJoinRequest request, MultipartFile profileImage) throws
+        IOException {
+        Member photographer = completePhotographerSignup(member);
 
         savePhotographerAgreements(photographer, request);
-        profileService.initialProfileSetting(photographer, profileImage);
+        profileService.initialProfileSetting(photographer, profileImage, request.getProfileName());
 
         return profileService.getUniqueUrl(member.getId());
     }
@@ -88,9 +88,8 @@ public class MemberService {
         return memberRepository.save(newMember);
     }
 
-    private Member completePhotographerSignup(Member member, String instagramId) {
+    private Member completePhotographerSignup(Member member) {
         member.assignRole(Role.PHOTOGRAPHER);
-        member.assignInstagramId(instagramId);
         return memberRepository.save(member);
     }
 

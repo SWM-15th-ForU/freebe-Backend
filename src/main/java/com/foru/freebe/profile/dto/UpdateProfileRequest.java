@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateProfileRequest {
     private String bannerImageUrl;
-    private String instagramId;
     private String introductionContent;
     private List<LinkInfo> linkInfos;
 
@@ -18,7 +17,6 @@ public class UpdateProfileRequest {
     public UpdateProfileRequest(String bannerImageUrl, String instagramId, String introductionContent,
         List<LinkInfo> linkInfos) {
         this.bannerImageUrl = bannerImageUrl;
-        this.instagramId = instagramId;
         this.introductionContent = introductionContent;
         this.linkInfos = linkInfos;
     }

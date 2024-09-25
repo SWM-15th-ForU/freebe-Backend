@@ -30,8 +30,8 @@ public class Profile extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @NotBlank(message = "Unique url must not be blank")
-    private String uniqueUrl;
+    @NotBlank(message = "Profile name must not be blank")
+    private String profileName;
 
     private String introductionContent;
 
@@ -46,9 +46,9 @@ public class Profile extends BaseEntity {
     }
 
     @Builder
-    public Profile(String uniqueUrl, String introductionContent, String profileImageUrl, String bannerImageUrl,
+    public Profile(String profileName, String introductionContent, String profileImageUrl, String bannerImageUrl,
         Member member) {
-        this.uniqueUrl = uniqueUrl;
+        this.profileName = profileName;
         this.introductionContent = introductionContent;
         this.bannerImageUrl = bannerImageUrl;
         this.member = member;

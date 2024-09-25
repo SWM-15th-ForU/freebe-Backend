@@ -12,5 +12,5 @@ public interface ProfileRepository extends JpaRepository<Profile, Long> {
 
     Optional<Profile> findByMember(Member member);
 
-    Optional<Profile> findByUniqueUrl(String uniqueUrl);
+    Optional<Profile> findByProfileName(String profileName);
 }

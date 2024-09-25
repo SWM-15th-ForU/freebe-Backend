@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.customer.ProductListResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
@@ -24,13 +23,15 @@ import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class CustomerProductService {
-    private final MemberRepository memberRepository;
+    private final ProfileRepository profileRepository;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
     private final ProductComponentRepository productComponentRepository;
@@ -67,9 +68,11 @@ public class CustomerProductService {
             .build();
     }
 
-    public List<ProductListResponse> getProductList(Long photographerId) {
-        Member photographer = memberRepository.findById(photographerId)
+    public List<ProductListResponse> getProductList(String profileName) {
+        Profile photographerProfile = profileRepository.findByProfileName(profileName)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        Member photographer = photographerProfile.getMember();
 
         List<Product> products = productRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));

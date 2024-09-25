@@ -52,11 +52,11 @@ public class ProfileService {
         Profile profile = profileRepository.findByMember(member)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        return profile.getUniqueUrl();
+        return profile.getProfileName();
     }
 
-    public ProfileResponse getPhotographerProfile(String uniqueUrl) {
-        Profile photographerProfile = profileRepository.findByUniqueUrl(uniqueUrl)
+    public ProfileResponse getPhotographerProfile(String profileName) {
+        Profile photographerProfile = profileRepository.findByProfileName(profileName)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         Member photographer = photographerProfile.getMember();
@@ -73,14 +73,14 @@ public class ProfileService {
             return new ProfileResponse(
                 photographerProfile.getBannerImageUrl(),
                 profileImage.getThumbnailUrl(),
-                photographer.getInstagramId(),
+                photographerProfile.getProfileName(),
                 photographerProfile.getIntroductionContent(),
                 linkInfos);
         } else {
             return new ProfileResponse(
                 photographerProfile.getBannerImageUrl(),
                 null,
-                photographer.getInstagramId(),
+                photographerProfile.getProfileName(),
                 photographerProfile.getIntroductionContent(),
                 linkInfos);
         }
@@ -103,14 +103,14 @@ public class ProfileService {
             return new ProfileResponse(
                 photographerProfile.getBannerImageUrl(),
                 profileImage.getThumbnailUrl(),
-                photographer.getInstagramId(),
+                photographerProfile.getProfileName(),
                 photographerProfile.getIntroductionContent(),
                 linkInfos);
         } else {
             return new ProfileResponse(
                 photographerProfile.getBannerImageUrl(),
                 null,
-                photographer.getInstagramId(),
+                photographerProfile.getProfileName(),
                 photographerProfile.getIntroductionContent(),
                 linkInfos);
         }
@@ -134,9 +134,6 @@ public class ProfileService {
         // 변경 감지: 필요한 필드만 업데이트
         if (!Objects.equals(photographerProfile.getBannerImageUrl(), updateRequest.getBannerImageUrl())) {
             photographerProfile.assignBannerImageUrl(updateRequest.getBannerImageUrl());
-        }
-        if (!Objects.equals(persistedPhotographer.getInstagramId(), updateRequest.getInstagramId())) {
-            persistedPhotographer.assignInstagramId(updateRequest.getInstagramId());
         }
         if (!Objects.equals(photographerProfile.getIntroductionContent(), updateRequest.getIntroductionContent())) {
             photographerProfile.assignIntroductionContent(updateRequest.getIntroductionContent());
@@ -185,23 +182,22 @@ public class ProfileService {
     }
 
     @Transactional
-    public void initialProfileSetting(Member photographer, MultipartFile profileImage) throws IOException {
+    public void initialProfileSetting(Member photographer, MultipartFile profileImage, String profileName) throws
+        IOException {
         Boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
         if (isProfileExists) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        Profile profile = createMemberProfile(photographer);
+        Profile profile = createMemberProfile(photographer, profileName);
         if (profileImage != null) {
             saveProfileImage(profile, profileImage, photographer.getId());
         }
     }
 
-    private Profile createMemberProfile(Member member) {
-        String uniqueUrl = createUniqueUrl();
-
+    private Profile createMemberProfile(Member member, String profileName) {
         Profile profile = Profile.builder()
-            .uniqueUrl(uniqueUrl)
+            .profileName(profileName)
             .introductionContent(null)
             .bannerImageUrl(null)
             .member(member)

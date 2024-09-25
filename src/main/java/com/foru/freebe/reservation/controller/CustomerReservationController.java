@@ -73,14 +73,13 @@ public class CustomerReservationController {
             .body(responseBody);
     }
 
-    @GetMapping("/reservation/{reservationFormId}")
+    @GetMapping("/reservation/{formId}")
     public ResponseEntity<ResponseBody<ReservationInfoResponse>> getReservationInfo(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @Valid @PathVariable("reservationFormId") Long reservationFormId) {
+        @Valid @PathVariable("formId") Long formId) {
 
         Member customer = memberAdapter.getMember();
-        ReservationInfoResponse responseData = customerReservationService.getReservationInfo(reservationFormId,
-            customer.getId());
+        ReservationInfoResponse responseData = customerReservationService.getReservationInfo(formId, customer.getId());
 
         ResponseBody<ReservationInfoResponse> responseBody = ResponseBody.<ReservationInfoResponse>builder()
             .message("Good Response")

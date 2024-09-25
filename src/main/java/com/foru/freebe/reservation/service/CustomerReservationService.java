@@ -20,6 +20,8 @@ import com.foru.freebe.product.entity.ProductOption;
 import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
@@ -50,16 +52,21 @@ public class CustomerReservationService {
     private final ReferenceImageRepository referenceImageRepository;
     private final S3ImageService s3ImageService;
     private final ReservationVerifier reservationVerifier;
+    private final ProfileRepository profileRepository;
 
     @Transactional
-    public Long registerReservationForm(Long id, FormRegisterRequest formRegisterRequest,
-        List<MultipartFile> images) throws IOException {
+    public Long registerReservationForm(Long id, FormRegisterRequest request, List<MultipartFile> images) throws
+        IOException {
 
         Member customer = findMember(id);
-        Member photographer = findMember(formRegisterRequest.getPhotographerId());
+        customer.assignInstagramId(request.getInstagramId());
 
-        ReservationForm reservationForm = createReservationForm(formRegisterRequest, photographer, customer);
-        reservationVerifier.validateReservationFormBeforeSave(formRegisterRequest);
+        Profile photographerProfile = profileRepository.findByProfileName(request.getProfileName())
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        Member photographer = photographerProfile.getMember();
+
+        ReservationForm reservationForm = createReservationForm(request, photographer, customer);
+        reservationVerifier.validateReservationFormBeforeSave(request);
 
         List<String> originalImageUrls = s3ImageService.uploadOriginalImages(images, S3ImageType.RESERVATION, id);
         List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(images, S3ImageType.RESERVATION, id,
@@ -86,13 +93,14 @@ public class CustomerReservationService {
         return BasicReservationInfoResponse.builder()
             .name(customer.getName())
             .phoneNumber(customer.getPhoneNumber())
+            .instagramId(customer.getInstagramId())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();
     }
 
-    public ReservationInfoResponse getReservationInfo(Long reservationFormId, Long customerId) {
-        ReservationForm reservationForm = reservationFormRepository.findById(reservationFormId)
+    public ReservationInfoResponse getReservationInfo(Long formId, Long customerId) {
+        ReservationForm reservationForm = reservationFormRepository.findById(formId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
@@ -129,8 +137,7 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private ReservationForm createReservationForm(FormRegisterRequest request,
-        Member photographer, Member customer) {
+    private ReservationForm createReservationForm(FormRegisterRequest request, Member photographer, Member customer) {
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)

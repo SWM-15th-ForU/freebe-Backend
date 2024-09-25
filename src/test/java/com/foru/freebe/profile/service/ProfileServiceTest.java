@@ -82,7 +82,7 @@ class ProfileServiceTest {
         assertNotNull(result);
         assertEquals("http://thumbnails.com", result.getProfileImageUrl());
         assertEquals("banner.jpg", result.getBannerImageUrl());
-        assertEquals("johndoe", result.getInstagramId());
+        assertEquals("johndoe", result.getProfileName());
         assertEquals("Welcome to my profile!", result.getIntroductionContent());
 
         List<LinkInfo> linkInfos = result.getLinkInfos();

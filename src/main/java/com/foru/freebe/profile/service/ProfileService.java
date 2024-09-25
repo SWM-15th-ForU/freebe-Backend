@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -184,14 +185,21 @@ public class ProfileService {
     @Transactional
     public void initialProfileSetting(Member photographer, MultipartFile profileImage, String profileName) throws
         IOException {
-        Boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
+        boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
         if (isProfileExists) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
+        validateProfileNameDuplicate(profileName);
         Profile profile = createMemberProfile(photographer, profileName);
         if (profileImage != null) {
             saveProfileImage(profile, profileImage, photographer.getId());
+        }
+    }
+
+    private void validateProfileNameDuplicate(String profileName) {
+        if (profileRepository.existsByProfileName(profileName)) {
+            throw new RestApiException(ProfileErrorCode.PROFILE_NAME_ALREADY_EXISTS);
         }
     }
 

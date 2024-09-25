@@ -32,7 +32,7 @@ import com.foru.freebe.s3.S3ImageService;
 
 class ProfileServiceTest {
 
-    private static final String UNIQUE_URL = "unique-url";
+    private static final String PROFILE_NAME = "unique-profile-name";
 
     @Mock
     private MemberRepository memberRepository;
@@ -56,8 +56,7 @@ class ProfileServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         profileService = spy(
-            new ProfileService(memberRepository, profileRepository, linkRepository, profileImageRepository,
-                s3ImageService));
+            new ProfileService(profileRepository, linkRepository, profileImageRepository, s3ImageService));
     }
 
     @DisplayName("사진작가 측 현재 프로필 조회")
@@ -82,7 +81,7 @@ class ProfileServiceTest {
         assertNotNull(result);
         assertEquals("http://thumbnails.com", result.getProfileImageUrl());
         assertEquals("banner.jpg", result.getBannerImageUrl());
-        assertEquals("johndoe", result.getProfileName());
+        assertEquals("unique-profile-name", result.getProfileName());
         assertEquals("Welcome to my profile!", result.getIntroductionContent());
 
         List<LinkInfo> linkInfos = result.getLinkInfos();
@@ -187,7 +186,7 @@ class ProfileServiceTest {
 
     private Profile createProfile(Member photographer) {
         return Profile.builder()
-            .uniqueUrl(UNIQUE_URL)
+            .profileName(PROFILE_NAME)
             .bannerImageUrl("banner.jpg")
             .introductionContent("Welcome to my profile!")
             .member(photographer)

@@ -1,9 +1,6 @@
 package com.foru.freebe.member.service;
 
-import java.io.IOException;
-
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.auth.dto.LoginResponse;
 import com.foru.freebe.auth.model.KakaoUser;
@@ -17,6 +14,7 @@ import com.foru.freebe.member.entity.MemberTermAgreement;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.member.repository.MemberTermAgreementRepository;
+import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.service.ProfileService;
 
 import jakarta.transaction.Transactional;
@@ -54,27 +52,26 @@ public class MemberService {
     }
 
     @Transactional
-    public String joinPhotographer(Member member, PhotographerJoinRequest request, MultipartFile profileImage) throws
-        IOException {
+    public String joinPhotographer(Member member, PhotographerJoinRequest request) {
         Member photographer = completePhotographerSignup(member);
 
         savePhotographerAgreements(photographer, request);
-        profileService.initialProfileSetting(photographer, profileImage, request.getProfileName());
+        Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName());
 
-        return profileService.getUniqueUrl(member.getId());
+        return profile.getProfileName();
     }
 
     private LoginResponse.LoginResponseBuilder validateRoleType(LoginResponse.LoginResponseBuilder builder,
         Member member) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
             return builder.message("photographer login")
-                .uniqueUrl(profileService.getUniqueUrl(member.getId()));
+                .profileName(profileService.getProfileName(member.getId()));
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             return builder.message("photographer join")
-                .uniqueUrl(null);
+                .profileName(null);
         } else if (member.getRole() == Role.CUSTOMER) {
             return builder.message("customer login")
-                .uniqueUrl(null);
+                .profileName(null);
         }
         throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
     }

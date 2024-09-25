@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,7 +14,6 @@ import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.profile.dto.LinkInfo;
 import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
@@ -37,20 +34,13 @@ import lombok.RequiredArgsConstructor;
 public class ProfileService {
     private static final int PROFILE_THUMBNAIL_SIZE = 100;
 
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final LinkRepository linkRepository;
     private final ProfileImageRepository profileImageRepository;
     private final S3ImageService s3ImageService;
 
-    @Value("${FREEBE_BASE_URL}")
-    private String freebeBaseUrl;
-
-    public String getUniqueUrl(Long id) {
-        Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        Profile profile = profileRepository.findByMember(member)
+    public String getProfileName(Long id) {
+        Profile profile = profileRepository.findByMemberId(id)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         return profile.getProfileName();
@@ -59,8 +49,6 @@ public class ProfileService {
     public ProfileResponse getPhotographerProfile(String profileName) {
         Profile photographerProfile = profileRepository.findByProfileName(profileName)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        Member photographer = photographerProfile.getMember();
 
         List<Link> links = linkRepository.findByProfile(photographerProfile);
 
@@ -123,9 +111,6 @@ public class ProfileService {
         Profile photographerProfile = profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        Member persistedPhotographer = memberRepository.findById(photographer.getId())
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
         ProfileImage existingProfileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
         if (existingProfileImage != null) {
             profileImageRepository.delete(existingProfileImage);
@@ -183,18 +168,14 @@ public class ProfileService {
     }
 
     @Transactional
-    public void initialProfileSetting(Member photographer, MultipartFile profileImage, String profileName) throws
-        IOException {
+    public Profile initialProfileSetting(Member photographer, String profileName) {
         boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
         if (isProfileExists) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
         validateProfileNameDuplicate(profileName);
-        Profile profile = createMemberProfile(photographer, profileName);
-        if (profileImage != null) {
-            saveProfileImage(profile, profileImage, photographer.getId());
-        }
+        return createMemberProfile(photographer, profileName);
     }
 
     private void validateProfileNameDuplicate(String profileName) {
@@ -212,11 +193,6 @@ public class ProfileService {
             .build();
 
         return profileRepository.save(profile);
-    }
-
-    private String createUniqueUrl() {
-        String uniqueId = UUID.randomUUID().toString();
-        return freebeBaseUrl + "/" + uniqueId;
     }
 
     private void saveProfileImage(Profile profile, MultipartFile profileImage, Long id) throws IOException {

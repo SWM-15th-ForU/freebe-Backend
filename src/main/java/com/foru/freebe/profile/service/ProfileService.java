@@ -46,7 +46,15 @@ public class ProfileService {
 
     public ProfileResponse getPhotographerProfile(String profileName) {
         Profile profile = getProfile(profileName);
+        return findPhotographerProfile(profileName, profile);
+    }
 
+    public ProfileResponse getMyCurrentProfile(Member photographer) {
+        Profile profile = getProfile(photographer);
+        return findPhotographerProfile(profile.getProfileName(), profile);
+    }
+
+    private ProfileResponse findPhotographerProfile(String profileName, Profile profile) {
         ProfileImage profileImage = profileImageRepository.findByProfile(profile).orElse(null);
 
         List<LinkInfo> linkInfos = getProfileLinkInfos(profile);
@@ -58,11 +66,6 @@ public class ProfileService {
             .introductionContent(profile.getIntroductionContent())
             .linkInfos(linkInfos)
             .build();
-    }
-
-    public ProfileResponse getCurrentProfile(Member photographer) {
-        Profile profile = getProfile(photographer);
-        return getPhotographerProfile(profile.getProfileName());
     }
 
     @Transactional
@@ -138,8 +141,8 @@ public class ProfileService {
             s3ImageService.deleteImageFromS3(bannerImageUrl);
         }
 
-        List<MultipartFile> profileImages = Collections.singletonList(imageFile);
-        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(profileImages, S3ImageType.PROFILE, id);
+        List<MultipartFile> bannerImages = Collections.singletonList(imageFile);
+        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(bannerImages, S3ImageType.PROFILE, id);
 
         String newBannerImageUrl = bannerImageLinkSet.getFirstOriginUrl();
         profileImage.assignBannerOriginUrl(newBannerImageUrl);

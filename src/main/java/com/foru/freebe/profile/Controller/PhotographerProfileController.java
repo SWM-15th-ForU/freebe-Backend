@@ -32,7 +32,7 @@ public class PhotographerProfileController {
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
-        ProfileResponse responseData = profileService.getCurrentProfile(photographer);
+        ProfileResponse responseData = profileService.getMyCurrentProfile(photographer);
 
         ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
             .message("Good Response")

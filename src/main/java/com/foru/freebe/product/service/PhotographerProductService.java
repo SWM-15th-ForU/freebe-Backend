@@ -15,9 +15,9 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
-import com.foru.freebe.product.dto.photographer.ProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -55,7 +55,7 @@ public class PhotographerProductService {
     private final S3ImageService s3ImageService;
 
     @Transactional
-    public void registerProduct(ProductDetailRequest productRegisterRequestDto,
+    public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
         List<MultipartFile> images, Long photographerId) throws IOException {
         Member photographer = getMember(photographerId);
 
@@ -214,7 +214,7 @@ public class PhotographerProductService {
             .count();
     }
 
-    private Product registerActiveProduct(ProductDetailRequest productRegisterRequestDto, Member photographer) {
+    private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member photographer) {
         String productTitle = productRegisterRequestDto.getProductTitle();
         String productDescription = productRegisterRequestDto.getProductDescription();
 

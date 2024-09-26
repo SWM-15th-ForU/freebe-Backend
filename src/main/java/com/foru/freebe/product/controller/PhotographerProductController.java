@@ -22,7 +22,7 @@ import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
-import com.foru.freebe.product.dto.photographer.ProductDetailRequest;
+import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -39,7 +39,7 @@ public class PhotographerProductController {
 
     @PostMapping("/product")
     public ResponseEntity<ResponseBody<Void>> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "request") ProductDetailRequest request,
+        @RequestPart(value = "request") ProductRegisterRequest request,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member photographer = memberAdapter.getMember();

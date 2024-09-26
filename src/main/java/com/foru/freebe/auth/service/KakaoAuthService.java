@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class KakaoAuthService {
     private final WebClient webClient;
 
     @Value("${KAKAO_CLIENT_ID}")

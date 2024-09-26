@@ -13,7 +13,7 @@ import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.service.MemberService;
+import com.foru.freebe.member.service.PhotographerJoinService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,14 +21,14 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequiredArgsConstructor
 public class JoinController {
-    private final MemberService memberService;
+    private final PhotographerJoinService photographerJoinService;
 
     @PostMapping("/photographer/join")
     public ResponseEntity<ResponseBody<String>> joinPhotographer(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @Valid @RequestBody PhotographerJoinRequest request) throws IOException {
 
         Member member = memberAdapter.getMember();
-        String profileName = memberService.joinPhotographer(member, request);
+        String profileName = photographerJoinService.joinPhotographer(member, request);
 
         ResponseBody<String> responseBody = ResponseBody.<String>builder()
             .data(profileName)

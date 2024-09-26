@@ -108,7 +108,7 @@ public class PhotographerProductService {
         Member photographer = getMember(photographerId);
 
         if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
         }
 
         Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)

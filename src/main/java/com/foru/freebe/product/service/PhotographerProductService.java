@@ -252,16 +252,10 @@ public class PhotographerProductService {
             PRODUCT_THUMBNAIL_SIZE);
 
         IntStream.range(0, originalImageUrls.size()).forEach(i -> {
-            ProductImage productImage = null;
-            try {
-                productImage = ProductImage.createProductImage(
-                    thumbnailImageUrls.get(i),
-                    originalImageUrls.get(i),
-                    s3ImageService.calculateImageHash(images.get(i).getInputStream()),
-                    product);
-            } catch (IOException e) {
-                throw new RestApiException(CommonErrorCode.IO_EXCEPTION);
-            }
+            ProductImage productImage = ProductImage.createProductImage(
+                thumbnailImageUrls.get(i),
+                originalImageUrls.get(i),
+                product);
             productImageRepository.save(productImage);
         });
     }

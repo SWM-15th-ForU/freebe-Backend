@@ -113,7 +113,7 @@ public class PhotographerProductService {
 
         Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
+        validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         product.assignTitle(updateProductDetailRequest.getProductTitle());
         product.assignDescription(updateProductDetailRequest.getProductDescription());
 

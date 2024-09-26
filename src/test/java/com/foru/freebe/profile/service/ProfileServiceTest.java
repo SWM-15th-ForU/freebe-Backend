@@ -158,7 +158,6 @@ class ProfileServiceTest {
                 s3ImageService.imageUploadToS3(bannerImageFiles, S3ImageType.PROFILE, photographer.getId())).thenReturn(
                 bannerImageLinkSet);
 
-            // profile Image
             ImageLinkSet profileImageLinkSet = new ImageLinkSet(Collections.singletonList("originUrl"),
                 Collections.singletonList("thumbnailUrl"));
             List<MultipartFile> profileImageFiles = Collections.singletonList(profileImageFile);
@@ -207,8 +206,7 @@ class ProfileServiceTest {
             when(
                 s3ImageService.imageUploadToS3(bannerImageFiles, S3ImageType.PROFILE, photographer.getId())).thenReturn(
                 bannerImageLinkSet);
-
-            // profile Image
+            
             ImageLinkSet profileImageLinkSet = new ImageLinkSet(Collections.singletonList("newProfileOriginUrl"),
                 Collections.singletonList("newProfileThumbnailUrl"));
             List<MultipartFile> profileImageFiles = Collections.singletonList(profileImageFile);

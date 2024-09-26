@@ -46,7 +46,15 @@ public class ProfileService {
 
     public ProfileResponse getPhotographerProfile(String profileName) {
         Profile profile = getProfile(profileName);
+        return findPhotographerProfile(profileName, profile);
+    }
 
+    public ProfileResponse getMyCurrentProfile(Member photographer) {
+        Profile profile = getProfile(photographer);
+        return findPhotographerProfile(profile.getProfileName(), profile);
+    }
+
+    private ProfileResponse findPhotographerProfile(String profileName, Profile profile) {
         ProfileImage profileImage = profileImageRepository.findByProfile(profile).orElse(null);
 
         List<LinkInfo> linkInfos = getProfileLinkInfos(profile);
@@ -60,14 +68,7 @@ public class ProfileService {
             .build();
     }
 
-    public ProfileResponse getCurrentProfile(Member photographer) {
-        Profile profile = getProfile(photographer);
-        return getPhotographerProfile(profile.getProfileName());
-    }
-
     @Transactional
-    //ToDO: 기존에 존재하는 이미지는 s3에서 제거.
-    //ToDo: persisten 유지
     public void updateProfile(Member photographer, UpdateProfileRequest request, MultipartFile bannerImageFile,
         MultipartFile profileImageFile) throws IOException {
 
@@ -135,8 +136,13 @@ public class ProfileService {
     }
 
     private void updateBannerImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
-        List<MultipartFile> profileImages = Collections.singletonList(imageFile);
-        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(profileImages, S3ImageType.PROFILE, id);
+        String bannerImageUrl = profileImage.getBannerOriginUrl();
+        if (bannerImageUrl != null) {
+            s3ImageService.deleteImageFromS3(bannerImageUrl);
+        }
+
+        List<MultipartFile> bannerImages = Collections.singletonList(imageFile);
+        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(bannerImages, S3ImageType.PROFILE, id);
 
         String newBannerImageUrl = bannerImageLinkSet.getFirstOriginUrl();
         profileImage.assignBannerOriginUrl(newBannerImageUrl);
@@ -145,6 +151,13 @@ public class ProfileService {
     }
 
     private void updateProfileImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
+        String profileImageOriginUrl = profileImage.getProfileOriginUrl();
+        String profileImageThumbnailUrl = profileImage.getProfileThumbnailUrl();
+        if (profileImageOriginUrl != null) {
+            s3ImageService.deleteImageFromS3(profileImageOriginUrl);
+            s3ImageService.deleteImageFromS3(profileImageThumbnailUrl);
+        }
+
         List<MultipartFile> profileImages = Collections.singletonList(imageFile);
         ImageLinkSet profileImageLinkSet = s3ImageService.imageUploadToS3(profileImages, S3ImageType.PROFILE, id,
             PROFILE_THUMBNAIL_SIZE);

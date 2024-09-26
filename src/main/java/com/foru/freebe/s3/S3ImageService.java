@@ -142,7 +142,7 @@ public class S3ImageService {
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
-        return basePath + imageType + uniqueId + fileName;
+        return basePath + imageType + uniqueId + "/" + fileName;
     }
 
     private void uploadToS3(String key, InputStream imageInputStream, ObjectMetadata metadata) {

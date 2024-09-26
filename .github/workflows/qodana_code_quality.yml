@@ -18,6 +18,22 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
+
+      - name: Create code coverage folder if not exists
+        run: |
+          mkdir -p .qodana/code-coverage
+        working-directory: ./
+
+      - name: Run Tests
+        run: ./gradlew test
+        working-directory: ./
+
+      - name: Archive coverage data
+        uses: actions/upload-artifact@v2
+        with:
+          name: gradle-coverage-data-jacoco
+          path: .qodana/code-coverage
+
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2024.1
         with:

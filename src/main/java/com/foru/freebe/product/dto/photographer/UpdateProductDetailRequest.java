@@ -21,7 +21,7 @@ public class UpdateProductDetailRequest {
     @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String productDescription;
 
-    // @NotNull
+    @NotNull
     private List<ProductComponentDto> productComponents;
 
     private List<ProductOptionDto> productOptions;

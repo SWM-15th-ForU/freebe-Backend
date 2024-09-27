@@ -39,7 +39,7 @@ public class PhotographerProductController {
 
     @PostMapping("/product")
     public ResponseEntity<ResponseBody<Void>> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "request") ProductRegisterRequest request,
+        @Valid @RequestPart(value = "request") ProductRegisterRequest request,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member photographer = memberAdapter.getMember();
@@ -107,7 +107,7 @@ public class PhotographerProductController {
 
     @PatchMapping("/product")
     public ResponseEntity<ResponseBody<Void>> updateProduct(
-        @RequestPart(value = "request") UpdateProductDetailRequest request,
+        @Valid @RequestPart(value = "request") UpdateProductDetailRequest request,
         @RequestPart(value = "images") List<MultipartFile> images,
         @AuthenticationPrincipal MemberAdapter memberAdapter) throws IOException {
 

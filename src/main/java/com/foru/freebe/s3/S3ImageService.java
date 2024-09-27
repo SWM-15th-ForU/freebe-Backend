@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -112,12 +111,6 @@ public class S3ImageService {
             throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
         } catch (Exception e) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public String calculateImageHash(InputStream inputStream) throws IOException {
-        try (InputStream is = inputStream) {
-            return DigestUtils.md2Hex(is);
         }
     }
 

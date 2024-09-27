@@ -204,6 +204,10 @@ public class PhotographerProductService {
 
     private void updateProductImage(List<MultipartFile> images, Long photographerId, List<ProductImage> productImages,
         Product product) throws IOException {
+        for (ProductImage productImage : productImages) {
+            s3ImageService.deleteImageFromS3(productImage.getOriginUrl());
+            s3ImageService.deleteImageFromS3(productImage.getThumbnailUrl());
+        }
         productImageRepository.deleteAll(productImages);
         registerProductImage(images, product, photographerId);
     }

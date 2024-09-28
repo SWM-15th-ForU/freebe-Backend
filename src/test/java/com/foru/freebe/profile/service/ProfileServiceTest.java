@@ -1,5 +1,6 @@
 package com.foru.freebe.profile.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -21,6 +22,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ImageLinkSet;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.profile.dto.LinkInfo;
@@ -58,6 +61,32 @@ class ProfileServiceTest {
         return Member
             .builder(1L, Role.PHOTOGRAPHER, "이유리", "yuri@naver.com", "010-1234-5678")
             .build();
+    }
+
+    @Nested
+    @DisplayName("프로필 생성 테스트")
+    class ProfileCreateTest {
+        @BeforeEach
+        void setUp() {
+            MockitoAnnotations.openMocks(this);
+        }
+
+        @Test
+        @DisplayName("(실패) 이미 존재하는 프로필을 사용하면 예외가 발생한다")
+        void test() {
+            // given
+            String profileName = "existingProfileName";
+            when(profileRepository.existsByMemberId(photographer.getId())).thenReturn(false);
+            when(profileRepository.existsByProfileName(anyString())).thenReturn(true);
+
+            // when & then
+            RestApiException exception = assertThrows(RestApiException.class, () -> {
+                profileService.initialProfileSetting(photographer, profileName);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(ProfileErrorCode.PROFILE_NAME_ALREADY_EXISTS);
+            verify(profileRepository, times(1)).existsByProfileName(profileName);
+        }
     }
 
     @Nested
@@ -206,7 +235,7 @@ class ProfileServiceTest {
             when(
                 s3ImageService.imageUploadToS3(bannerImageFiles, S3ImageType.PROFILE, photographer.getId())).thenReturn(
                 bannerImageLinkSet);
-            
+
             ImageLinkSet profileImageLinkSet = new ImageLinkSet(Collections.singletonList("newProfileOriginUrl"),
                 Collections.singletonList("newProfileThumbnailUrl"));
             List<MultipartFile> profileImageFiles = Collections.singletonList(profileImageFile);
@@ -225,6 +254,5 @@ class ProfileServiceTest {
             assertEquals(existingProfileImage.getProfileThumbnailUrl(), "newProfileThumbnailUrl");
             verify(profileImageRepository, times(2)).save(any(ProfileImage.class));
         }
-
     }
 }

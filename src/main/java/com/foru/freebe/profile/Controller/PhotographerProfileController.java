@@ -32,7 +32,7 @@ public class PhotographerProfileController {
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
-        ProfileResponse responseData = profileService.getCurrentProfile(photographer);
+        ProfileResponse responseData = profileService.getMyCurrentProfile(photographer);
 
         ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
             .message("Good Response")
@@ -44,12 +44,13 @@ public class PhotographerProfileController {
 
     @PutMapping("/profile")
     public ResponseEntity<ResponseBody<Void>> updateProfile(
-        @RequestPart(value = "request") UpdateProfileRequest updateRequest,
-        @RequestPart(value = "image", required = false) MultipartFile profileImage,
-        @AuthenticationPrincipal MemberAdapter memberAdapter) throws IOException {
+        @AuthenticationPrincipal MemberAdapter memberAdapter,
+        @RequestPart(value = "request") UpdateProfileRequest request,
+        @RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage,
+        @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 
         Member photographer = memberAdapter.getMember();
-        profileService.updateProfile(updateRequest, photographer, profileImage);
+        profileService.updateProfile(photographer, request, bannerImage, profileImage);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Updated successfully")

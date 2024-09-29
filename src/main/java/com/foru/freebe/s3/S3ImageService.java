@@ -23,6 +23,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -58,7 +59,23 @@ public class S3ImageService {
     @Value("${cloud.aws.s3.base-path.reservation}")
     private String reservationPath;
 
-    public List<String> uploadOriginalImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
+    public ImageLinkSet imageUploadToS3(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
+        IOException {
+
+        List<String> originUrl = uploadOriginalImages(images, s3ImageType, memberId);
+        return new ImageLinkSet(originUrl, null);
+    }
+
+    public ImageLinkSet imageUploadToS3(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
+        int thumbnailSize) throws IOException {
+
+        List<String> originUrl = uploadOriginalImages(images, s3ImageType, memberId);
+        List<String> thumbnailUrl = uploadThumbnailImages(images, s3ImageType, memberId, thumbnailSize);
+
+        return new ImageLinkSet(originUrl, thumbnailUrl);
+    }
+
+    private List<String> uploadOriginalImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
         IOException {
 
         List<String> originalImageUrls = new ArrayList<>();
@@ -75,28 +92,26 @@ public class S3ImageService {
         return originalImageUrls;
     }
 
-    public List<String> uploadThumbnailImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
+    private List<String> uploadThumbnailImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId,
         int thumbnailSize) throws IOException {
 
         List<String> thumbnailImageUrls = new ArrayList<>();
         for (MultipartFile image : images) {
             String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
-            try (InputStream originalImageStream = image.getInputStream();
-                 ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
+            InputStream originalImageStream = image.getInputStream();
 
-                Thumbnails.of(originalImageStream)
-                    .size(thumbnailSize, thumbnailSize)
-                    .toOutputStream(thumbnailOutputStream);
+            ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
+            Thumbnails.of(originalImageStream)
+                .size(thumbnailSize, thumbnailSize)
+                .toOutputStream(thumbnailOutputStream);
 
-                InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
 
-                ObjectMetadata thumbnailMetadata = new ObjectMetadata();
-                thumbnailMetadata.setContentType(image.getContentType());
-                thumbnailMetadata.setContentLength(thumbnailOutputStream.size()); // Content-Length 설정
+            ObjectMetadata thumbnailMetadata = new ObjectMetadata();
+            thumbnailMetadata.setContentType(image.getContentType());
 
-                uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
-                addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
-            }
+            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+            addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
         }
         return thumbnailImageUrls;
     }
@@ -160,7 +175,8 @@ public class S3ImageService {
             case RESERVATION -> basePath = customerPath + memberId + reservationPath;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-        return basePath + imageType + uniqueId + fileName;
+
+        return basePath + imageType + uniqueId + "/" + fileName;
     }
 
     private void uploadToS3(String key, InputStream imageInputStream, ObjectMetadata metadata) {

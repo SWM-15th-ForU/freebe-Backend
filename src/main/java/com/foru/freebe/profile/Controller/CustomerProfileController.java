@@ -20,11 +20,11 @@ import lombok.RequiredArgsConstructor;
 public class CustomerProfileController {
     private final ProfileService profileService;
 
-    @GetMapping("/profile/{uniqueUrl}")
+    @GetMapping("/profile/{profileName}")
     public ResponseEntity<ResponseBody<ProfileResponse>> getPhotographerProfile(
-        @Valid @PathVariable("uniqueUrl") String uniqueUrl) {
+        @Valid @PathVariable("profileName") String profileName) {
 
-        ProfileResponse responseData = profileService.getPhotographerProfile(uniqueUrl);
+        ProfileResponse responseData = profileService.getPhotographerProfile(profileName);
 
         ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
             .message("Good Response")

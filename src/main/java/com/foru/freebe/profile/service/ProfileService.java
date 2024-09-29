@@ -4,18 +4,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.profile.dto.LinkInfo;
 import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
@@ -36,113 +34,141 @@ import lombok.RequiredArgsConstructor;
 public class ProfileService {
     private static final int PROFILE_THUMBNAIL_SIZE = 100;
 
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final LinkRepository linkRepository;
     private final ProfileImageRepository profileImageRepository;
     private final S3ImageService s3ImageService;
 
-    @Value("${FREEBE_BASE_URL}")
-    private String freebeBaseUrl;
-
-    public String getUniqueUrl(Long id) {
-        Member member = memberRepository.findById(id)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        Profile profile = profileRepository.findByMember(member)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        return profile.getUniqueUrl();
+    public String getProfileName(Long id) {
+        Profile profile = getProfile(id);
+        return profile.getProfileName();
     }
 
-    public ProfileResponse getPhotographerProfile(String uniqueUrl) {
-        Profile photographerProfile = profileRepository.findByUniqueUrl(uniqueUrl)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    public ProfileResponse getPhotographerProfile(String profileName) {
+        Profile profile = getProfile(profileName);
+        return findPhotographerProfile(profileName, profile);
+    }
 
-        Member photographer = photographerProfile.getMember();
+    public ProfileResponse getMyCurrentProfile(Member photographer) {
+        Profile profile = getProfile(photographer);
+        return findPhotographerProfile(profile.getProfileName(), profile);
+    }
 
-        List<Link> links = linkRepository.findByProfile(photographerProfile);
+    private ProfileResponse findPhotographerProfile(String profileName, Profile profile) {
+        ProfileImage profileImage = profileImageRepository.findByProfile(profile).orElse(null);
 
-        List<LinkInfo> linkInfos = links.stream()
-            .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
-            .collect(Collectors.toList());
+        List<LinkInfo> linkInfos = getProfileLinkInfos(profile);
 
-        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
+        return ProfileResponse.builder()
+            .bannerImageUrl(profileImage != null ? profileImage.getBannerOriginUrl() : null)
+            .profileImageUrl(profileImage != null ? profileImage.getProfileThumbnailUrl() : null)
+            .profileName(profileName)
+            .introductionContent(profile.getIntroductionContent())
+            .linkInfos(linkInfos)
+            .build();
+    }
 
-        if (profileImage != null) {
-            return new ProfileResponse(
-                photographerProfile.getBannerImageUrl(),
-                profileImage.getThumbnailUrl(),
-                photographer.getInstagramId(),
-                photographerProfile.getIntroductionContent(),
-                linkInfos);
-        } else {
-            return new ProfileResponse(
-                photographerProfile.getBannerImageUrl(),
-                null,
-                photographer.getInstagramId(),
-                photographerProfile.getIntroductionContent(),
-                linkInfos);
+    @Transactional
+    public void updateProfile(Member photographer, UpdateProfileRequest request, MultipartFile bannerImageFile,
+        MultipartFile profileImageFile) throws IOException {
+
+        Profile profile = getProfile(photographer);
+        ProfileImage profileImage = createProfileImageIfNotExists(profile);
+
+        if (request.getIntroductionContent() != null) {
+            profile.updateIntroductionContent(request.getIntroductionContent());
         }
 
-    }
+        updateLinks(profile, request.getLinkInfos());
 
-    public ProfileResponse getCurrentProfile(Member photographer) {
-        Profile photographerProfile = profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        if (bannerImageFile != null) {
+            updateBannerImage(profileImage, bannerImageFile, photographer.getId());
+        }
 
-        ProfileImage profileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
-
-        List<Link> links = linkRepository.findByProfile(photographerProfile);
-
-        List<LinkInfo> linkInfos = links.stream()
-            .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
-            .collect(Collectors.toList());
-
-        if (profileImage != null) {
-            return new ProfileResponse(
-                photographerProfile.getBannerImageUrl(),
-                profileImage.getThumbnailUrl(),
-                photographer.getInstagramId(),
-                photographerProfile.getIntroductionContent(),
-                linkInfos);
-        } else {
-            return new ProfileResponse(
-                photographerProfile.getBannerImageUrl(),
-                null,
-                photographer.getInstagramId(),
-                photographerProfile.getIntroductionContent(),
-                linkInfos);
+        if (profileImageFile != null) {
+            updateProfileImage(profileImage, profileImageFile, photographer.getId());
         }
     }
 
     @Transactional
-    public void updateProfile(UpdateProfileRequest updateRequest, Member photographer,
-        MultipartFile profileImage) throws IOException {
-        Profile photographerProfile = profileRepository.findByMember(photographer)
+    public Profile initialProfileSetting(Member photographer, String profileName) {
+        boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
+        if (isProfileExists) {
+            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        validateProfileNameDuplicate(profileName);
+        return createMemberProfile(photographer, profileName);
+    }
+
+    private void validateProfileNameDuplicate(String profileName) {
+        if (profileRepository.existsByProfileName(profileName)) {
+            throw new RestApiException(ProfileErrorCode.PROFILE_NAME_ALREADY_EXISTS);
+        }
+    }
+
+    private Profile getProfile(Long memberId) {
+        return profileRepository.findByMemberId(memberId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
 
-        Member persistedPhotographer = memberRepository.findById(photographer.getId())
+    private Profile getProfile(Member photographer) {
+        return profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
 
-        ProfileImage existingProfileImage = profileImageRepository.findByProfile(photographerProfile).orElse(null);
-        if (existingProfileImage != null) {
-            profileImageRepository.delete(existingProfileImage);
-            saveProfileImage(photographerProfile, profileImage, photographer.getId());
+    private Profile getProfile(String profileName) {
+        return profileRepository.findByProfileName(profileName)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    }
+
+    private List<LinkInfo> getProfileLinkInfos(Profile profile) {
+        List<Link> links = linkRepository.findByProfile(profile);
+
+        return links.stream()
+            .map(link -> new LinkInfo(link.getTitle(), link.getUrl()))
+            .collect(Collectors.toList());
+    }
+
+    private ProfileImage createProfileImageIfNotExists(Profile photographerProfile) {
+        return profileImageRepository.findByProfile(photographerProfile)
+            .orElse(ProfileImage.builder().profile(photographerProfile).build());
+    }
+
+    private void updateBannerImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
+        String bannerImageUrl = profileImage.getBannerOriginUrl();
+        if (bannerImageUrl != null) {
+            s3ImageService.deleteImageFromS3(bannerImageUrl);
         }
 
-        // 변경 감지: 필요한 필드만 업데이트
-        if (!Objects.equals(photographerProfile.getBannerImageUrl(), updateRequest.getBannerImageUrl())) {
-            photographerProfile.assignBannerImageUrl(updateRequest.getBannerImageUrl());
-        }
-        if (!Objects.equals(persistedPhotographer.getInstagramId(), updateRequest.getInstagramId())) {
-            persistedPhotographer.assignInstagramId(updateRequest.getInstagramId());
-        }
-        if (!Objects.equals(photographerProfile.getIntroductionContent(), updateRequest.getIntroductionContent())) {
-            photographerProfile.assignIntroductionContent(updateRequest.getIntroductionContent());
+        List<MultipartFile> bannerImages = Collections.singletonList(imageFile);
+        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(bannerImages, S3ImageType.PROFILE, id);
+
+        String newBannerImageUrl = bannerImageLinkSet.getFirstOriginUrl();
+        profileImage.assignBannerOriginUrl(newBannerImageUrl);
+
+        profileImageRepository.save(profileImage);
+    }
+
+    private void updateProfileImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
+        String profileImageOriginUrl = profileImage.getProfileOriginUrl();
+        String profileImageThumbnailUrl = profileImage.getProfileThumbnailUrl();
+        if (profileImageOriginUrl != null) {
+            s3ImageService.deleteImageFromS3(profileImageOriginUrl);
+            s3ImageService.deleteImageFromS3(profileImageThumbnailUrl);
         }
 
-        updateLinks(photographerProfile, updateRequest.getLinkInfos());
+        List<MultipartFile> profileImages = Collections.singletonList(imageFile);
+        ImageLinkSet profileImageLinkSet = s3ImageService.imageUploadToS3(profileImages, S3ImageType.PROFILE, id,
+            PROFILE_THUMBNAIL_SIZE);
+
+        String originalImageUrl = profileImageLinkSet.getFirstOriginUrl();
+        String thumbnailImageUrl = profileImageLinkSet.getFirstThumbnailUrl();
+
+        profileImage.assignProfileOriginUrl(originalImageUrl);
+        profileImage.assignProfileThumbnailUrl(thumbnailImageUrl);
+
+        profileImageRepository.save(profileImage);
     }
 
     private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
@@ -184,65 +210,18 @@ public class ProfileService {
         }
     }
 
-    @Transactional
-    public void initialProfileSetting(Member photographer, MultipartFile profileImage) throws IOException {
-        Boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
-        if (isProfileExists) {
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
-
-        Profile profile = createMemberProfile(photographer);
-        if (profileImage != null) {
-            saveProfileImage(profile, profileImage, photographer.getId());
-        }
-    }
-
-    private Profile createMemberProfile(Member member) {
-        String uniqueUrl = createUniqueUrl();
-
+    private Profile createMemberProfile(Member member, String profileName) {
         Profile profile = Profile.builder()
-            .uniqueUrl(uniqueUrl)
+            .profileName(profileName)
             .introductionContent(null)
-            .bannerImageUrl(null)
             .member(member)
             .build();
 
         return profileRepository.save(profile);
     }
 
-    private String createUniqueUrl() {
-        String uniqueId = UUID.randomUUID().toString();
-        return freebeBaseUrl + "/" + uniqueId;
-    }
-
-    private void saveProfileImage(Profile profile, MultipartFile profileImage, Long id) throws IOException {
-        deleteProfileImageIfExists(profile);
-
-        List<MultipartFile> profileImages = Collections.singletonList(profileImage);
-        List<String> originalImageUrls = s3ImageService.uploadOriginalImages(profileImages, S3ImageType.PROFILE, id);
-        List<String> thumbnailImageUrls = s3ImageService.uploadThumbnailImages(profileImages, S3ImageType.PROFILE, id,
-            PROFILE_THUMBNAIL_SIZE);
-
-        String originalImageUrl = originalImageUrls.get(0);
-        String thumbnailImageUrl = thumbnailImageUrls.get(0);
-
-        ProfileImage image = ProfileImage.builder()
-            .profile(profile)
-            .originUrl(originalImageUrl)
-            .thumbnailUrl(thumbnailImageUrl)
-            .build();
-        profileImageRepository.save(image);
-    }
-
-    private void deleteProfileImageIfExists(Profile profile) {
-        Boolean isProfileExists = profileImageRepository.existsByProfile(profile);
-        if (isProfileExists) {
-            profileImageRepository.deleteByProfile(profile);
-        }
-    }
-
     private Boolean isLinkInfoChanged(Link existingLink, LinkInfo linkInfo) {
-        return !existingLink.getUrl().equals(linkInfo.getLinkUrl()) ||
-            !existingLink.getTitle().equals(linkInfo.getLinkTitle());
+        return !existingLink.getUrl().equals(linkInfo.getLinkUrl()) || !existingLink.getTitle()
+            .equals(linkInfo.getLinkTitle());
     }
 }

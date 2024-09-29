@@ -3,6 +3,7 @@ plugins {
     id 'checkstyle'
     id 'org.springframework.boot' version '3.3.1'
     id 'io.spring.dependency-management' version '1.1.5'
+    id 'jacoco'
 }
 
 group = 'com.foru'
@@ -18,6 +19,50 @@ checkstyle {
     configFile = file("${rootDir}/config/naver-checkstyle-rules.xml")
     configProperties = ["suppressionFile": "${rootDir}/config/naver-checkstyle-suppressions.xml"]
     toolVersion = "10.17.0"
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+    setReportsDirectory(file("${rootDir}/.qodana/code-coverage"))
+}
+
+test {
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    'com/foru/freebe/errors/**',
+                    '**/dto/**',
+                    '**/*Application*'
+            ])
+        }))
+    }
+    finalizedBy 'jacocoTestCoverageVerification'
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            element = 'CLASS'
+            limit {
+                counter = 'BRANCH'
+                value = 'COVEREDRATIO'
+                minimum = 0.00
+            }
+            excludes = [
+                    '**.errors.**',
+                    '**.dto.**',
+                    '**.*Application*'
+            ]
+        }
+    }
 }
 
 configurations {

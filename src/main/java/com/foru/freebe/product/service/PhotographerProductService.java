@@ -125,7 +125,6 @@ public class PhotographerProductService {
 
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
 
-        // 사용자가 삭제한 이미지 DB에서 삭제
         deleteSelectedImageByUser(updateProductDetailRequest, productImages);
 
         int imageCount = 0;
@@ -182,10 +181,6 @@ public class PhotographerProductService {
         ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl, originUrl, product);
         productImageRepository.save(updateProductImage);
         productImageRepository.deleteById(oldImageId);
-    }
-
-    private void deleteImageOfAllType(ProductImage productImage) {
-        deleteImageOfAllTypeFromS3(productImage);
     }
 
     @Transactional

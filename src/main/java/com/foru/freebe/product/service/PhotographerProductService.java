@@ -262,15 +262,6 @@ public class PhotographerProductService {
         }
     }
 
-    private void updateProductImage(List<MultipartFile> images, Long photographerId, List<ProductImage> productImages,
-        Product product) throws IOException {
-        for (ProductImage productImage : productImages) {
-            deleteImageOfAllType(productImage);
-        }
-        productImageRepository.deleteAll(productImages);
-        registerProductImage(images, product, photographerId);
-    }
-
     private Integer getReservationCount(Long id, String productTitle) {
         return (int)reservationFormRepository.findAllByPhotographerIdAndProductTitle(id, productTitle).stream()
             .filter(form -> form.getReservationStatus() == ReservationStatus.PHOTO_COMPLETED)
@@ -303,14 +294,14 @@ public class PhotographerProductService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
-    private void registerProductImage(List<MultipartFile> images, Product product, Long id) throws
+    private void registerProductImage(List<MultipartFile> images, Product product, Long photographerId) throws
         IOException {
 
         if (images.isEmpty()) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
 
-        ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, product.getId(),
+        ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, photographerId,
             PRODUCT_THUMBNAIL_SIZE);
 
         IntStream.range(0, productImageLinkSet.getOriginUrl().size()).forEach(i -> {

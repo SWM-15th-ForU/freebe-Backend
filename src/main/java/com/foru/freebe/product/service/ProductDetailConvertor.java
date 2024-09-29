@@ -3,7 +3,7 @@ package com.foru.freebe.product.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
@@ -21,7 +21,7 @@ import com.foru.freebe.product.respository.ProductOptionRepository;
 
 import lombok.RequiredArgsConstructor;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class ProductDetailConvertor {
 
@@ -93,7 +93,7 @@ public class ProductDetailConvertor {
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
         List<String> productImageUrls = new ArrayList<>();
         for (ProductImage productImage : productImages) {
-            productImageUrls.add(productImage.getOriginUrl());
+            productImageUrls.add(productImage.getThumbnailUrl());
         }
         return productImageUrls;
     }

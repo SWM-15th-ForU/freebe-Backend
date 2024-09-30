@@ -34,13 +34,14 @@ public class ProductImage extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    public static ProductImage createProductImage(String thumbnailUrl, String originUrl, Product product) {
+        return new ProductImage(thumbnailUrl, originUrl, product);
+    }
+
     private ProductImage(String thumbnailUrl, String originUrl, Product product) {
         this.thumbnailUrl = thumbnailUrl;
         this.originUrl = originUrl;
         this.product = product;
     }
 
-    public static ProductImage createProductImage(String thumbnailUrl, String originUrl, Product product) {
-        return new ProductImage(thumbnailUrl, originUrl, product);
-    }
 }

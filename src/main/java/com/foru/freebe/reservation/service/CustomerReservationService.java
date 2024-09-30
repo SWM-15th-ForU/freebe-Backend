@@ -1,11 +1,11 @@
 package com.foru.freebe.reservation.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ImageLinkSet;
@@ -16,11 +16,8 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.Product;
-import com.foru.freebe.product.entity.ProductComponent;
-import com.foru.freebe.product.entity.ProductOption;
-import com.foru.freebe.product.respository.ProductComponentRepository;
-import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.product.service.ProductDetailConvertor;
 import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
@@ -36,7 +33,6 @@ import com.foru.freebe.reservation.repository.ReservationHistoryRepository;
 import com.foru.freebe.s3.S3ImageService;
 import com.foru.freebe.s3.S3ImageType;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -47,9 +43,8 @@ public class CustomerReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
+    private final ProductDetailConvertor productDetailConvertor;
     private final ProductRepository productRepository;
-    private final ProductComponentRepository productComponentRepository;
-    private final ProductOptionRepository productOptionRepository;
     private final ReferenceImageRepository referenceImageRepository;
     private final ReservationVerifier reservationVerifier;
     private final S3ImageService s3ImageService;
@@ -86,12 +81,9 @@ public class CustomerReservationService {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
-        List<ProductComponentDto> productComponentDtoList = convertProductComponentDtoList(
-            productComponents);
-
-        List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
-        List<ProductOptionDto> productOptionDtoList = convertProductOptionDtoList(productOptions);
+        List<ProductComponentDto> productComponentDtoList = productDetailConvertor.convertToProductComponentDtoList(
+            product);
+        List<ProductOptionDto> productOptionDtoList = productDetailConvertor.convertToProductOptionDtoList(product);
 
         return BasicReservationInfoResponse.builder()
             .name(customer.getName())
@@ -145,31 +137,5 @@ public class CustomerReservationService {
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
-    }
-
-    private List<ProductOptionDto> convertProductOptionDtoList(List<ProductOption> productOptions) {
-        List<ProductOptionDto> productOptionDtoList = new ArrayList<>();
-        for (ProductOption productOption : productOptions) {
-            ProductOptionDto productOptionDto = ProductOptionDto.builder()
-                .title(productOption.getTitle())
-                .price(productOption.getPrice())
-                .description(productOption.getDescription())
-                .build();
-            productOptionDtoList.add(productOptionDto);
-        }
-        return productOptionDtoList;
-    }
-
-    private List<ProductComponentDto> convertProductComponentDtoList(List<ProductComponent> productComponents) {
-        List<ProductComponentDto> productComponentDtoList = new ArrayList<>();
-        for (ProductComponent productComponent : productComponents) {
-            ProductComponentDto productComponentDto = ProductComponentDto.builder()
-                .title(productComponent.getTitle())
-                .content(productComponent.getContent())
-                .description(productComponent.getDescription())
-                .build();
-            productComponentDtoList.add(productComponentDto);
-        }
-        return productComponentDtoList;
     }
 }

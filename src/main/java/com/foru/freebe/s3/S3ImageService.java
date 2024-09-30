@@ -116,6 +116,40 @@ public class S3ImageService {
         return thumbnailImageUrls;
     }
 
+    public String uploadOriginalImage(MultipartFile image, S3ImageType s3ImageType, Long memberId) throws IOException {
+        String originKey = generateImagePath(image, s3ImageType, memberId, true);
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(image.getSize());
+        metadata.setContentType(image.getContentType());
+
+        uploadToS3(originKey, image.getInputStream(), metadata);
+
+        return amazonS3.getUrl(bucketName, originKey).toString();
+    }
+
+    public String uploadThumbnailImage(MultipartFile image, S3ImageType s3ImageType, Long memberId,
+        int thumbnailSize) throws IOException {
+        String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
+        try (InputStream originalImageStream = image.getInputStream();
+             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
+
+            Thumbnails.of(originalImageStream)
+                .size(thumbnailSize, thumbnailSize)
+                .toOutputStream(thumbnailOutputStream);
+
+            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+
+            ObjectMetadata thumbnailMetadata = new ObjectMetadata();
+            thumbnailMetadata.setContentType(image.getContentType());
+            thumbnailMetadata.setContentLength(thumbnailOutputStream.size()); // Content-Length 설정
+
+            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+
+            return amazonS3.getUrl(bucketName, thumbnailKey).toString();
+        }
+    }
+
     public void deleteImageFromS3(String imageAddress) {
         String key = getKeyFromImageAddress(imageAddress);
         try {
@@ -141,8 +175,7 @@ public class S3ImageService {
             case RESERVATION -> basePath = customerPath + memberId + reservationPath;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-
-        return basePath + imageType + uniqueId + "/" + fileName;
+        return basePath + imageType + uniqueId + fileName;
     }
 
     private void uploadToS3(String key, InputStream imageInputStream, ObjectMetadata metadata) {

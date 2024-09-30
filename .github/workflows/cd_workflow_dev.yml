@@ -36,6 +36,7 @@ jobs:
           echo "AWS_ACCESS_KEY=${{ secrets.CICD_ACCESS_KEY }}" >> .env
           echo "AWS_SECRET_KEY=${{ secrets.CICD_SECRET_KEY }}" >> .env
           echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET }}" >> .env
+          echo "AWS_S3_DATA_BUCKET=${{ secrets.AWS_S3_DATA_BUCKET }}" >> .env
           echo "AWS_S3_ORIGINAL_PATH=${{ secrets.AWS_S3_ORIGINAL_PATH }}" >> .env
           echo "AWS_S3_THUMBNAIL_PATH=${{ secrets.AWS_S3_THUMBNAIL_PATH }}" >> .env
           echo "AWS_S3_PHOTOGRAPHER_PATH=${{ secrets.AWS_S3_PHOTOGRAPHER_PATH }}" >> .env

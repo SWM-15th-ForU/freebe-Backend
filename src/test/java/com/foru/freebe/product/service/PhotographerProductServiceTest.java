@@ -61,9 +61,6 @@ class PhotographerProductServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.initMocks(this);
-        // photographerProductService = spy(
-        //     new PhotographerProductService(productRepository, productImageRepository, memberRepository, s3ImageService,
-        //         productComponentRepository, productOptionRepository, productDiscountRepository));
     }
 
     @Test

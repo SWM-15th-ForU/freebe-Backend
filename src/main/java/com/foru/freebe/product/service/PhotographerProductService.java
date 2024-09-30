@@ -115,40 +115,31 @@ public class PhotographerProductService {
         Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        if (productRepository.existsByMemberAndTitleAndIdIsNot(photographer,
-            updateProductDetailRequest.getProductTitle(), product.getId())) {
-            throw new RestApiException(ProductErrorCode.PRODUCT_ALREADY_EXISTS);
+        if (!Objects.equals(updateProductDetailRequest.getProductTitle(), product.getTitle())) {
+            validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         }
 
         product.assignTitle(updateProductDetailRequest.getProductTitle());
         product.assignDescription(updateProductDetailRequest.getProductDescription());
 
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
-
         deleteSelectedImageByUser(updateProductDetailRequest, productImages);
 
-        int imageCount = 0;
+        int newImageCount = 0;
         for (String existingUrl : updateProductDetailRequest.getExistingUrls()) {
-            if (existingUrl != null) { // 기존의 이미지 순서 재배치
-                ProductImage productImage = productImageRepository.findByThumbnailUrl(existingUrl)
-                    .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-                updateAndReplaceProductImage(productImage.getThumbnailUrl(), productImage.getOriginUrl(), product,
-                    productImage.getId());
-            } else { // 새로운 이미지 저장
-                MultipartFile image = images.get(imageCount);
-                String originalUrl = s3ImageService.uploadOriginalImage(image, S3ImageType.PRODUCT,
-                    photographerId);
-                String thumbnailUrl = s3ImageService.uploadThumbnailImage(image, S3ImageType.PRODUCT,
-                    photographerId,
-                    PRODUCT_THUMBNAIL_SIZE);
-                ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl,
-                    originalUrl, product);
-                productImageRepository.save(updateProductImage);
-                imageCount += 1;
+            if (isExistingImage(existingUrl)) {
+                rearrangeOrderOfExistingUrl(existingUrl, product);
+            } else {
+                saveNewProductImage(images, photographerId, newImageCount, product);
+                newImageCount += 1;
             }
         }
 
+        updateProductCompositionExcludingImage(updateProductDetailRequest, product);
+    }
+
+    private void updateProductCompositionExcludingImage(UpdateProductDetailRequest updateProductDetailRequest,
+        Product product) {
         List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
         List<ProductOption> productOptions = productOptionRepository.findByProduct(product);
         List<ProductDiscount> productDiscounts = productDiscountRepository.findByProduct(product);
@@ -156,6 +147,32 @@ public class PhotographerProductService {
         updateProductComponent(updateProductDetailRequest, productComponents, product);
         updateProductOption(updateProductDetailRequest, productOptions, product);
         updateProductDiscount(updateProductDetailRequest, productDiscounts, product);
+    }
+
+    private void saveNewProductImage(List<MultipartFile> images, Long photographerId, int newImageCount,
+        Product product) throws
+        IOException {
+        MultipartFile image = images.get(newImageCount);
+        String originalUrl = s3ImageService.uploadOriginalImage(image, S3ImageType.PRODUCT,
+            photographerId);
+        String thumbnailUrl = s3ImageService.uploadThumbnailImage(image, S3ImageType.PRODUCT,
+            photographerId,
+            PRODUCT_THUMBNAIL_SIZE);
+        ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl,
+            originalUrl, product);
+        productImageRepository.save(updateProductImage);
+    }
+
+    private static boolean isExistingImage(String existingUrl) {
+        return existingUrl != null;
+    }
+
+    private void rearrangeOrderOfExistingUrl(String existingUrl, Product product) {
+        ProductImage productImage = productImageRepository.findByThumbnailUrl(existingUrl)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        updateAndReplaceProductImage(productImage.getThumbnailUrl(), productImage.getOriginUrl(), product,
+            productImage.getId());
     }
 
     private void deleteSelectedImageByUser(UpdateProductDetailRequest updateProductDetailRequest,
@@ -176,7 +193,7 @@ public class PhotographerProductService {
         s3ImageService.deleteImageFromS3(productImage.getThumbnailUrl());
     }
 
-    protected void updateAndReplaceProductImage(String thumbnailUrl, String originUrl, Product product,
+    private void updateAndReplaceProductImage(String thumbnailUrl, String originUrl, Product product,
         Long oldImageId) {
         ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl, originUrl, product);
         productImageRepository.save(updateProductImage);
@@ -268,7 +285,7 @@ public class PhotographerProductService {
         String productDescription = productRegisterRequestDto.getProductDescription();
 
         Product productAsActive;
-        if (productDescription != null) {
+        if (isExistingImage(productDescription)) {
             productAsActive = Product.createProductAsActive(productTitle, productDescription, photographer);
         } else {
             productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, photographer);

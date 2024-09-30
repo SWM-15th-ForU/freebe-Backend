@@ -103,8 +103,6 @@ class PhotographerProductServiceTest {
         // Mock 행동 정의
         when(memberRepository.findById(photographerId)).thenReturn(Optional.of(photographer));
         when(productRepository.findByIdAndMember(productId, photographer)).thenReturn(Optional.of(product));
-        when(productRepository.existsByMemberAndTitleAndIdIsNot(photographer, productTitle, productId)).thenReturn(
-            false);
         when(productImageRepository.findByProduct(product)).thenReturn(productImages);
         when(productImageRepository.findByThumbnailUrl("existing_thumbnail_url_1"))
             .thenReturn(Optional.of(productImage1));

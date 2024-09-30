@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum ProductErrorCode implements ErrorCode {
     INVALID_ACTIVE_STATUS(400, "ActiveStatus must be different current stored ActiveStatus"),
     PRODUCT_INACTIVE_STATUS(400, "The product is currently inactive, so you can't register a booking form with it"),
-    PRODUCT_ALREADY_EXISTS(400, "The product already exists, so it cannot be registered again");
+    PRODUCT_ALREADY_EXISTS(400, "The product already exists, so it cannot be registered again"),
+    INVALID_FILE_NAME(400, "The url or filename in the json file is incorrect");
 
     private final int httpStatus;
     private final String message;

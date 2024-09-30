@@ -2,9 +2,11 @@ name: Backend Dev Server CD
 
 on:
   push:
-    branches: [ "develop" ]
+    branches:
+      - develop
   pull_request:
-    branches: [ "fix/*" ]
+    branches:
+      - 'fix/**'
 
 jobs:
   build:
@@ -62,14 +64,14 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: S3에 jar 업로드(실행 파일)
-        run: aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
+        run: aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
 
       - name: S3에 zip 업로드(전체 파일)
-        run: aws s3 cp freebe.zip s3://${{secrets.AWS_S3_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
+        run: aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
 
       - name: Code Deploy 로 배포
         run: >
           aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP }}
-          --s3-location bucket=${{ secrets.AWS_S3_BUCKET }},bundleType=zip,key=cicdtest/freebe.zip
+          --s3-location bucket=${{ secrets.AWS_S3_CICD_BUCKET }},bundleType=zip,key=cicdtest/freebe.zip

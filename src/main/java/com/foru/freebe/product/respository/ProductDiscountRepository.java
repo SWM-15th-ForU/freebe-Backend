@@ -9,4 +9,6 @@ import com.foru.freebe.product.entity.ProductDiscount;
 
 public interface ProductDiscountRepository extends JpaRepository<ProductDiscount, Long> {
     List<ProductDiscount> findByProduct(Product product);
+
+    void deleteByProduct(Product product);
 }

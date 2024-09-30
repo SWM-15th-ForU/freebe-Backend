@@ -75,6 +75,37 @@ public class S3ImageService {
         return new ImageLinkSet(originUrl, thumbnailUrl);
     }
 
+    public String uploadOriginalImage(MultipartFile image, S3ImageType s3ImageType, Long memberId) throws IOException {
+        String originKey = generateImagePath(image, s3ImageType, memberId, true);
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(image.getSize());
+        metadata.setContentType(image.getContentType());
+
+        uploadToS3(originKey, image.getInputStream(), metadata);
+
+        return amazonS3.getUrl(bucketName, originKey).toString();
+    }
+
+    public String uploadThumbnailImage(MultipartFile image, S3ImageType s3ImageType, Long memberId,
+        int thumbnailSize) throws IOException {
+        String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
+        try (InputStream originalImageStream = image.getInputStream();
+             ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
+
+            resizeForThumbnail(thumbnailSize, originalImageStream, thumbnailOutputStream);
+
+            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+
+            ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image,
+                thumbnailOutputStream);
+
+            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+
+            return amazonS3.getUrl(bucketName, thumbnailKey).toString();
+        }
+    }
+
     private List<String> uploadOriginalImages(List<MultipartFile> images, S3ImageType s3ImageType, Long memberId) throws
         IOException {
 
@@ -96,24 +127,39 @@ public class S3ImageService {
         int thumbnailSize) throws IOException {
 
         List<String> thumbnailImageUrls = new ArrayList<>();
+
         for (MultipartFile image : images) {
             String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
-            InputStream originalImageStream = image.getInputStream();
 
-            ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream();
-            Thumbnails.of(originalImageStream)
-                .size(thumbnailSize, thumbnailSize)
-                .toOutputStream(thumbnailOutputStream);
+            try (InputStream originalImageStream = image.getInputStream();
+                 ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
 
-            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+                resizeForThumbnail(thumbnailSize, originalImageStream, thumbnailOutputStream);
 
-            ObjectMetadata thumbnailMetadata = new ObjectMetadata();
-            thumbnailMetadata.setContentType(image.getContentType());
+                InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+                ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image, thumbnailOutputStream);
 
-            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
-            addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
+                uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+                addImageUrlFromS3(thumbnailKey, thumbnailImageUrls);
+            }
         }
+
         return thumbnailImageUrls;
+    }
+
+    private static ObjectMetadata createMetadataForThumbnail(MultipartFile image,
+        ByteArrayOutputStream thumbnailOutputStream) {
+        ObjectMetadata thumbnailMetadata = new ObjectMetadata();
+        thumbnailMetadata.setContentType(image.getContentType());
+        thumbnailMetadata.setContentLength(thumbnailOutputStream.size());
+        return thumbnailMetadata;
+    }
+
+    private static void resizeForThumbnail(int thumbnailSize, InputStream originalImageStream,
+        ByteArrayOutputStream thumbnailOutputStream) throws IOException {
+        Thumbnails.of(originalImageStream)
+            .size(thumbnailSize, thumbnailSize)
+            .toOutputStream(thumbnailOutputStream);
     }
 
     public void deleteImageFromS3(String imageAddress) {
@@ -141,8 +187,7 @@ public class S3ImageService {
             case RESERVATION -> basePath = customerPath + memberId + reservationPath;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-
-        return basePath + imageType + uniqueId + "/" + fileName;
+        return basePath + imageType + uniqueId + fileName;
     }
 
     private void uploadToS3(String key, InputStream imageInputStream, ObjectMetadata metadata) {

@@ -97,7 +97,7 @@ public class PhotographerReservationController {
         @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
         @RequestParam(value = "status", required = false) String status,
         @RequestParam(value = "keyword", required = false) String keyword,
-        @PageableDefault(page = 0) Pageable pageable) {
+        @PageableDefault(size = 4) Pageable pageable) {
 
         Member member = memberAdapter.getMember();
         PastReservationResponse pastReservationResponse = photographerPastReservationService.getPastReservationList(

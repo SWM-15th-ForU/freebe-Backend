@@ -61,7 +61,7 @@ public class CustomerProductService {
             ProductListResponse productListResponse = ProductListResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
-                .productRepresentativeImageUrl(productImage.get(0).getOriginUrl())
+                .productRepresentativeImageUrl(productImage.get(0).getThumbnailUrl())
                 .build();
 
             productListResponseList.add(productListResponse);

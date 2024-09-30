@@ -78,8 +78,7 @@ public class PhotographerProductService {
     }
 
     public List<RegisteredProductResponse> getRegisteredProductList(Member member) {
-        List<Product> registeredProductList = productRepository.findByMember(member)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        List<Product> registeredProductList = productRepository.findByMember(member);
 
         return registeredProductList.stream()
             .map(product -> RegisteredProductResponse.builder()

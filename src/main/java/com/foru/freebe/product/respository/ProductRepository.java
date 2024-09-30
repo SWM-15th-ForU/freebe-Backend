@@ -6,10 +6,13 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    Optional<List<Product>> findByMember(Member member);
+    List<Product> findByMember(Member member);
+
+    List<Product> findByMemberAndActiveStatus(Member member, ActiveStatus activeStatus);
 
     Boolean existsByMemberAndTitle(Member member, String title);
 

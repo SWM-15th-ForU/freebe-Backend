@@ -10,6 +10,7 @@ import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.customer.ProductListResponse;
+import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductImage;
 import com.foru.freebe.product.respository.ProductImageRepository;
@@ -51,8 +52,7 @@ public class CustomerProductService {
 
         Member photographer = photographerProfile.getMember();
 
-        List<Product> products = productRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        List<Product> products = productRepository.findByMemberAndActiveStatus(photographer, ActiveStatus.ACTIVE);
 
         List<ProductListResponse> productListResponseList = new ArrayList<>();
         for (Product product : products) {
@@ -61,7 +61,7 @@ public class CustomerProductService {
             ProductListResponse productListResponse = ProductListResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
-                .productRepresentativeImageUrl(productImage.get(0).getOriginUrl())
+                .productRepresentativeImageUrl(productImage.get(0).getThumbnailUrl())
                 .build();
 
             productListResponseList.add(productListResponse);

@@ -1,7 +1,11 @@
 package com.foru.freebe.reservation.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.auth.model.MemberAdapter;
@@ -17,7 +22,9 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
+import com.foru.freebe.reservation.dto.PastReservationResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.service.PhotographerPastReservationService;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
@@ -32,6 +39,7 @@ public class PhotographerReservationController {
     private final PhotographerReservationService photographerReservationService;
     private final PhotographerReservationDetails photographerReservationDetails;
     private final ReservationService reservationService;
+    private final PhotographerPastReservationService photographerPastReservationService;
 
     @GetMapping("/reservation/list")
     public ResponseEntity<ResponseBody<List<FormListViewResponse>>> getReservationList(
@@ -76,6 +84,28 @@ public class PhotographerReservationController {
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update reservation status")
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @GetMapping("/reservation/list/past")
+    public ResponseEntity<ResponseBody<PastReservationResponse>> getPastReservationList(
+        @AuthenticationPrincipal MemberAdapter memberAdapter,
+        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
+        @RequestParam(value = "status", required = false) String status,
+        @RequestParam(value = "keyword", required = false) String keyword,
+        @PageableDefault(size = 4) Pageable pageable) {
+
+        Member member = memberAdapter.getMember();
+        PastReservationResponse pastReservationResponse = photographerPastReservationService.getPastReservationList(
+            member.getId(), from, to, status, keyword, pageable);
+
+        ResponseBody<PastReservationResponse> responseBody = ResponseBody.<PastReservationResponse>builder()
+            .message("Successfully get reservation list")
+            .data(pastReservationResponse)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

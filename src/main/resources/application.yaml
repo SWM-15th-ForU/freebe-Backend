@@ -52,7 +52,7 @@ cloud:
     region:
       static: ${AWS_REGION}
     s3:
-      bucket: ${AWS_S3_BUCKET}
+      bucket: ${AWS_S3_DATA_BUCKET}
       base-path:
         original: ${AWS_S3_ORIGINAL_PATH}
         thumbnail: ${AWS_S3_THUMBNAIL_PATH}

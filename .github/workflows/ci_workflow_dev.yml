@@ -10,9 +10,9 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     env:
-      SPRING_DATASOURCE_URL: 'jdbc:mysql://freebe-database.cvqyku8gmbgo.ap-northeast-2.rds.amazonaws.com:3306/freebe_rds'
-      SPRING_DATASOURCE_USERNAME: 'yuseok'
-      SPRING_DATASOURCE_PASSWORD: 'dbtjrz123'
+      SPRING_DATASOURCE_URL: ${{ secrets.SPRING_DATASOURCE_URL }}
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 
     steps:
       - name: Checkout repository

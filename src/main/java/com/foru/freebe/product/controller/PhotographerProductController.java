@@ -22,6 +22,7 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.ProductTitleResponse;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -132,6 +133,22 @@ public class PhotographerProductController {
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully delete product")
             .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @GetMapping("/product/title")
+    public ResponseEntity<ResponseBody<List<ProductTitleResponse>>> getAllProductTitle(
+        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+        Member photographer = memberAdapter.getMember();
+
+        List<ProductTitleResponse> responseData = photographerProductService.getAllProductTitle(photographer.getId());
+
+        ResponseBody<List<ProductTitleResponse>> responseBody = ResponseBody.<List<ProductTitleResponse>>builder()
+            .message("Successfully retrieved list of product titles")
+            .data(responseData)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

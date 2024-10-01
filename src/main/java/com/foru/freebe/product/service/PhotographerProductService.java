@@ -1,6 +1,7 @@
 package com.foru.freebe.product.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -22,6 +23,7 @@ import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.ProductTitleResponse;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -135,6 +137,27 @@ public class PhotographerProductService {
         }
 
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
+    }
+
+    public List<ProductTitleResponse> getAllProductTitle(Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        List<Product> productList = productRepository.findByMember(photographer);
+
+        List<ProductTitleResponse> productTitleResponseList = new ArrayList<>();
+        for (Product product : productList) {
+            String title = product.getTitle();
+            Long productId = product.getId();
+
+            ProductTitleResponse productTitleResponse = ProductTitleResponse.builder()
+                .title(title)
+                .productId(productId)
+                .build();
+
+            productTitleResponseList.add(productTitleResponse);
+        }
+
+        return productTitleResponseList;
     }
 
     private void updateProductCompositionExcludingImage(UpdateProductDetailRequest updateProductDetailRequest,

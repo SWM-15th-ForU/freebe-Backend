@@ -80,6 +80,10 @@ public class ProfileService {
 
         if (bannerImageFile != null) {
             updateBannerImage(profileImage, bannerImageFile, photographer.getId());
+        } else {
+            String bannerImageUrl = profileImage.getBannerOriginUrl();
+            s3ImageService.deleteImageFromS3(bannerImageUrl);
+            profileImage.assignBannerOriginUrl(null);
         }
 
         if (profileImageFile != null) {

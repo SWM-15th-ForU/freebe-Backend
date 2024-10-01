@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -99,6 +100,7 @@ class PhotographerProductServiceTest {
         // Mock MultipartFile
         MultipartFile image = mock(MultipartFile.class);
         List<MultipartFile> images = Arrays.asList(image);
+        SingleImageLink singleImageLink = new SingleImageLink("new_origin_url", "new_thumbnail_url");
 
         // Mock 행동 정의
         when(memberRepository.findById(photographerId)).thenReturn(Optional.of(photographer));
@@ -106,10 +108,8 @@ class PhotographerProductServiceTest {
         when(productImageRepository.findByProduct(product)).thenReturn(productImages);
         when(productImageRepository.findByThumbnailUrl("existing_thumbnail_url_1"))
             .thenReturn(Optional.of(productImage1));
-        when(s3ImageService.uploadOriginalImage(any(MultipartFile.class), any(S3ImageType.class), anyLong()))
-            .thenReturn("new_origin_url");
-        when(s3ImageService.uploadThumbnailImage(any(MultipartFile.class), any(S3ImageType.class), anyLong(), anyInt()))
-            .thenReturn("new_thumbnail_url");
+        when(s3ImageService.imageUploadToS3(any(MultipartFile.class), any(S3ImageType.class), anyLong(), true))
+            .thenReturn(singleImageLink);
 
         // 서비스 메서드 실행
         photographerProductService.updateProductDetail(images, request, photographerId);

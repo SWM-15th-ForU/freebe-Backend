@@ -2,14 +2,13 @@ package com.foru.freebe.profile.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ImageLinkSet;
+import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -32,8 +31,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
-    private static final int PROFILE_THUMBNAIL_SIZE = 100;
-
     private final ProfileRepository profileRepository;
     private final LinkRepository linkRepository;
     private final ProfileImageRepository profileImageRepository;
@@ -141,10 +138,9 @@ public class ProfileService {
             s3ImageService.deleteImageFromS3(bannerImageUrl);
         }
 
-        List<MultipartFile> bannerImages = Collections.singletonList(imageFile);
-        ImageLinkSet bannerImageLinkSet = s3ImageService.imageUploadToS3(bannerImages, S3ImageType.PROFILE, id);
+        SingleImageLink bannerImageLink = s3ImageService.imageUploadToS3(imageFile, S3ImageType.PROFILE, id, false);
 
-        String newBannerImageUrl = bannerImageLinkSet.getFirstOriginUrl();
+        String newBannerImageUrl = bannerImageLink.getOriginalUrl();
         profileImage.assignBannerOriginUrl(newBannerImageUrl);
 
         profileImageRepository.save(profileImage);
@@ -158,12 +154,9 @@ public class ProfileService {
             s3ImageService.deleteImageFromS3(profileImageThumbnailUrl);
         }
 
-        List<MultipartFile> profileImages = Collections.singletonList(imageFile);
-        ImageLinkSet profileImageLinkSet = s3ImageService.imageUploadToS3(profileImages, S3ImageType.PROFILE, id,
-            PROFILE_THUMBNAIL_SIZE);
-
-        String originalImageUrl = profileImageLinkSet.getFirstOriginUrl();
-        String thumbnailImageUrl = profileImageLinkSet.getFirstThumbnailUrl();
+        SingleImageLink profileImageLink = s3ImageService.imageUploadToS3(imageFile, S3ImageType.PROFILE, id, true);
+        String originalImageUrl = profileImageLink.getOriginalUrl();
+        String thumbnailImageUrl = profileImage.getProfileThumbnailUrl();
 
         profileImage.assignProfileOriginUrl(originalImageUrl);
         profileImage.assignProfileThumbnailUrl(thumbnailImageUrl);

@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,9 +18,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ImageLinkSet;
+import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -181,17 +179,14 @@ class ProfileServiceTest {
             MockMultipartFile bannerImageFile = createMockMultipartFile("banner");
             MockMultipartFile profileImageFile = createMockMultipartFile("profile");
 
-            ImageLinkSet bannerImageLinkSet = new ImageLinkSet(Collections.singletonList("originUrl"), null);
-            List<MultipartFile> bannerImageFiles = Collections.singletonList(bannerImageFile);
+            SingleImageLink bannerImageLinkSet = new SingleImageLink("originUrl", null);
             when(
-                s3ImageService.imageUploadToS3(bannerImageFiles, S3ImageType.PROFILE, photographer.getId())).thenReturn(
-                bannerImageLinkSet);
+                s3ImageService.imageUploadToS3(bannerImageFile, S3ImageType.PROFILE, photographer.getId(),
+                    false)).thenReturn(bannerImageLinkSet);
 
-            ImageLinkSet profileImageLinkSet = new ImageLinkSet(Collections.singletonList("originUrl"),
-                Collections.singletonList("thumbnailUrl"));
-            List<MultipartFile> profileImageFiles = Collections.singletonList(profileImageFile);
-            when(s3ImageService.imageUploadToS3(profileImageFiles, S3ImageType.PROFILE, photographer.getId(),
-                100)).thenReturn(profileImageLinkSet);
+            SingleImageLink profileImageLinkSet = new SingleImageLink("originUrl", "thumbnailUrl");
+            when(s3ImageService.imageUploadToS3(profileImageFile, S3ImageType.PROFILE, photographer.getId(),
+                false)).thenReturn(profileImageLinkSet);
 
             // when
             profileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);
@@ -230,17 +225,13 @@ class ProfileServiceTest {
             MockMultipartFile bannerImageFile = createMockMultipartFile("banner");
             MockMultipartFile profileImageFile = createMockMultipartFile("profile");
 
-            ImageLinkSet bannerImageLinkSet = new ImageLinkSet(Collections.singletonList("newBannerOriginUrl"), null);
-            List<MultipartFile> bannerImageFiles = Collections.singletonList(bannerImageFile);
-            when(
-                s3ImageService.imageUploadToS3(bannerImageFiles, S3ImageType.PROFILE, photographer.getId())).thenReturn(
-                bannerImageLinkSet);
+            SingleImageLink bannerImageLinkSet = new SingleImageLink("newBannerOriginUrl", null);
+            when(s3ImageService.imageUploadToS3(bannerImageFile, S3ImageType.PROFILE, photographer.getId(),
+                false)).thenReturn(bannerImageLinkSet);
 
-            ImageLinkSet profileImageLinkSet = new ImageLinkSet(Collections.singletonList("newProfileOriginUrl"),
-                Collections.singletonList("newProfileThumbnailUrl"));
-            List<MultipartFile> profileImageFiles = Collections.singletonList(profileImageFile);
-            when(s3ImageService.imageUploadToS3(profileImageFiles, S3ImageType.PROFILE, photographer.getId(),
-                100)).thenReturn(profileImageLinkSet);
+            SingleImageLink profileImageLinkSet = new SingleImageLink("newProfileOriginUrl", "newProfileThumbnailUrl");
+            when(s3ImageService.imageUploadToS3(profileImageFile, S3ImageType.PROFILE, photographer.getId(),
+                true)).thenReturn(profileImageLinkSet);
 
             // when
             profileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);

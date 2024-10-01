@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.ImageLinkSet;
+import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -46,7 +46,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PhotographerProductService {
-    private static final int PRODUCT_THUMBNAIL_SIZE = 200;
     private static final Logger log = LoggerFactory.getLogger(PhotographerProductService.class);
 
     private final ProductDetailConvertor productDetailConvertor;
@@ -129,7 +128,7 @@ public class PhotographerProductService {
             if (isExistingImage(existingUrl)) {
                 rearrangeOrderOfExistingUrl(existingUrl, product);
             } else {
-                saveNewProductImage(images, photographerId, newImageCount, product);
+                saveNewProductImage(images.get(newImageCount), photographerId, product);
                 newImageCount += 1;
             }
         }
@@ -148,17 +147,13 @@ public class PhotographerProductService {
         updateProductDiscount(updateProductDetailRequest, productDiscounts, product);
     }
 
-    private void saveNewProductImage(List<MultipartFile> images, Long photographerId, int newImageCount,
-        Product product) throws
-        IOException {
-        MultipartFile image = images.get(newImageCount);
-        String originalUrl = s3ImageService.uploadOriginalImage(image, S3ImageType.PRODUCT,
-            photographerId);
-        String thumbnailUrl = s3ImageService.uploadThumbnailImage(image, S3ImageType.PRODUCT,
-            photographerId,
-            PRODUCT_THUMBNAIL_SIZE);
-        ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl,
-            originalUrl, product);
+    private void saveNewProductImage(MultipartFile image, Long photographerId, Product product) throws IOException {
+        SingleImageLink productImageLink = s3ImageService.imageUploadToS3(image, S3ImageType.PRODUCT, photographerId,
+            true);
+
+        ProductImage updateProductImage = ProductImage.createProductImage(productImageLink.getThumbnailUrl(),
+            productImageLink.getOriginalUrl(), product);
+
         productImageRepository.save(updateProductImage);
     }
 
@@ -308,20 +303,27 @@ public class PhotographerProductService {
     private void registerProductImage(List<MultipartFile> images, Product product, Long photographerId) throws
         IOException {
 
+        validateProductImage(images);
+
+        ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, photographerId,
+            true);
+        saveProductImages(product, productImageLinkSet);
+    }
+
+    private void saveProductImages(Product product, ImageLinkSet productImageLinkSet) {
+        List<String> originalImages = productImageLinkSet.getOriginUrls();
+        List<String> thumbnailImages = productImageLinkSet.getThumbnailUrls();
+        for (int i = 0; i < originalImages.size(); i++) {
+            ProductImage productImage = ProductImage.createProductImage(originalImages.get(i), thumbnailImages.get(i),
+                product);
+            productImageRepository.save(productImage);
+        }
+    }
+
+    private void validateProductImage(List<MultipartFile> images) {
         if (images.isEmpty()) {
             throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
         }
-
-        ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, photographerId,
-            PRODUCT_THUMBNAIL_SIZE);
-
-        IntStream.range(0, productImageLinkSet.getOriginUrl().size()).forEach(i -> {
-            ProductImage productImage = ProductImage.createProductImage(
-                productImageLinkSet.getThumbnailUrl().get(i),
-                productImageLinkSet.getOriginUrl().get(i),
-                product);
-            productImageRepository.save(productImage);
-        });
     }
 
     private void registerProductComponent(List<ProductComponentDto> productComponentDtoList, Product product) {

@@ -40,7 +40,7 @@ public class CustomerReservationController {
     public ResponseEntity<ResponseBody<Long>> registerReservationForm(
         @Valid @RequestPart("request") FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        @RequestPart(value = "images") List<MultipartFile> images) throws IOException {
 
         Member customer = memberAdapter.getMember();
         Long responseData = customerReservationService.registerReservationForm(customer.getId(), request, images);

@@ -2,13 +2,12 @@ package com.foru.freebe.reservation.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.foru.freebe.common.dto.ImageLinkSet;
+import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
@@ -16,6 +15,8 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.Product;
+import com.foru.freebe.product.entity.ProductImage;
+import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.product.service.ProductDetailConvertor;
 import com.foru.freebe.profile.entity.Profile;
@@ -38,8 +39,6 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class CustomerReservationService {
-    private static final int REFERENCE_THUMBNAIL_SIZE = 200;
-
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final MemberRepository memberRepository;
@@ -49,6 +48,7 @@ public class CustomerReservationService {
     private final ReservationVerifier reservationVerifier;
     private final S3ImageService s3ImageService;
     private final ProfileRepository profileRepository;
+    private final ProductImageRepository productImageRepository;
 
     @Transactional
     public Long registerReservationForm(Long id, FormRegisterRequest request, List<MultipartFile> images) throws
@@ -69,7 +69,7 @@ public class CustomerReservationService {
             ReservationStatus.NEW);
         reservationHistoryRepository.save(reservationHistory);
 
-        saveReferenceImages(images, reservationForm, customer.getId());
+        saveReferenceImages(request.getExistingImages(), images, reservationForm, customer.getId());
 
         return reservationForm.getId();
     }
@@ -110,17 +110,27 @@ public class CustomerReservationService {
             .build();
     }
 
-    private void saveReferenceImages(List<MultipartFile> images, ReservationForm reservationForm, Long id) throws
-        IOException {
+    private void saveReferenceImages(List<String> existingImages, List<MultipartFile> images,
+        ReservationForm reservationForm, Long customerId) throws IOException {
 
-        ImageLinkSet imageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.RESERVATION, id,
-            REFERENCE_THUMBNAIL_SIZE);
-
-        IntStream.range(0, imageLinkSet.getOriginUrl().size()).forEach(i -> {
-            ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(
-                imageLinkSet.getOriginUrl().get(i), imageLinkSet.getThumbnailUrl().get(i), reservationForm);
-            referenceImageRepository.save(referenceImage);
-        });
+        int imageIndex = 0;
+        for (String existingImage : existingImages) {
+            if (existingImage == null) {
+                SingleImageLink singleReferenceImage = s3ImageService.imageUploadToS3(images.get(imageIndex),
+                    S3ImageType.RESERVATION, customerId, true);
+                ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(
+                    singleReferenceImage.getOriginalUrl(), singleReferenceImage.getThumbnailUrl(), reservationForm);
+                referenceImageRepository.save(referenceImage);
+                imageIndex++;
+            } else {
+                ProductImage productImage = productImageRepository.findByThumbnailUrl(existingImage)
+                    .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+                String originImage = productImage.getOriginUrl();
+                ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originImage, existingImage,
+                    reservationForm);
+                referenceImageRepository.save(referenceImage);
+            }
+        }
     }
 
     private Member findMember(Long id) {

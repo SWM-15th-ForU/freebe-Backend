@@ -100,7 +100,7 @@ public class S3ImageService {
 
         switch (s3ImageType) {
             case PROFILE -> size = 100;
-            case PRODUCT -> size = 200;
+            case PRODUCT, RESERVATION -> size = 200;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 

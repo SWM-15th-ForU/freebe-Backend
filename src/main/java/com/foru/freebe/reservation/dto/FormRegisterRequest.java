@@ -34,7 +34,7 @@ public class FormRegisterRequest {
 
     @NotEmpty
     @Size(min = 1)
-    private List<String> referenceImages;
+    private List<String> existingImages;
 
     @Size(max = 300, message = "Memo cannot be longer than 300 characters")
     private String customerMemo;
@@ -48,3 +48,4 @@ public class FormRegisterRequest {
     @NotNull
     private Boolean photographerTermAgreement;
 }
+

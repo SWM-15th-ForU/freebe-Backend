@@ -1,8 +1,10 @@
 package com.foru.freebe.reservation.dto;
 
+import java.util.List;
 import java.util.Map;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -26,6 +28,10 @@ public class FormRegisterRequest {
     private Map<Integer, PreferredDate> preferredDates;
 
     private Map<Integer, PhotoOption> photoOptions;
+
+    @NotEmpty
+    @Size(min = 1)
+    private List<String> referenceImages;
 
     @Size(max = 300, message = "Memo cannot be longer than 300 characters")
     private String customerMemo;

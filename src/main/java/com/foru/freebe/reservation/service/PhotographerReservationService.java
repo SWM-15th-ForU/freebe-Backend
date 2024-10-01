@@ -10,9 +10,11 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.photographer.ProductTitleDto;
+import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -26,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
 
     public List<FormListViewResponse> getReservationList(Long photographerId) {
         return getReservationListAsStatus(photographerId);
@@ -46,6 +49,11 @@ public class PhotographerReservationService {
         List<FormListViewResponse> formListViewResponses = new ArrayList<>();
 
         for (String title : titles) {
+            Boolean isExistingTitle = productRepository.existsByTitle(title);
+            if (!isExistingTitle) {
+                throw new RestApiException(ProductErrorCode.INVALID_PRODUCT_TITLE);
+            }
+
             List<ReservationForm> formList = reservationFormRepository.findByProductTitle(title);
 
             Map<ReservationStatus, List<FormComponent>> reservationStatusMap = groupingFormAsStatus(formList);

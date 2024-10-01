@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.product.dto.photographer.ProductTitleDto;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PastReservationResponse;
@@ -106,6 +107,23 @@ public class PhotographerReservationController {
         ResponseBody<PastReservationResponse> responseBody = ResponseBody.<PastReservationResponse>builder()
             .message("Successfully get reservation list")
             .data(pastReservationResponse)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @GetMapping("/reservation/filter")
+    public ResponseEntity<ResponseBody<List<FormListViewResponse>>> getFilteredReservationList(
+        @Valid @RequestBody List<ProductTitleDto> request, @AuthenticationPrincipal MemberAdapter memberAdapter) {
+
+        Member photographer = memberAdapter.getMember();
+        List<FormListViewResponse> responseData = photographerReservationService.getFilteredReservationList(
+            photographer.getId(), request);
+
+        ResponseBody<List<FormListViewResponse>> responseBody = ResponseBody.<List<FormListViewResponse>>builder()
+            .message("Successfully get reservation list")
+            .data(responseData)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

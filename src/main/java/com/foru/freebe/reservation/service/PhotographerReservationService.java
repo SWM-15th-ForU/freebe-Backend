@@ -9,6 +9,10 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.constants.SortConstants;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.product.dto.photographer.ProductTitleDto;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -21,9 +25,46 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
+    private final MemberRepository memberRepository;
 
     public List<FormListViewResponse> getReservationList(Long photographerId) {
         return getReservationListAsStatus(photographerId);
+    }
+
+    public List<FormListViewResponse> getFilteredReservationList(Long photographerId,
+        List<ProductTitleDto> productTitleList) {
+        validateIsExistedMember(photographerId);
+
+        List<String> productTitles = productTitleList.stream()
+            .map(ProductTitleDto::getTitle)
+            .collect(Collectors.toList());
+
+        return getReservationListAsTitles(productTitles);
+    }
+
+    private List<FormListViewResponse> getReservationListAsTitles(List<String> titles) {
+        List<FormListViewResponse> formListViewResponses = new ArrayList<>();
+
+        for (String title : titles) {
+            List<ReservationForm> formList = reservationFormRepository.findByProductTitle(title);
+
+            Map<ReservationStatus, List<FormComponent>> reservationStatusMap = groupingFormAsStatus(formList);
+
+            formListViewResponses.addAll(
+                reservationStatusMap.entrySet().stream()
+                    .map(entry -> new FormListViewResponse(entry.getKey(),
+                        sortFormComponents(entry.getKey(), entry.getValue())))
+                    .collect(Collectors.toList())
+            );
+        }
+
+        return formListViewResponses;
+    }
+
+    private void validateIsExistedMember(Long photographerId) {
+        if (!memberRepository.existsById(photographerId)) {
+            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        }
     }
 
     private List<FormListViewResponse> getReservationListAsStatus(Long id) {

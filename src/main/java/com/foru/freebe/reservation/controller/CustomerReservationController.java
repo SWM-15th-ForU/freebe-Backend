@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,12 +36,11 @@ public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
     private final ReservationService reservationService;
 
-    @PostMapping(value = "/reservation", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE,
-        MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(value = "/reservation")
     public ResponseEntity<ResponseBody<Long>> registerReservationForm(
-        @RequestPart("request") FormRegisterRequest request,
+        @Valid @RequestPart("request") FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        @RequestPart(value = "images") List<MultipartFile> images) throws IOException {
 
         Member customer = memberAdapter.getMember();
         Long responseData = customerReservationService.registerReservationForm(customer.getId(), request, images);

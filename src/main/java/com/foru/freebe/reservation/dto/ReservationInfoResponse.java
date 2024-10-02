@@ -23,7 +23,7 @@ public class ReservationInfoResponse {
     private Map<String, String> photoInfo;
 
     @NotNull
-    private Map<Integer, PreferredDate> preferredDate;
+    private Map<Integer, TimeSlot> preferredDate;
 
     private Map<Integer, PhotoOption> photoOptions;
 
@@ -31,7 +31,7 @@ public class ReservationInfoResponse {
 
     @Builder
     public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle,
-        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
+        Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
         Map<Integer, PhotoOption> photoOptions, String customerMemo) {
         this.reservationStatus = reservationStatus;
         this.productTitle = productTitle;

@@ -12,10 +12,10 @@ public class ShootingDate {
     private Long reservationFormId;
 
     @NotNull
-    private PreferredDate newShootingDate;
+    private TimeSlot newShootingDate;
 
     @Builder
-    public ShootingDate(Long reservationFormId, PreferredDate newShootingDate) {
+    public ShootingDate(Long reservationFormId, TimeSlot newShootingDate) {
         this.reservationFormId = reservationFormId;
         this.newShootingDate = newShootingDate;
     }

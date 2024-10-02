@@ -35,9 +35,9 @@ public class FormDetailsViewResponse {
     private Map<Integer, PhotoOption> photoOptions;
 
     @NotNull
-    private Map<Integer, PreferredDate> preferredDates;
+    private Map<Integer, TimeSlot> preferredDates;
 
-    private PreferredDate shootingDate;
+    private TimeSlot shootingDate;
 
     private List<String> originalImage;
 
@@ -51,7 +51,7 @@ public class FormDetailsViewResponse {
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
         Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
-        Map<Integer, PreferredDate> preferredDates, PreferredDate shootingDate, List<String> originalImage,
+        Map<Integer, TimeSlot> preferredDates, TimeSlot shootingDate, List<String> originalImage,
         List<String> thumbnailImage, String requestMemo, String photographerMemo) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
@@ -71,7 +71,7 @@ public class FormDetailsViewResponse {
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber,
         ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDates) {
+        Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
             .currentReservationStatus(currentReservationStatus)

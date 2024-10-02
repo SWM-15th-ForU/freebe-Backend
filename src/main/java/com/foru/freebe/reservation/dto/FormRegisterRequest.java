@@ -28,7 +28,7 @@ public class FormRegisterRequest {
     private Map<String, String> photoInfo;
 
     @NotNull
-    private Map<Integer, PreferredDate> preferredDates;
+    private Map<Integer, TimeSlot> preferredDates;
 
     private Map<Integer, PhotoOption> photoOptions;
 

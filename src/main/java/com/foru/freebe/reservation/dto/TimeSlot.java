@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class PreferredDate {
+public class TimeSlot {
     @NotNull
     private LocalDate date;
 
@@ -21,7 +21,7 @@ public class PreferredDate {
     private LocalTime endTime;
 
     @Builder
-    public PreferredDate(LocalDate date, LocalTime startTime, LocalTime endTime) {
+    public TimeSlot(LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.date = date;
         this.startTime = startTime;
         this.endTime = endTime;

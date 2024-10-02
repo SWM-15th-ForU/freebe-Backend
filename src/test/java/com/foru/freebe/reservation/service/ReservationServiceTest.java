@@ -23,9 +23,9 @@ import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
-import com.foru.freebe.reservation.dto.PreferredDate;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.ShootingDate;
+import com.foru.freebe.reservation.dto.TimeSlot;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
@@ -215,7 +215,7 @@ class ReservationServiceTest {
         Long formId = 1L;
 
         ReservationForm mockReservationForm = spy(ReservationForm.class);
-        PreferredDate shootingDate = PreferredDate.builder()
+        TimeSlot shootingDate = TimeSlot.builder()
             .date(LocalDate.of(2024, 10, 2))
             .startTime(LocalTime.parse("21:00"))
             .endTime(LocalTime.parse("23:00"))
@@ -251,7 +251,7 @@ class ReservationServiceTest {
 
         ShootingDate newShootingDate = ShootingDate.builder()
             .reservationFormId(formId)
-            .newShootingDate(PreferredDate.builder()
+            .newShootingDate(TimeSlot.builder()
                 .date(LocalDate.of(2024, 10, 2))
                 .startTime(LocalTime.parse("21:00"))
                 .endTime(LocalTime.parse("23:00"))
@@ -270,6 +270,6 @@ class ReservationServiceTest {
         verify(reservationFormRepository, times(1))
             .findByPhotographerIdAndId(photographerId, formId);
         verify(mockReservationForm, never())
-            .updateShootingDate(any(PreferredDate.class));
+            .updateShootingDate(any(TimeSlot.class));
     }
 }

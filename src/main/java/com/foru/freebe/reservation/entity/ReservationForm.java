@@ -126,4 +126,8 @@ public class ReservationForm extends BaseEntity {
             .photographerTermAgreement(photographerTermAgreement)
             .reservationStatus(reservationStatus);
     }
+
+    public void updateShootingDate(PreferredDate newShootingDate) {
+        this.shootingDate = newShootingDate;
+    }
 }

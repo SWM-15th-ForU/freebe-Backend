@@ -9,21 +9,36 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.constants.SortConstants;
+import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
+import com.foru.freebe.reservation.dto.ShootingDate;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
+    private final MemberRepository memberRepository;
 
     public List<FormListViewResponse> getReservationList(Long photographerId) {
         return getReservationListAsStatus(photographerId);
+    }
+
+    @Transactional
+    public void setShootingDate(Long photographerId, ShootingDate shootingDate) {
+        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId,
+                shootingDate.getReservationFormId())
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        reservationForm.updateShootingDate(shootingDate.getNewShootingDate());
     }
 
     private List<FormListViewResponse> getReservationListAsStatus(Long id) {

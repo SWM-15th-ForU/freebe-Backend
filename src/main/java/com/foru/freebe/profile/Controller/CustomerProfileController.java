@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.profile.dto.ProfileResponse;
-import com.foru.freebe.profile.service.ProfileService;
+import com.foru.freebe.profile.service.CustomerProfileService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,13 +18,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/customer")
 public class CustomerProfileController {
-    private final ProfileService profileService;
+    private final CustomerProfileService customerProfileService;
 
     @GetMapping("/profile/{profileName}")
     public ResponseEntity<ResponseBody<ProfileResponse>> getPhotographerProfile(
         @Valid @PathVariable("profileName") String profileName) {
 
-        ProfileResponse responseData = profileService.getPhotographerProfile(profileName);
+        ProfileResponse responseData = customerProfileService.getPhotographerProfile(profileName);
 
         ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
             .message("Good Response")

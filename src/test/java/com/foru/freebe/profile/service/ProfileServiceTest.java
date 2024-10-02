@@ -50,8 +50,11 @@ class ProfileServiceTest {
     @Mock
     private S3ImageService s3ImageService;
 
-    @InjectMocks
+    @Mock
     private ProfileService profileService;
+
+    @InjectMocks
+    private PhotographerProfileService photographerProfileService;
 
     private final Member photographer = createNewMember();
 
@@ -125,7 +128,7 @@ class ProfileServiceTest {
             when(linkRepository.findByProfile(profile)).thenReturn(links);
 
             // when
-            ProfileResponse response = profileService.getMyCurrentProfile(photographer);
+            ProfileResponse response = photographerProfileService.getMyCurrentProfile(photographer);
 
             // then
             assertEquals(response.getBannerImageUrl(), "https://freebe/banner/origin");
@@ -189,7 +192,7 @@ class ProfileServiceTest {
                 false)).thenReturn(profileImageLinkSet);
 
             // when
-            profileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);
+            photographerProfileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);
 
             // then
             verify(profile).updateIntroductionContent("Welcome to my profile");
@@ -234,7 +237,7 @@ class ProfileServiceTest {
                 true)).thenReturn(profileImageLinkSet);
 
             // when
-            profileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);
+            photographerProfileService.updateProfile(photographer, request, bannerImageFile, profileImageFile);
 
             // then
             verify(profile).updateIntroductionContent("Welcome to my profile");

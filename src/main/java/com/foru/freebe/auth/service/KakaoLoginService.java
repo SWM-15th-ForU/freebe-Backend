@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.dto.LoginResponse;
 import com.foru.freebe.auth.model.KakaoUser;
-import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
@@ -37,12 +37,30 @@ public class KakaoLoginService {
 
         LoginResponse.LoginResponseBuilder builder = LoginResponse.builder();
         builder = builder.token(token);
-        builder = validateRoleType(builder, member);
+        builder = validateRoleType(builder, member, role);
 
         return builder.build();
     }
 
+    private Member registerNewMember(KakaoUser kakaoUser, Role role) {
+        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
+                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
+            .birthyear(kakaoUser.getBirthYear())
+            .gender(kakaoUser.getGender())
+            .build();
+        return memberRepository.save(newMember);
+    }
+
     private LoginResponse.LoginResponseBuilder validateRoleType(LoginResponse.LoginResponseBuilder builder,
+        Member member, Role requestedRole) {
+        if (member.getRole() == requestedRole) {
+            return handleSameRoleLogin(builder, member);
+        } else {
+            return handleRoleChange(builder, member, requestedRole);
+        }
+    }
+
+    private LoginResponse.LoginResponseBuilder handleSameRoleLogin(LoginResponse.LoginResponseBuilder builder,
         Member member) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
             return builder.message("photographer login")
@@ -54,15 +72,23 @@ public class KakaoLoginService {
             return builder.message("customer login")
                 .profileName(null);
         }
-        throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+        throw new RestApiException(MemberErrorCode.INVALID_LOGIN_REQUEST);
     }
 
-    private Member registerNewMember(KakaoUser kakaoUser, Role role) {
-        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
-                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
-            .birthyear(kakaoUser.getBirthYear())
-            .gender(kakaoUser.getGender())
-            .build();
-        return memberRepository.save(newMember);
+    private LoginResponse.LoginResponseBuilder handleRoleChange(LoginResponse.LoginResponseBuilder builder,
+        Member member, Role requestedRole) {
+        if (member.getRole() == Role.PHOTOGRAPHER && requestedRole == Role.CUSTOMER) {
+            return builder.message("customer login")
+                .profileName(null);
+        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING && requestedRole == Role.CUSTOMER) {
+            member.assignRole(Role.CUSTOMER);
+            return builder.message("customer login")
+                .profileName(null);
+        } else if (member.getRole() == Role.CUSTOMER && requestedRole == Role.PHOTOGRAPHER) {
+            member.assignRole(Role.PHOTOGRAPHER_PENDING);
+            return builder.message("photographer join")
+                .profileName(null);
+        }
+        throw new RestApiException(MemberErrorCode.INVALID_LOGIN_REQUEST);
     }
 }

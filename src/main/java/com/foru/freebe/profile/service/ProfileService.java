@@ -72,20 +72,92 @@ public class ProfileService {
         Profile profile = getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
-        if (request.getIntroductionContent() != null) {
-            profile.updateIntroductionContent(request.getIntroductionContent());
+        updateIntroductionContent(profile, request.getIntroductionContent());
+        updateLinks(profile, request.getLinkInfos());
+        updateBannerImage(photographer, request, bannerImageFile, profileImage);
+        updateProfileImage(photographer, profileImageFile, profileImage);
+    }
+
+    private void updateIntroductionContent(Profile profile, String newIntroductionContent) {
+        if (newIntroductionContent != null) {
+            profile.updateIntroductionContent(newIntroductionContent);
+        }
+    }
+
+    private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
+        List<Link> existingLinks = linkRepository.findByProfile(profile);
+
+        List<String> incomingLinkTitles = new ArrayList<>();
+        for (LinkInfo linkInfo : linkInfos) {
+            if (linkInfo.getLinkTitle() != null) {
+                String linkTitle = linkInfo.getLinkTitle();
+                incomingLinkTitles.add(linkTitle);
+            }
         }
 
-        updateLinks(profile, request.getLinkInfos());
+        // 삭제할 링크 식별
+        existingLinks.stream()
+            .filter(link -> !incomingLinkTitles.contains(link.getTitle()))
+            .forEach(linkRepository::delete);
+
+        // 갱신 및 추가 처리
+        for (LinkInfo linkInfo : linkInfos) {
+            Link existingLink = existingLinks.stream()
+                .filter(link -> link.getTitle().equals(linkInfo.getLinkTitle()))
+                .findFirst()
+                .orElse(null);
+
+            if (existingLink == null) {
+                // 기존에 없는 새로운 링크 추가
+                Link newLink = Link.builder()
+                    .profile(profile)
+                    .title(linkInfo.getLinkTitle())
+                    .url(linkInfo.getLinkUrl())
+                    .build();
+                linkRepository.save(newLink);
+            } else { // 기존 링크 갱신 (URL이 변경된 경우)
+                if (isLinkInfoChanged(existingLink, linkInfo)) {
+                    existingLink.assignLinkUrl(linkInfo.getLinkUrl());
+                }
+            }
+        }
+    }
+
+    private void updateBannerImage(Member photographer, UpdateProfileRequest request, MultipartFile bannerImageFile,
+        ProfileImage profileImage) throws IOException {
 
         if (bannerImageFile != null) {
-            updateBannerImage(profileImage, bannerImageFile, photographer.getId());
-        } else {
-            String bannerImageUrl = profileImage.getBannerOriginUrl();
+            registerNewBannerImage(profileImage, bannerImageFile, photographer.getId());
+
+        } else if (request.getExistingBannerImageUrl() != null) {
+            deleteCurrentBannerImage(profileImage);
+        }
+    }
+
+    private void registerNewBannerImage(ProfileImage profileImage, MultipartFile newImage, Long photographerId) throws
+        IOException {
+
+        deleteCurrentBannerImage(profileImage);
+
+        SingleImageLink bannerImageLink = s3ImageService.imageUploadToS3(newImage, S3ImageType.PROFILE, photographerId,
+            false);
+        String newBannerImageUrl = bannerImageLink.getOriginalUrl();
+
+        profileImage.assignBannerOriginUrl(newBannerImageUrl);
+        profileImageRepository.save(profileImage);
+    }
+
+    private void deleteCurrentBannerImage(ProfileImage profileImage) {
+        String bannerImageUrl = profileImage.getBannerOriginUrl();
+        if (bannerImageUrl != null) {
             s3ImageService.deleteImageFromS3(bannerImageUrl);
             profileImage.assignBannerOriginUrl(null);
         }
+    }
 
+    private void updateProfileImage(Member photographer, MultipartFile profileImageFile,
+        ProfileImage profileImage) throws
+        IOException {
         if (profileImageFile != null) {
             updateProfileImage(profileImage, profileImageFile, photographer.getId());
         }
@@ -136,20 +208,6 @@ public class ProfileService {
             .orElse(ProfileImage.builder().profile(photographerProfile).build());
     }
 
-    private void updateBannerImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
-        String bannerImageUrl = profileImage.getBannerOriginUrl();
-        if (bannerImageUrl != null) {
-            s3ImageService.deleteImageFromS3(bannerImageUrl);
-        }
-
-        SingleImageLink bannerImageLink = s3ImageService.imageUploadToS3(imageFile, S3ImageType.PROFILE, id, false);
-
-        String newBannerImageUrl = bannerImageLink.getOriginalUrl();
-        profileImage.assignBannerOriginUrl(newBannerImageUrl);
-
-        profileImageRepository.save(profileImage);
-    }
-
     private void updateProfileImage(ProfileImage profileImage, MultipartFile imageFile, Long id) throws IOException {
         String profileImageOriginUrl = profileImage.getProfileOriginUrl();
         String profileImageThumbnailUrl = profileImage.getProfileThumbnailUrl();
@@ -166,45 +224,6 @@ public class ProfileService {
         profileImage.assignProfileThumbnailUrl(thumbnailImageUrl);
 
         profileImageRepository.save(profileImage);
-    }
-
-    private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
-        List<Link> existingLinks = linkRepository.findByProfile(profile);
-
-        List<String> incomingLinkTitles = new ArrayList<>();
-        for (LinkInfo linkInfo : linkInfos) {
-            if (linkInfo.getLinkTitle() != null) {
-                String linkTitle = linkInfo.getLinkTitle();
-                incomingLinkTitles.add(linkTitle);
-            }
-        }
-
-        // 삭제할 링크 식별
-        existingLinks.stream()
-            .filter(link -> !incomingLinkTitles.contains(link.getTitle()))
-            .forEach(linkRepository::delete);
-
-        // 갱신 및 추가 처리
-        for (LinkInfo linkInfo : linkInfos) {
-            Link existingLink = existingLinks.stream()
-                .filter(link -> link.getTitle().equals(linkInfo.getLinkTitle()))
-                .findFirst()
-                .orElse(null);
-
-            if (existingLink == null) {
-                // 기존에 없는 새로운 링크 추가
-                Link newLink = Link.builder()
-                    .profile(profile)
-                    .title(linkInfo.getLinkTitle())
-                    .url(linkInfo.getLinkUrl())
-                    .build();
-                linkRepository.save(newLink);
-            } else { // 기존 링크 갱신 (URL이 변경된 경우)
-                if (isLinkInfoChanged(existingLink, linkInfo)) {
-                    existingLink.assignLinkUrl(linkInfo.getLinkUrl());
-                }
-            }
-        }
     }
 
     private Profile createMemberProfile(Member member, String profileName) {

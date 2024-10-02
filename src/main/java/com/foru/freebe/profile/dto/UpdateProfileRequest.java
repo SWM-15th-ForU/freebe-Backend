@@ -10,11 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateProfileRequest {
     private String introductionContent;
+    private String existingBannerImageUrl;
     private List<LinkInfo> linkInfos;
 
     @Builder
-    public UpdateProfileRequest(String introductionContent, List<LinkInfo> linkInfos) {
+    public UpdateProfileRequest(String introductionContent, String existingBannerImageUrl, List<LinkInfo> linkInfos) {
         this.introductionContent = introductionContent;
+        this.existingBannerImageUrl = existingBannerImageUrl;
         this.linkInfos = linkInfos;
     }
 }

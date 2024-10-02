@@ -93,7 +93,7 @@ public class ProductDetailConvertor {
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
         List<String> productImageUrls = new ArrayList<>();
         for (ProductImage productImage : productImages) {
-            productImageUrls.add(productImage.getOriginUrl());
+            productImageUrls.add(productImage.getThumbnailUrl());
         }
         return productImageUrls;
     }

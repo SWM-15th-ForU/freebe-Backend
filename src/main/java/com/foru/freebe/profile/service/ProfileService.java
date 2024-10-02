@@ -41,12 +41,12 @@ public class ProfileService {
 
     public Profile getProfile(String profileName) {
         return profileRepository.findByProfileName(profileName)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NAME_NOT_FOUND));
     }
 
     public Profile getProfile(Member photographer) {
         return profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
     }
 
     public String getProfileName(Long id) {
@@ -86,7 +86,7 @@ public class ProfileService {
 
     private Profile getProfile(Long memberId) {
         return profileRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
     }
 
     private List<LinkInfo> getProfileLinkInfos(Profile profile) {

@@ -27,7 +27,6 @@ public class Member extends BaseEntity {
     @Column(name = "member_id")
     private Long id;
 
-    @NotNull
     private Long kakaoId;
 
     @Enumerated(EnumType.STRING)
@@ -60,6 +59,14 @@ public class Member extends BaseEntity {
 
     public String getAuthority() {
         return "ROLE_" + role.name();
+    }
+
+    public void updateMemberRole(Role updateRole) {
+        this.role = updateRole;
+    }
+
+    public void deleteKakaoId() {
+        this.kakaoId = null;
     }
 
     @Builder

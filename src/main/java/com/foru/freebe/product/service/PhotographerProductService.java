@@ -136,6 +136,30 @@ public class PhotographerProductService {
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
     }
 
+    @Transactional
+    public void deleteProduct(Long productId, Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        Product product = productRepository.findByIdAndMember(productId, photographer)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        List<ProductImage> productImages = productImageRepository.findByProduct(product);
+        for (ProductImage productImage : productImages) {
+            String originUrl = productImage.getOriginUrl();
+            String thumbnailUrl = productImage.getThumbnailUrl();
+
+            s3ImageService.deleteImageFromS3(originUrl);
+            s3ImageService.deleteImageFromS3(thumbnailUrl);
+        }
+
+        productImageRepository.deleteByProduct(product);
+        productComponentRepository.deleteByProduct(product);
+        productOptionRepository.deleteByProduct(product);
+        productDiscountRepository.deleteByProduct(product);
+
+        productRepository.delete(product);
+    }
+
     private void updateProductCompositionExcludingImage(UpdateProductDetailRequest updateProductDetailRequest,
         Product product) {
         List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
@@ -192,30 +216,6 @@ public class PhotographerProductService {
         ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl, originUrl, product);
         productImageRepository.save(updateProductImage);
         productImageRepository.deleteById(oldImageId);
-    }
-
-    @Transactional
-    public void deleteProduct(Long productId, Long photographerId) {
-        Member photographer = getMember(photographerId);
-
-        Product product = productRepository.findByIdAndMember(productId, photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        List<ProductImage> productImages = productImageRepository.findByProduct(product);
-        for (ProductImage productImage : productImages) {
-            String originUrl = productImage.getOriginUrl();
-            String thumbnailUrl = productImage.getThumbnailUrl();
-
-            s3ImageService.deleteImageFromS3(originUrl);
-            s3ImageService.deleteImageFromS3(thumbnailUrl);
-        }
-
-        productImageRepository.deleteByProduct(product);
-        productComponentRepository.deleteByProduct(product);
-        productOptionRepository.deleteByProduct(product);
-        productDiscountRepository.deleteByProduct(product);
-
-        productRepository.delete(product);
     }
 
     private void updateProductDiscount(UpdateProductDetailRequest updateProductDetailRequest,

@@ -3,6 +3,7 @@ package com.foru.freebe.auth.controller;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.auth.dto.LoginRequest;
 import com.foru.freebe.auth.dto.LoginResponse;
 import com.foru.freebe.auth.model.KakaoUser;
+import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.auth.service.KakaoAuthService;
 import com.foru.freebe.auth.service.KakaoLoginService;
+import com.foru.freebe.auth.service.KakaoUnlinkService;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
+import com.foru.freebe.member.entity.Member;
 
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ public class AuthController {
     private final JwtService jwtService;
     private final KakaoAuthService kakaoAuthService;
     private final KakaoLoginService kakaoLoginService;
+    private final KakaoUnlinkService kakaoUnlinkService;
 
     @PostMapping("/login")
     public ResponseEntity<ResponseBody<?>> login(@RequestBody LoginRequest loginRequest) {
@@ -57,5 +62,20 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK.value())
             .headers(headers)
             .body(null);
+    }
+
+    @PostMapping("/unlink")
+    public ResponseEntity<ResponseBody<Void>> unlinkKakao(@AuthenticationPrincipal MemberAdapter memberAdapter) {
+
+        Member member = memberAdapter.getMember();
+        kakaoUnlinkService.unlinkKakaoAccount(member.getId());
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully delete member")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED.value())
+            .body(responseBody);
     }
 }

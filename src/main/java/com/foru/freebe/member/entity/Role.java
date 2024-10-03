@@ -12,7 +12,9 @@ public enum Role {
     PHOTOGRAPHER_PENDING,
     @JsonProperty("PHOTOGRAPHER")
     PHOTOGRAPHER,
+    PHOTOGRAPHER_LEAVING,
     @JsonProperty("CUSTOMER")
     CUSTOMER,
+    CUSTOMER_LEAVING,
     ADMIN
 }

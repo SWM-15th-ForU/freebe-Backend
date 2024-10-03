@@ -39,6 +39,7 @@ public class ProductDetailConvertor {
         return ProductDetailResponse.builder()
             .productTitle(product.getTitle())
             .productDescription(product.getDescription())
+            .basicPrice(product.getBasicPrice())
             .productImageUrls(productImageUrls)
             .productComponents(productComponents)
             .productOptions(productOptions)

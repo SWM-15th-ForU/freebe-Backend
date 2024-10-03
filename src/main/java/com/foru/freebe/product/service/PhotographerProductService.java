@@ -59,20 +59,20 @@ public class PhotographerProductService {
     private final S3ImageService s3ImageService;
 
     @Transactional
-    public void registerProduct(ProductRegisterRequest productRegisterRequestDto,
-        List<MultipartFile> images, Long photographerId) throws IOException {
+    public void registerProduct(ProductRegisterRequest request, List<MultipartFile> images, Long photographerId) throws
+        IOException {
         Member photographer = getMember(photographerId);
 
-        Product productAsActive = registerActiveProduct(productRegisterRequestDto, photographer);
+        Product productAsActive = registerActiveProduct(request, photographer);
         registerProductImage(images, productAsActive, photographerId);
-        registerProductComponent(productRegisterRequestDto.getProductComponents(), productAsActive);
+        registerProductComponent(request.getProductComponents(), productAsActive);
 
-        if (productRegisterRequestDto.getProductOptions() != null) {
-            registerProductOption(productRegisterRequestDto.getProductOptions(), productAsActive);
+        if (request.getProductOptions() != null) {
+            registerProductOption(request.getProductOptions(), productAsActive);
         }
 
-        if (productRegisterRequestDto.getProductDiscounts() != null) {
-            registerDiscount(productRegisterRequestDto.getProductDiscounts(), productAsActive);
+        if (request.getProductDiscounts() != null) {
+            registerDiscount(request.getProductDiscounts(), productAsActive);
         }
     }
 
@@ -89,7 +89,7 @@ public class PhotographerProductService {
             .collect(Collectors.toList());
     }
 
-    public ProductDetailResponse getRegisteredProductInfo(Long productId, Long photographerId) {
+    public ProductDetailResponse getRegisteredProductDetails(Long productId, Long photographerId) {
         Member photographer = getMember(photographerId);
 
         Product product = productRepository.findByIdAndMember(productId, photographer)
@@ -119,6 +119,7 @@ public class PhotographerProductService {
 
         product.assignTitle(updateProductDetailRequest.getProductTitle());
         product.assignDescription(updateProductDetailRequest.getProductDescription());
+        product.assignBasicPrice(updateProductDetailRequest.getBasicPrice());
 
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
         deleteSelectedImageByUser(updateProductDetailRequest, productImages);
@@ -274,15 +275,16 @@ public class PhotographerProductService {
             .count();
     }
 
-    private Product registerActiveProduct(ProductRegisterRequest productRegisterRequestDto, Member photographer) {
-        String productTitle = productRegisterRequestDto.getProductTitle();
-        String productDescription = productRegisterRequestDto.getProductDescription();
+    private Product registerActiveProduct(ProductRegisterRequest request, Member photographer) {
+        String productTitle = request.getProductTitle();
+        String productDescription = request.getProductDescription();
+        Long basicPrice = request.getBasicPrice();
 
         Product productAsActive;
         if (isExistingImage(productDescription)) {
-            productAsActive = Product.createProductAsActive(productTitle, productDescription, photographer);
+            productAsActive = Product.createProductAsActive(productTitle, productDescription, basicPrice, photographer);
         } else {
-            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, photographer);
+            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, basicPrice, photographer);
         }
 
         validateProductTitleBeforeRegister(productTitle, photographer);

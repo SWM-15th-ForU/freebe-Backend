@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,23 +39,27 @@ public class Product extends BaseEntity {
     @NotNull
     private ActiveStatus activeStatus;
 
+    @NotBlank
+    private Long basicPrice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Product(String title, String description, ActiveStatus activeStatus, Member member) {
+    public Product(String title, String description, ActiveStatus activeStatus, Long basicPrice, Member member) {
         this.title = title;
         this.description = description;
         this.activeStatus = activeStatus;
+        this.basicPrice = basicPrice;
         this.member = member;
     }
 
-    public static Product createProductAsActive(String title, String description, Member member) {
-        return new Product(title, description, ActiveStatus.ACTIVE, member);
+    public static Product createProductAsActive(String title, String description, Long basicPrice, Member member) {
+        return new Product(title, description, ActiveStatus.ACTIVE, basicPrice, member);
     }
 
-    public static Product createProductAsActiveWithoutDescription(String title, Member member) {
-        return new Product(title, null, ActiveStatus.ACTIVE, member);
+    public static Product createProductAsActiveWithoutDescription(String title, Long basicPrice, Member member) {
+        return new Product(title, null, ActiveStatus.ACTIVE, basicPrice, member);
     }
 
     public void updateProductActiveStatus(ActiveStatus newStatus) {
@@ -70,5 +75,9 @@ public class Product extends BaseEntity {
 
     public void assignDescription(String newDescription) {
         this.description = newDescription;
+    }
+
+    public void assignBasicPrice(Long basicPrice) {
+        this.basicPrice = basicPrice;
     }
 }

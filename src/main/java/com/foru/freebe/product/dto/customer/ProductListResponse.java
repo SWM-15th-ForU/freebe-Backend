@@ -15,13 +15,18 @@ public class ProductListResponse {
     @NotBlank
     private String productTitle;
 
+    @NotNull
+    private Long basicPrice;
+
     @NotBlank
     private String productRepresentativeImageUrl;
 
     @Builder
-    public ProductListResponse(Long productId, String productTitle, String productRepresentativeImageUrl) {
+    public ProductListResponse(Long productId, String productTitle, Long basicPrice,
+        String productRepresentativeImageUrl) {
         this.productId = productId;
         this.productTitle = productTitle;
+        this.basicPrice = basicPrice;
         this.productRepresentativeImageUrl = productRepresentativeImageUrl;
     }
 }

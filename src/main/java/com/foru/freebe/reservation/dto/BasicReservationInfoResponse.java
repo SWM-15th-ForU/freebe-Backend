@@ -23,16 +23,20 @@ public class BasicReservationInfoResponse {
     private String instagramId;
 
     @NotNull
+    private Long basicPrice;
+
+    @NotNull
     private List<ProductComponentDto> productComponentDtoList;
 
     private List<ProductOptionDto> productOptionDtoList;
 
     @Builder
-    public BasicReservationInfoResponse(String name, String phoneNumber, String instagramId,
+    public BasicReservationInfoResponse(String name, String phoneNumber, String instagramId, Long basicPrice,
         List<ProductComponentDto> productComponentDtoList, List<ProductOptionDto> productOptionDtoList) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.instagramId = instagramId;
+        this.basicPrice = basicPrice;
         this.productComponentDtoList = productComponentDtoList;
         this.productOptionDtoList = productOptionDtoList;
     }

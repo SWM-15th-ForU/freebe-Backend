@@ -18,6 +18,9 @@ public class ProductRegisterRequest {
     @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String productDescription;
 
+    @NotNull(message = "Basic price must not be null")
+    private Long basicPrice;
+
     @NotNull(message = "Product components must not be null")
     private List<ProductComponentDto> productComponents;
 

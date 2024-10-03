@@ -21,6 +21,9 @@ public class ProductDetailResponse {
     private String productDescription;
 
     @NotNull
+    private Long basicPrice;
+
+    @NotNull
     private List<String> productImageUrls;
 
     @NotNull
@@ -31,11 +34,12 @@ public class ProductDetailResponse {
     private List<ProductDiscountDto> productDiscounts;
 
     @Builder
-    public ProductDetailResponse(String productTitle, String productDescription, List<String> productImageUrls,
-        List<ProductComponentDto> productComponents, List<ProductOptionDto> productOptions,
-        List<ProductDiscountDto> productDiscounts) {
+    public ProductDetailResponse(String productTitle, String productDescription, Long basicPrice,
+        List<String> productImageUrls, List<ProductComponentDto> productComponents,
+        List<ProductOptionDto> productOptions, List<ProductDiscountDto> productDiscounts) {
         this.productTitle = productTitle;
         this.productDescription = productDescription;
+        this.basicPrice = basicPrice;
         this.productImageUrls = productImageUrls;
         this.productComponents = productComponents;
         this.productOptions = productOptions;

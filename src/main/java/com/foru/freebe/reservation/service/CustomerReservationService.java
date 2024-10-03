@@ -98,6 +98,7 @@ public class CustomerReservationService {
             .name(customer.getName())
             .phoneNumber(customer.getPhoneNumber())
             .instagramId(customer.getInstagramId())
+            .basicPrice(product.getBasicPrice())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();
@@ -112,6 +113,7 @@ public class CustomerReservationService {
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
+            .basicPrice(reservationForm.getBasicPrice())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
             .photoOptions(reservationForm.getPhotoOption())
@@ -153,7 +155,7 @@ public class CustomerReservationService {
         Map<String, String> photoInfo = getProductComponentsTitleAndContent(productComponents);
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
-                request.getInstagramId(), product.getTitle(), request.getTotalPrice(),
+                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), request.getTotalPrice(),
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())

@@ -20,6 +20,9 @@ public class ReservationInfoResponse {
     private String productTitle;
 
     @NotNull
+    private Long basicPrice;
+
+    @NotNull
     private Map<String, String> photoInfo;
 
     @NotNull
@@ -30,11 +33,12 @@ public class ReservationInfoResponse {
     private String customerMemo;
 
     @Builder
-    public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle,
+    public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle, Long basicPrice,
         Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
         Map<Integer, PhotoOption> photoOptions, String customerMemo) {
         this.reservationStatus = reservationStatus;
         this.productTitle = productTitle;
+        this.basicPrice = basicPrice;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
         this.photoOptions = photoOptions;

@@ -17,7 +17,6 @@ import org.springframework.web.client.RestTemplate;
 
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.jwt.repository.JwtTokenRepository;
 import com.foru.freebe.member.entity.DeletedMember;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
@@ -33,38 +32,33 @@ import jakarta.transaction.Transactional;
 @Service
 public class KakaoUnlinkService {
     private final RestTemplate restTemplate;
-    private final MemberRepository memberRepository; // 회원 정보를 저장하는 Repository
+    private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final PhotographerProductService photographerProductService;
     private final ProfileService profileService;
     private final DeletedMemberRepository deletedMemberRepository;
-    private final JwtTokenRepository jwtTokenRepository;
 
     public KakaoUnlinkService(RestTemplateBuilder builder, MemberRepository memberRepository,
         ProductRepository productRepository, PhotographerProductService photographerProductService,
-        ProfileService profileService, DeletedMemberRepository deletedMemberRepository,
-        JwtTokenRepository jwtTokenRepository) {
+        ProfileService profileService, DeletedMemberRepository deletedMemberRepository) {
         restTemplate = builder.build();
         this.memberRepository = memberRepository;
         this.productRepository = productRepository;
         this.photographerProductService = photographerProductService;
         this.profileService = profileService;
         this.deletedMemberRepository = deletedMemberRepository;
-        this.jwtTokenRepository = jwtTokenRepository;
     }
 
     @Value("${KAKAO_API_ADMIN_KEY}")
-    private String adminKey; // 카카오 디벨로퍼스에서 발급받은 Admin Key
+    private String adminKey;
 
     @Transactional
     public void unlinkKakaoAccount(Long memberId) {
-        // 회원 정보에서 카카오 userId 조회
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         Long kakaoUserId = member.getKakaoId(); // 회원의 카카오 유저 ID
 
-        // 카카오 API에 보낼 헤더 및 파라미터 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set("Authorization", "KakaoAK " + adminKey);

@@ -17,15 +17,15 @@ public class FormRegisterRequest {
     @NotBlank(message = "Profile name must not be blank")
     private String profileName;
 
-    @NotNull
+    @NotNull(message = "Product id must not be null")
     private Long productId;
-    
+
     @NotBlank(message = "Instagram ID must not be blank")
     @Pattern(regexp = "^[a-z0-9_.]+$", message = "인스타그램 아이디 입력 형식이 틀렸습니다")
     @Size(min = 3, max = 30, message = "인스타그램 아이디는 최소 3자 이상 최대 30자 이하여야합니다")
     private String instagramId;
 
-    @NotNull
+    @NotNull(message = "Preferred dates must not be null")
     private Map<Integer, PreferredDate> preferredDates;
 
     private Map<Integer, PhotoOption> photoOptions;

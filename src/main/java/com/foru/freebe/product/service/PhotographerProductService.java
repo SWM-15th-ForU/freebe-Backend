@@ -334,7 +334,6 @@ public class PhotographerProductService {
                 .description(productComponentDto.getDescription())
                 .product(product)
                 .build();
-
             productComponentRepository.save(productComponent);
         }
     }

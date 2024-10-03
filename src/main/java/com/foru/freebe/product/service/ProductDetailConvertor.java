@@ -1,6 +1,7 @@
 package com.foru.freebe.product.service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -91,9 +92,12 @@ public class ProductDetailConvertor {
     }
 
     private List<String> getProductImageUrls(Product product, Boolean isOrigin) {
-        List<ProductImage> productImages = productImageRepository.findByProduct(product);
-        List<String> productImageUrls = new ArrayList<>();
+        List<ProductImage> productImages = productImageRepository.findByProduct(product)
+            .stream()
+            .sorted(Comparator.comparing(ProductImage::getImageOrder))
+            .toList();
 
+        List<String> productImageUrls = new ArrayList<>();
         if (isOrigin) {
             for (ProductImage productImage : productImages) {
                 productImageUrls.add(productImage.getOriginUrl());

@@ -80,6 +80,7 @@ public class PhotographerProductService {
             .map(product -> RegisteredProductResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
+                .representativeImage(getRepresentativeProductImage(product))
                 .reservationCount(getReservationCount(member.getId(), product.getTitle()))
                 .activeStatus(product.getActiveStatus())
                 .build())
@@ -355,5 +356,15 @@ public class PhotographerProductService {
                 .build();
             productDiscountRepository.save(productDiscount);
         }
+    }
+
+    private String getRepresentativeProductImage(Product product) {
+        List<ProductImage> productImage = productImageRepository.findByProduct(product);
+
+        return productImage.stream()
+            .filter(image -> image.getImageOrder() == 0)
+            .map(ProductImage::getThumbnailUrl)
+            .findFirst()
+            .orElseThrow(() -> new RestApiException(ProductImageErrorCode.PRODUCT_IMAGE_NOT_FOUND));
     }
 }

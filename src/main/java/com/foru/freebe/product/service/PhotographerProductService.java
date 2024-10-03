@@ -93,7 +93,7 @@ public class PhotographerProductService {
         Product product = productRepository.findByIdAndMember(productId, photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        return productDetailConvertor.convertProductToProductDetailResponse(product);
+        return productDetailConvertor.convertProductToProductDetailResponse(product, false);
     }
 
     @Transactional

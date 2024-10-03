@@ -30,8 +30,8 @@ public class ProductDetailConvertor {
     private final ProductOptionRepository productOptionRepository;
     private final ProductDiscountRepository productDiscountRepository;
 
-    public ProductDetailResponse convertProductToProductDetailResponse(Product product) {
-        List<String> productImageUrls = getProductImageUrls(product);
+    public ProductDetailResponse convertProductToProductDetailResponse(Product product, Boolean isOrigin) {
+        List<String> productImageUrls = getProductImageUrls(product, isOrigin);
         List<ProductComponentDto> productComponents = convertToProductComponentDtoList(product);
         List<ProductOptionDto> productOptions = convertToProductOptionDtoList(product);
         List<ProductDiscountDto> productDiscounts = convertToProductDiscountDtoList(product);
@@ -90,11 +90,18 @@ public class ProductDetailConvertor {
         return productComponentResponse;
     }
 
-    private List<String> getProductImageUrls(Product product) {
+    private List<String> getProductImageUrls(Product product, Boolean isOrigin) {
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
         List<String> productImageUrls = new ArrayList<>();
-        for (ProductImage productImage : productImages) {
-            productImageUrls.add(productImage.getThumbnailUrl());
+
+        if (isOrigin) {
+            for (ProductImage productImage : productImages) {
+                productImageUrls.add(productImage.getOriginUrl());
+            }
+        } else {
+            for (ProductImage productImage : productImages) {
+                productImageUrls.add(productImage.getThumbnailUrl());
+            }
         }
         return productImageUrls;
     }

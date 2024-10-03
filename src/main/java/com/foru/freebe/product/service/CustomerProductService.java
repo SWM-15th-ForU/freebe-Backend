@@ -43,7 +43,7 @@ public class CustomerProductService {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        return productDetailConvertor.convertProductToProductDetailResponse(product);
+        return productDetailConvertor.convertProductToProductDetailResponse(product, true);
     }
 
     public List<ProductListResponse> getProductList(String profileName) {

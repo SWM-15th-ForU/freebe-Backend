@@ -46,10 +46,10 @@ public class ProductImage extends BaseEntity {
         return new ProductImage(imageOrder, originUrl, thumbnailUrl, product);
     }
 
-    private ProductImage(int imageOrder, String thumbnailUrl, String originUrl, Product product) {
+    private ProductImage(int imageOrder, String originUrl, String thumbnailUrl, Product product) {
         this.imageOrder = imageOrder;
-        this.thumbnailUrl = thumbnailUrl;
         this.originUrl = originUrl;
+        this.thumbnailUrl = thumbnailUrl;
         this.product = product;
     }
 }

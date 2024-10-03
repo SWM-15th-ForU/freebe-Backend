@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,6 +12,7 @@ import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.errorcode.ProductImageErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
@@ -46,8 +45,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class PhotographerProductService {
-    private static final Logger log = LoggerFactory.getLogger(PhotographerProductService.class);
-
+    private final S3ImageService s3ImageService;
     private final ProductDetailConvertor productDetailConvertor;
     private final ProductRepository productRepository;
     private final ProductImageRepository productImageRepository;
@@ -56,7 +54,6 @@ public class PhotographerProductService {
     private final ProductDiscountRepository productDiscountRepository;
     private final MemberRepository memberRepository;
     private final ReservationFormRepository reservationFormRepository;
-    private final S3ImageService s3ImageService;
 
     @Transactional
     public void registerProduct(ProductRegisterRequest request, List<MultipartFile> images, Long photographerId) throws
@@ -121,19 +118,7 @@ public class PhotographerProductService {
         product.assignDescription(updateProductDetailRequest.getProductDescription());
         product.assignBasicPrice(updateProductDetailRequest.getBasicPrice());
 
-        List<ProductImage> productImages = productImageRepository.findByProduct(product);
-        deleteSelectedImageByUser(updateProductDetailRequest, productImages);
-
-        int newImageCount = 0;
-        for (String existingUrl : updateProductDetailRequest.getExistingUrls()) {
-            if (isExistingImage(existingUrl)) {
-                rearrangeOrderOfExistingUrl(existingUrl, product);
-            } else {
-                saveNewProductImage(images.get(newImageCount), photographerId, product);
-                newImageCount += 1;
-            }
-        }
-
+        updateProductImage(photographer.getId(), updateProductDetailRequest, images, product);
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
     }
 
@@ -148,32 +133,28 @@ public class PhotographerProductService {
         updateProductDiscount(updateProductDetailRequest, productDiscounts, product);
     }
 
-    private void saveNewProductImage(MultipartFile image, Long photographerId, Product product) throws IOException {
-        SingleImageLink productImageLink = s3ImageService.imageUploadToS3(image, S3ImageType.PRODUCT, photographerId,
-            true);
+    private void updateProductImage(Long photographerId, UpdateProductDetailRequest request,
+        List<MultipartFile> images, Product product) throws IOException {
 
-        ProductImage updateProductImage = ProductImage.createProductImage(productImageLink.getThumbnailUrl(),
-            productImageLink.getOriginalUrl(), product);
+        deleteRemovedImages(product, request.getExistingUrls());
 
-        productImageRepository.save(updateProductImage);
+        int imageIndex = 0;
+        int order = 0;
+        for (String existingUrl : request.getExistingUrls()) {
+            if (existingUrl == null) {
+                saveNewProductImage(order, images.get(imageIndex), photographerId, product);
+                imageIndex++;
+            } else {
+                reorderAlreadyExistingImage(existingUrl, order);
+            }
+            order++;
+        }
     }
 
-    private static boolean isExistingImage(String existingUrl) {
-        return existingUrl != null;
-    }
-
-    private void rearrangeOrderOfExistingUrl(String existingUrl, Product product) {
-        ProductImage productImage = productImageRepository.findByThumbnailUrl(existingUrl)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-
-        updateAndReplaceProductImage(productImage.getThumbnailUrl(), productImage.getOriginUrl(), product,
-            productImage.getId());
-    }
-
-    private void deleteSelectedImageByUser(UpdateProductDetailRequest updateProductDetailRequest,
-        List<ProductImage> productImages) {
+    private void deleteRemovedImages(Product product, List<String> existingUrls) {
+        List<ProductImage> productImages = productImageRepository.findByProduct(product);
         for (ProductImage productImage : productImages) {
-            boolean found = updateProductDetailRequest.getExistingUrls().stream()
+            boolean found = existingUrls.stream()
                 .anyMatch(existingUrl -> Objects.equals(productImage.getThumbnailUrl(), existingUrl));
 
             if (!found) {
@@ -188,11 +169,21 @@ public class PhotographerProductService {
         s3ImageService.deleteImageFromS3(productImage.getThumbnailUrl());
     }
 
-    private void updateAndReplaceProductImage(String thumbnailUrl, String originUrl, Product product,
-        Long oldImageId) {
-        ProductImage updateProductImage = ProductImage.createProductImage(thumbnailUrl, originUrl, product);
+    private void saveNewProductImage(int order, MultipartFile image, Long photographerId, Product product) throws
+        IOException {
+        SingleImageLink productImageLink = s3ImageService.imageUploadToS3(image, S3ImageType.PRODUCT, photographerId,
+            true);
+
+        ProductImage updateProductImage = ProductImage.createProductImage(order, productImageLink.getOriginalUrl(),
+            productImageLink.getThumbnailUrl(), product);
+
         productImageRepository.save(updateProductImage);
-        productImageRepository.deleteById(oldImageId);
+    }
+
+    private void reorderAlreadyExistingImage(String existingUrl, int order) {
+        ProductImage productImage = productImageRepository.findByThumbnailUrl(existingUrl)
+            .orElseThrow(() -> new RestApiException(ProductImageErrorCode.PRODUCT_IMAGE_NOT_FOUND));
+        productImage.updateImageOrder(order);
     }
 
     @Transactional
@@ -281,7 +272,7 @@ public class PhotographerProductService {
         Long basicPrice = request.getBasicPrice();
 
         Product productAsActive;
-        if (isExistingImage(productDescription)) {
+        if (productDescription != null) {
             productAsActive = Product.createProductAsActive(productTitle, productDescription, basicPrice, photographer);
         } else {
             productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, basicPrice, photographer);
@@ -316,8 +307,8 @@ public class PhotographerProductService {
         List<String> originalImages = productImageLinkSet.getOriginUrls();
         List<String> thumbnailImages = productImageLinkSet.getThumbnailUrls();
         for (int i = 0; i < originalImages.size(); i++) {
-            ProductImage productImage = ProductImage.createProductImage(originalImages.get(i), thumbnailImages.get(i),
-                product);
+            ProductImage productImage = ProductImage.createProductImage(i, originalImages.get(i),
+                thumbnailImages.get(i), product);
             productImageRepository.save(productImage);
         }
     }

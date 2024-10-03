@@ -61,7 +61,7 @@ public class ProfileService {
 
         return ProfileResponse.builder()
             .bannerImageUrl(profileImage != null ? profileImage.getBannerOriginUrl() : null)
-            .profileImageUrl(profileImage != null ? profileImage.getProfileThumbnailUrl() : null)
+            .profileImageUrl(profileImage != null ? profileImage.getProfileOriginUrl() : null)
             .profileName(profileName)
             .introductionContent(profile.getIntroductionContent())
             .linkInfos(linkInfos)

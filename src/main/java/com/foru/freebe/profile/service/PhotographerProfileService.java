@@ -45,8 +45,8 @@ public class PhotographerProfileService {
 
         updateIntroductionContent(profile, request.getIntroductionContent());
         updateLinks(profile, request.getLinkInfos());
-        updateBannerImage(photographer, request, bannerImageFile, profileImage);
-        updateProfileImage(photographer.getId(), profileImageFile, profileImage);
+        updateBannerImage(photographer.getId(), request.getExistingBannerImageUrl(), bannerImageFile, profileImage);
+        updateProfileImage(photographer.getId(), request.getExistingProfileImageUrl(), profileImageFile, profileImage);
     }
 
     private ProfileImage createProfileImageIfNotExists(Profile photographerProfile) {
@@ -99,45 +99,37 @@ public class PhotographerProfileService {
         }
     }
 
-    private void updateBannerImage(Member photographer, UpdateProfileRequest request, MultipartFile bannerImageFile,
-        ProfileImage profileImage) throws IOException {
-
-        if (bannerImageFile != null) {
-            registerNewBannerImage(profileImage, bannerImageFile, photographer.getId());
-
-        } else if (request.getExistingBannerImageUrl() != null) {
-            deleteCurrentBannerImage(profileImage);
-        }
-    }
-
-    private void updateProfileImage(Long photographerId, MultipartFile newImage, ProfileImage profileImage) throws
-        IOException {
-
-        if (newImage != null) {
-            deleteCurrentProfileImage(profileImage);
-
-            SingleImageLink profileImageLink = s3ImageService.imageUploadToS3(newImage, S3ImageType.PROFILE,
-                photographerId, true);
-            String originalImageUrl = profileImageLink.getOriginalUrl();
-            String thumbnailImageUrl = profileImage.getProfileThumbnailUrl();
-
-            profileImage.assignProfileOriginUrl(originalImageUrl);
-            profileImage.assignProfileThumbnailUrl(thumbnailImageUrl);
-            profileImageRepository.save(profileImage);
-        }
-    }
-
     private Boolean isLinkInfoChanged(Link existingLink, LinkInfo linkInfo) {
         return !existingLink.getUrl().equals(linkInfo.getLinkUrl()) || !existingLink.getTitle()
             .equals(linkInfo.getLinkTitle());
     }
-    
-    private void registerNewBannerImage(ProfileImage profileImage, MultipartFile newImage, Long photographerId) throws
-        IOException {
+
+    private void updateBannerImage(Long photographerId, String existingBannerImageUrl, MultipartFile newImageFile,
+        ProfileImage profileImage) throws IOException {
+
+        if (newImageFile != null) {
+            registerOrUpdateBannerImage(profileImage, newImageFile, photographerId);
+        } else if (existingBannerImageUrl == null) {
+            deleteCurrentBannerImage(profileImage);
+        }
+    }
+
+    private void updateProfileImage(Long photographerId, String existingProfileImageUrl, MultipartFile newImageFile,
+        ProfileImage profileImage) throws IOException {
+
+        if (newImageFile != null) {
+            registerOrUpdateProfileImage(profileImage, newImageFile, photographerId);
+        } else if (existingProfileImageUrl == null) {
+            deleteCurrentProfileImage(profileImage);
+        }
+    }
+
+    private void registerOrUpdateBannerImage(ProfileImage profileImage, MultipartFile newImage,
+        Long photographerId) throws IOException {
 
         deleteCurrentBannerImage(profileImage);
 
-        SingleImageLink bannerImageLink = s3ImageService.imageUploadToS3(newImage, S3ImageType.PROFILE, photographerId,
+        SingleImageLink bannerImageLink = s3ImageService.imageUploadToS3(newImage, S3ImageType.BANNER, photographerId,
             false);
         String newBannerImageUrl = bannerImageLink.getOriginalUrl();
 
@@ -145,20 +137,32 @@ public class PhotographerProfileService {
         profileImageRepository.save(profileImage);
     }
 
+    private void registerOrUpdateProfileImage(ProfileImage profileImage, MultipartFile newImage,
+        Long photographerId) throws IOException {
+
+        deleteCurrentProfileImage(profileImage);
+
+        SingleImageLink profileImageLink = s3ImageService.imageUploadToS3(newImage, S3ImageType.PROFILE, photographerId,
+            false);
+        String newProfileImageUrl = profileImageLink.getOriginalUrl();
+
+        profileImage.assignProfileOriginUrl(newProfileImageUrl);
+        profileImageRepository.save(profileImage);
+    }
+
     private void deleteCurrentBannerImage(ProfileImage profileImage) {
-        String bannerImageUrl = profileImage.getBannerOriginUrl();
-        if (bannerImageUrl != null) {
-            s3ImageService.deleteImageFromS3(bannerImageUrl);
+        String bannerOriginUrl = profileImage.getBannerOriginUrl();
+        if (bannerOriginUrl != null) {
+            s3ImageService.deleteImageFromS3(bannerOriginUrl);
             profileImage.assignBannerOriginUrl(null);
         }
     }
 
     private void deleteCurrentProfileImage(ProfileImage profileImage) {
         String profileImageOriginUrl = profileImage.getProfileOriginUrl();
-        String profileImageThumbnailUrl = profileImage.getProfileThumbnailUrl();
         if (profileImageOriginUrl != null) {
             s3ImageService.deleteImageFromS3(profileImageOriginUrl);
-            s3ImageService.deleteImageFromS3(profileImageThumbnailUrl);
+            profileImage.assignProfileOriginUrl(null);
         }
     }
 }

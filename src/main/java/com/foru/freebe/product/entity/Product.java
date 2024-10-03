@@ -15,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,7 +38,7 @@ public class Product extends BaseEntity {
     @NotNull
     private ActiveStatus activeStatus;
 
-    @NotBlank
+    @NotNull
     private Long basicPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)

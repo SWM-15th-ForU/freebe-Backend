@@ -25,6 +25,9 @@ public class ProductImage extends BaseEntity {
     private Long id;
 
     @NotNull
+    private int imageOrder;
+
+    @NotNull
     private String thumbnailUrl;
 
     @NotNull
@@ -34,14 +37,19 @@ public class ProductImage extends BaseEntity {
     @JoinColumn(name = "product_id")
     private Product product;
 
-    public static ProductImage createProductImage(String thumbnailUrl, String originUrl, Product product) {
-        return new ProductImage(thumbnailUrl, originUrl, product);
+    public void updateImageOrder(int imageOrder) {
+        this.imageOrder = imageOrder;
     }
 
-    private ProductImage(String thumbnailUrl, String originUrl, Product product) {
+    public static ProductImage createProductImage(int imageOrder, String originUrl, String thumbnailUrl,
+        Product product) {
+        return new ProductImage(imageOrder, originUrl, thumbnailUrl, product);
+    }
+
+    private ProductImage(int imageOrder, String thumbnailUrl, String originUrl, Product product) {
+        this.imageOrder = imageOrder;
         this.thumbnailUrl = thumbnailUrl;
         this.originUrl = originUrl;
         this.product = product;
     }
-
 }

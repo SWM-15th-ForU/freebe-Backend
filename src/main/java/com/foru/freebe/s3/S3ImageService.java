@@ -57,6 +57,9 @@ public class S3ImageService {
     @Value("${cloud.aws.s3.base-path.profile}")
     private String profilePath;
 
+    @Value("${cloud.aws.s3.base-path.banner}")
+    private String bannerPath;
+
     @Value("${cloud.aws.s3.base-path.reservation}")
     private String reservationPath;
 
@@ -101,6 +104,7 @@ public class S3ImageService {
         switch (s3ImageType) {
             case PROFILE -> size = 100;
             case PRODUCT, RESERVATION -> size = 200;
+            case BANNER -> size = 500;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
@@ -175,6 +179,7 @@ public class S3ImageService {
         switch (s3ImageType) {
             case PRODUCT -> basePath = photographerPath + memberId + productPath;
             case PROFILE -> basePath = photographerPath + memberId + profilePath;
+            case BANNER -> basePath = photographerPath + memberId + bannerPath;
             case RESERVATION -> basePath = customerPath + memberId + reservationPath;
             default -> throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }

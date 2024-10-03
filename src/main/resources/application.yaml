@@ -60,6 +60,7 @@ cloud:
         customer: ${AWS_S3_CUSTOMER_PATH}
         product: ${AWS_S3_PRODUCT_PATH}
         profile: ${AWS_S3_PROFILE_PATH}
+        banner: ${AWS_S3_BANNER_PATH}
         reservation: ${AWS_S3_RESERVATION_PATH}
 
 logging:

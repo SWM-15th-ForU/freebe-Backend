@@ -43,6 +43,7 @@ jobs:
           echo "AWS_S3_CUSTOMER_PATH=${{ secrets.AWS_S3_CUSTOMER_PATH }}" >> .env
           echo "AWS_S3_PRODUCT_PATH=${{ secrets.AWS_S3_PRODUCT_PATH }}" >> .env
           echo "AWS_S3_PROFILE_PATH=${{ secrets.AWS_S3_PROFILE_PATH }}" >> .env
+          echo "AWS_S3_BANNER_PATH=${{ secrets.AWS_S3_BANNER_PATH }}" >> .env
           echo "AWS_S3_RESERVATION_PATH=${{ secrets.AWS_S3_RESERVATION_PATH }}" >> .env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env

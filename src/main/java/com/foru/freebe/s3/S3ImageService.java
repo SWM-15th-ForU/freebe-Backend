@@ -162,7 +162,7 @@ public class S3ImageService {
         } catch (AmazonServiceException e) {
             throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
         } catch (Exception e) {
-            throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+            throw new RestApiException(AwsErrorCode.DELETE_OBJECT_EXCEPTION);
         }
     }
 

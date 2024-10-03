@@ -53,7 +53,8 @@ public class KakaoLoginService {
 
     private LoginResponse.LoginResponseBuilder validateRoleType(LoginResponse.LoginResponseBuilder builder,
         Member member, Role requestedRole) {
-        if (member.getRole() == requestedRole) {
+        if (member.getRole() == requestedRole ||
+            member.getRole() == Role.PHOTOGRAPHER_PENDING && requestedRole.equals(Role.PHOTOGRAPHER)) {
             return handleSameRoleLogin(builder, member);
         } else {
             return handleRoleChange(builder, member, requestedRole);

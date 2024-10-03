@@ -1,6 +1,7 @@
 package com.foru.freebe.product.service;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -322,6 +323,8 @@ public class PhotographerProductService {
     }
 
     private void registerProductComponent(List<ProductComponentDto> productComponentDtoList, Product product) {
+        validateUniqueProductComponentTitle(productComponentDtoList);
+
         for (ProductComponentDto productComponentDto : productComponentDtoList) {
             ProductComponent productComponent = ProductComponent.builder()
                 .title(productComponentDto.getTitle())
@@ -330,6 +333,22 @@ public class PhotographerProductService {
                 .product(product)
                 .build();
             productComponentRepository.save(productComponent);
+        }
+    }
+
+    private void validateUniqueProductComponentTitle(List<ProductComponentDto> productComponentDtoList) {
+        List<String> componentTitle = productComponentDtoList
+            .stream()
+            .map(ProductComponentDto::getTitle)
+            .toList();
+
+        HashMap<String, Boolean> titleMap = new HashMap<>();
+        for (String title : componentTitle) {
+            if (!titleMap.containsKey(title)) {
+                titleMap.put(title, true);
+            } else {
+                throw new RestApiException(ProductErrorCode.COMPONENT_TITLE_ALREADY_EXISTS);
+            }
         }
     }
 

@@ -81,9 +81,11 @@ public class ProfileService {
         if (bannerImageFile != null) {
             updateBannerImage(profileImage, bannerImageFile, photographer.getId());
         } else {
-            String bannerImageUrl = profileImage.getBannerOriginUrl();
-            s3ImageService.deleteImageFromS3(bannerImageUrl);
-            profileImage.assignBannerOriginUrl(null);
+            if (profileImage.getBannerOriginUrl() != null) {
+                String bannerImageUrl = profileImage.getBannerOriginUrl();
+                s3ImageService.deleteImageFromS3(bannerImageUrl);
+                profileImage.assignBannerOriginUrl(null);
+            }
         }
 
         if (profileImageFile != null) {
@@ -100,6 +102,37 @@ public class ProfileService {
 
         validateProfileNameDuplicate(profileName);
         return createMemberProfile(photographer, profileName);
+    }
+
+    @Transactional
+    public void deleteProfile(Member photographer) {
+        Profile profile = getProfile(photographer);
+        deleteLinks(profile);
+        deleteProfileImage(profile);
+        profileRepository.delete(profile);
+    }
+
+    private void deleteLinks(Profile profile) {
+        List<Link> links = linkRepository.findByProfile(profile);
+        linkRepository.deleteAll(links);
+    }
+
+    private void deleteProfileImage(Profile profile) {
+        ProfileImage profileImage = profileImageRepository.findByProfile(profile)
+            .orElse(null);
+
+        if (profileImage != null) {
+            deleteImageFromS3(profileImage);
+            profileImageRepository.delete(profileImage);
+        }
+    }
+
+    private void deleteImageFromS3(ProfileImage profileImage) {
+        if (profileImage.getProfileOriginUrl() != null) {
+            s3ImageService.deleteImageFromS3(profileImage.getProfileOriginUrl());
+        } else if (profileImage.getBannerOriginUrl() != null) {
+            s3ImageService.deleteImageFromS3(profileImage.getBannerOriginUrl());
+        }
     }
 
     private void validateProfileNameDuplicate(String profileName) {

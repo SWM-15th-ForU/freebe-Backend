@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.foru.freebe.common.dto.ImageLinkSet;
 import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.errorcode.ProductImageErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -91,7 +92,7 @@ public class PhotographerProductService {
         Member photographer = getMember(photographerId);
 
         Product product = productRepository.findByIdAndMember(productId, photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         return productDetailConvertor.convertProductToProductDetailResponse(product, false);
     }
@@ -99,7 +100,7 @@ public class PhotographerProductService {
     @Transactional
     public void updateProductActiveStatus(UpdateProductRequest requestDto) {
         Product product = productRepository.findById(requestDto.getProductId())
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
         product.updateProductActiveStatus(requestDto.getActiveStatus());
     }
 
@@ -109,7 +110,7 @@ public class PhotographerProductService {
         Member photographer = getMember(photographerId);
 
         Product product = productRepository.findByIdAndMember(updateProductDetailRequest.getProductId(), photographer)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         if (!Objects.equals(updateProductDetailRequest.getProductTitle(), product.getTitle())) {
             validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
@@ -291,7 +292,7 @@ public class PhotographerProductService {
 
     private Member getMember(Long memberId) {
         return memberRepository.findById(memberId)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
     private void registerProductImage(List<MultipartFile> images, Product product, Long photographerId) throws
@@ -316,7 +317,7 @@ public class PhotographerProductService {
 
     private void validateProductImage(List<MultipartFile> images) {
         if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND);
+            throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
         }
     }
 

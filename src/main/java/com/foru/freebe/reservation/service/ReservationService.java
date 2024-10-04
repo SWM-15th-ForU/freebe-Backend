@@ -33,7 +33,8 @@ public class ReservationService {
         ReservationStatus currentStatus = reservationForm.getReservationStatus();
         ReservationStatus updateStatus = request.getUpdateStatus();
 
-        reservationVerifier.validateStatusChange(currentStatus, request, isPhotographer);
+        reservationVerifier.validateStatusChange(currentStatus, request, isPhotographer,
+            reservationForm.getShootingDate());
         reservationForm.changeReservationStatus(updateStatus);
 
         ReservationHistory reservationHistory = updateReservationHistory(request, reservationForm);

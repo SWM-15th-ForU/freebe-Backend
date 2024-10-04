@@ -14,6 +14,7 @@ import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.dto.TimeSlot;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.entity.ReservationStatusTransition;
@@ -39,10 +40,18 @@ public class ReservationVerifier {
     }
 
     public void validateStatusChange(ReservationStatus currentStatus, ReservationStatusUpdateRequest request,
-        Boolean isPhotographer) {
+        Boolean isPhotographer, TimeSlot shootingDate) {
 
         if (!isPhotographer) {
             validateCustomerAuthorityToChangeStatus(currentStatus, request.getUpdateStatus());
+        }
+
+        if (request.getUpdateStatus() == ReservationStatus.WAITING_FOR_DEPOSIT
+            || request.getUpdateStatus() == ReservationStatus.WAITING_FOR_PHOTO
+            || request.getUpdateStatus() == ReservationStatus.PHOTO_COMPLETED) {
+            if (shootingDate == null) {
+                throw new RestApiException(ReservationErrorCode.INVALID_STATUS_TRANSITION);
+            }
         }
 
         if (request.getUpdateStatus() == ReservationStatus.CANCELLED_BY_PHOTOGRAPHER

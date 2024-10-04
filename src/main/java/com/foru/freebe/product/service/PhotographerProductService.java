@@ -22,6 +22,7 @@ import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
+import com.foru.freebe.product.dto.photographer.ProductTitleDto;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -134,6 +135,16 @@ public class PhotographerProductService {
         }
 
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
+    }
+
+    public List<ProductTitleDto> getAllProductTitle(Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        List<Product> productList = productRepository.findByMember(photographer);
+
+        return productList.stream()
+            .map(product -> new ProductTitleDto(product.getTitle()))
+            .collect(Collectors.toList());
     }
 
     private void updateProductCompositionExcludingImage(UpdateProductDetailRequest updateProductDetailRequest,

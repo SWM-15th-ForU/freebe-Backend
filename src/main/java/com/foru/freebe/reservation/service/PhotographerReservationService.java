@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.ShootingDate;
@@ -27,6 +29,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
+    private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
 
     public List<FormListViewResponse> getReservationList(Long photographerId) {
         return getReservationListAsStatus(photographerId);

@@ -31,4 +31,6 @@ public interface ReservationFormRepository extends JpaRepository<ReservationForm
 
     Page<ReservationForm> findByPhotographerIdAndReservationStatusInAndShootingDate_DateBetween(Long photographerId,
         List<ReservationStatus> status, LocalDate from, LocalDate to, Pageable pageable);
+
+    List<ReservationForm> findByProductTitle(String title);
 }

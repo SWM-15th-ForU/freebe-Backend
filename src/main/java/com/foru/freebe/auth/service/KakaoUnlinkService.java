@@ -38,10 +38,10 @@ public class KakaoUnlinkService {
     private final ProfileService profileService;
     private final DeletedMemberRepository deletedMemberRepository;
 
-    public KakaoUnlinkService(RestTemplateBuilder builder, MemberRepository memberRepository,
+    public KakaoUnlinkService(RestTemplateBuilder restTemplateBuilder, MemberRepository memberRepository,
         ProductRepository productRepository, PhotographerProductService photographerProductService,
         ProfileService profileService, DeletedMemberRepository deletedMemberRepository) {
-        restTemplate = builder.build();
+        restTemplate = restTemplateBuilder.build();
         this.memberRepository = memberRepository;
         this.productRepository = productRepository;
         this.photographerProductService = photographerProductService;

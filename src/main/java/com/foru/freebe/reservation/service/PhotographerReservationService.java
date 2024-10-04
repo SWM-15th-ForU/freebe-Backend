@@ -38,9 +38,9 @@ public class PhotographerReservationService {
                 shootingDate.getReservationFormId())
             .orElseThrow(() -> new RestApiException(ReservationErrorCode.NO_RESERVATION_FORM));
 
+        validateReservationStatus(shootingDate.getReservationStatus());
         validateShootingDate(shootingDate.getNewShootingDate().getDate());
         validateShootingTime(shootingDate);
-        validateReservationStatus(shootingDate.getReservationStatus());
 
         reservationForm.updateShootingDate(shootingDate.getNewShootingDate());
     }

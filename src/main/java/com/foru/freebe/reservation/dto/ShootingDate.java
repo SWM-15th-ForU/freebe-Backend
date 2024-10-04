@@ -1,5 +1,7 @@
 package com.foru.freebe.reservation.dto;
 
+import com.foru.freebe.reservation.entity.ReservationStatus;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +14,15 @@ public class ShootingDate {
     private Long reservationFormId;
 
     @NotNull
+    private ReservationStatus reservationStatus;
+
+    @NotNull
     private TimeSlot newShootingDate;
 
     @Builder
-    public ShootingDate(Long reservationFormId, TimeSlot newShootingDate) {
+    public ShootingDate(Long reservationFormId, ReservationStatus reservationStatus, TimeSlot newShootingDate) {
         this.reservationFormId = reservationFormId;
+        this.reservationStatus = reservationStatus;
         this.newShootingDate = newShootingDate;
     }
 }

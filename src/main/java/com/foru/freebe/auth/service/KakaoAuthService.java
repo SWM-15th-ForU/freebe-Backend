@@ -44,7 +44,7 @@ public class KakaoAuthService {
             .uri(uriBuilder -> uriBuilder
                 .path("v2/user/me")
                 .queryParam("property_keys",
-                    "[\"kakao_account.email\", \"kakao_account.name\", \"kakao_account.birthday\", \"kakao_account.birthyear\", \"kakao_account.phone_number\"]")
+                    "[\"kakao_account.email\", \"kakao_account.name\", \"kakao_account.birthday\", \"kakao_account.birthyear\", \"kakao_account.phone_number\", \"kakao_account.gender\"]")
                 .build()
             )
             .retrieve()

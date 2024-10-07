@@ -60,7 +60,8 @@ public class KakaoLoginService {
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {
         Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
                 kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
-            .birthyear(kakaoUser.getBirthYear())
+            .birthYear(kakaoUser.getBirthYear())
+            .birthDay(kakaoUser.getBirthDay())
             .gender(kakaoUser.getGender())
             .build();
         return memberRepository.save(newMember);

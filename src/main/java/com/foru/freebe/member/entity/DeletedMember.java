@@ -28,9 +28,13 @@ public class DeletedMember extends BaseEntity {
     @NotNull
     private Long memberId;
 
+    @NotNull
+    private String unlinkReason;
+
     @Builder
-    public DeletedMember(Long kakaoId, Long memberId) {
+    public DeletedMember(Long kakaoId, Long memberId, String unlinkReason) {
         this.kakaoId = kakaoId;
         this.memberId = memberId;
+        this.unlinkReason = unlinkReason;
     }
 }

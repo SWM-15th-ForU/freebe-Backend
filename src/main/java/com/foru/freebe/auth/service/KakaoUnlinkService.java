@@ -15,6 +15,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import com.foru.freebe.auth.dto.UnlinkRequest;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.DeletedMember;
@@ -53,7 +54,7 @@ public class KakaoUnlinkService {
     private String adminKey;
 
     @Transactional
-    public void unlinkKakaoAccount(Long memberId) {
+    public void unlinkKakaoAccount(Long memberId, UnlinkRequest unlinkRequest) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
@@ -74,22 +75,22 @@ public class KakaoUnlinkService {
             ResponseEntity<String> response = restTemplate.postForEntity(kakaoUnlinkUrl, request, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
-                handleMemberLeaving(member);
+                handleMemberLeaving(member, unlinkRequest.getReason());
             }
         } catch (RestClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
         }
     }
 
-    private void handleMemberLeaving(Member member) {
+    private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
             member.updateMemberRole(Role.PHOTOGRAPHER_LEAVING);
-            createDeletedMember(member.getId(), member);
+            createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member.getId(), member);
             profileService.deleteProfile(member);
         } else if (member.getRole() == Role.CUSTOMER) {
             member.updateMemberRole(Role.CUSTOMER_LEAVING);
-            createDeletedMember(member.getId(), member);
+            createDeletedMember(member.getId(), member, reason);
         }
     }
 
@@ -100,10 +101,11 @@ public class KakaoUnlinkService {
         }
     }
 
-    private void createDeletedMember(Long memberId, Member member) {
+    private void createDeletedMember(Long memberId, Member member, String reason) {
         DeletedMember deletedMember = DeletedMember.builder()
             .kakaoId(member.getKakaoId())
             .memberId(memberId)
+            .unlinkReason(reason)
             .build();
         deletedMemberRepository.save(deletedMember);
         member.deleteKakaoId();

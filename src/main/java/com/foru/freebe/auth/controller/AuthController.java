@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.auth.dto.LoginRequest;
 import com.foru.freebe.auth.dto.LoginResponse;
+import com.foru.freebe.auth.dto.UnlinkRequest;
 import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.auth.service.KakaoAuthService;
@@ -21,6 +22,7 @@ import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.entity.Member;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -65,10 +67,11 @@ public class AuthController {
     }
 
     @PostMapping("/unlink")
-    public ResponseEntity<ResponseBody<Void>> unlinkKakao(@AuthenticationPrincipal MemberAdapter memberAdapter) {
+    public ResponseEntity<ResponseBody<Void>> unlinkKakao(@Valid @RequestBody UnlinkRequest request,
+        @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member member = memberAdapter.getMember();
-        kakaoUnlinkService.unlinkKakaoAccount(member.getId());
+        kakaoUnlinkService.unlinkKakaoAccount(member.getId(), request);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully delete member")

@@ -88,6 +88,7 @@ public class KakaoUnlinkService {
             profileService.deleteProfile(member);
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             member.updateMemberRoleToLeavingStatus();
+            createDeletedMember(member.getId(), member, reason);
         } else if (member.getRole() == Role.CUSTOMER) {
             member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);

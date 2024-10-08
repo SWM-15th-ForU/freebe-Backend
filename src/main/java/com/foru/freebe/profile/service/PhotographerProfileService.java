@@ -1,7 +1,6 @@
 package com.foru.freebe.profile.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -77,61 +76,20 @@ public class PhotographerProfileService {
 
     private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
         List<Link> existingLinks = linkRepository.findByProfile(profile);
+        linkRepository.deleteAll(existingLinks);
 
-        List<String> incomingLinkTitles = new ArrayList<>();
         for (LinkInfo linkInfo : linkInfos) {
-            if (linkInfo.getLinkTitle() != null) {
-                String linkTitle = linkInfo.getLinkTitle();
-                incomingLinkTitles.add(linkTitle);
-            }
-        }
-
-        existingLinks.stream()
-            .filter(link -> !incomingLinkTitles.contains(link.getTitle()))
-            .forEach(linkRepository::delete);
-
-        int newLinkIndex = 0;
-        for (LinkInfo linkInfo : linkInfos) {
-            Link existingLink = existingLinks.stream()
-                .filter(link -> link.getTitle().equals(linkInfo.getLinkTitle()))
-                .findFirst()
-                .orElse(null);
-
-            if (existingLink == null) {
-                createNewLink(profile, linkInfo, newLinkIndex);
-            } else {
-                if (isLinkOrderChanged(existingLink, newLinkIndex)) {
-                    reorderAlreadyExistingLink(newLinkIndex, existingLink);
-                }
-
-                if (isLinkUrlChanged(existingLink, linkInfo)) {
-                    existingLink.assignLinkUrl(linkInfo.getLinkUrl());
-                }
-            }
-            newLinkIndex++;
+            createNewLink(profile, linkInfo);
         }
     }
 
-    private void createNewLink(Profile profile, LinkInfo linkInfo, int newLinkIndex) {
+    private void createNewLink(Profile profile, LinkInfo linkInfo) {
         Link newLink = Link.builder()
             .profile(profile)
             .title(linkInfo.getLinkTitle())
             .url(linkInfo.getLinkUrl())
-            .linkOrder(newLinkIndex)
             .build();
         linkRepository.save(newLink);
-    }
-
-    private static boolean isLinkOrderChanged(Link existingLink, int newLinkIndex) {
-        return existingLink.getLinkOrder() != newLinkIndex;
-    }
-
-    private void reorderAlreadyExistingLink(int newLinkIndex, Link existingLink) {
-        existingLink.assignLinkOrder(newLinkIndex);
-    }
-
-    private Boolean isLinkUrlChanged(Link existingLink, LinkInfo linkInfo) {
-        return !existingLink.getUrl().equals(linkInfo.getLinkUrl());
     }
 
     private void updateBannerImage(Long photographerId, String existingBannerImageUrl, MultipartFile newImageFile,

@@ -26,15 +26,9 @@ public class Link {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
-    private int linkOrder;
-
     private String title;
 
     private String url;
-
-    public void assignLinkOrder(int linkOrder) {
-        this.linkOrder = linkOrder;
-    }
 
     public void assignLinkUrl(String url) {
         this.url = url;
@@ -43,7 +37,6 @@ public class Link {
     @Builder
     public Link(Profile profile, int linkOrder, String title, String url) {
         this.profile = profile;
-        this.linkOrder = linkOrder;
         this.title = title;
         this.url = url;
     }

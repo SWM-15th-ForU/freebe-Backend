@@ -61,8 +61,8 @@ public class Member extends BaseEntity {
         return "ROLE_" + role.name();
     }
 
-    public void updateMemberRole(Role updateRole) {
-        this.role = updateRole;
+    public void updateMemberRoleToLeavingStatus() {
+        this.role = Role.LEAVING;
     }
 
     public void deleteKakaoId() {

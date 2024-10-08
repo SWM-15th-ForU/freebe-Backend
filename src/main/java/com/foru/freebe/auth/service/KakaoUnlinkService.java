@@ -82,12 +82,14 @@ public class KakaoUnlinkService {
 
     private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
-            member.updateMemberRole(Role.PHOTOGRAPHER_LEAVING);
+            member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
             profileService.deleteProfile(member);
+        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
+            member.updateMemberRoleToLeavingStatus();
         } else if (member.getRole() == Role.CUSTOMER) {
-            member.updateMemberRole(Role.CUSTOMER_LEAVING);
+            member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);
         }
     }

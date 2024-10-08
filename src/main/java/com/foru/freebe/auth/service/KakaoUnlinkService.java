@@ -13,7 +13,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.foru.freebe.auth.dto.UnlinkRequest;
-import com.foru.freebe.errors.errorcode.AuthErrorCode;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.DeletedMember;
@@ -51,8 +50,6 @@ public class KakaoUnlinkService {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        validateUnlinkReason(unlinkRequest);
-
         Long kakaoUserId = member.getKakaoId();
         try {
             ResponseEntity<String> response = webClient.post()
@@ -71,12 +68,6 @@ public class KakaoUnlinkService {
             }
         } catch (WebClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
-        }
-    }
-
-    private static void validateUnlinkReason(UnlinkRequest unlinkRequest) {
-        if (unlinkRequest.getReason() == null) {
-            throw new RestApiException(AuthErrorCode.NO_UNLINK_REASON);
         }
     }
 

@@ -16,7 +16,7 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class KakaoAuthService {
-    private final WebClient webClient;
+    private final WebClient kakaoLoginWebClient;
 
     @Value("${KAKAO_CLIENT_ID}")
     private String clientId;
@@ -28,7 +28,7 @@ public class KakaoAuthService {
     private String clientSecret;
 
     public String getToken(String code) {
-        Mono<KakaoToken> kakaoToken = webClient.post()
+        Mono<KakaoToken> kakaoToken = kakaoLoginWebClient.post()
             .uri("/oauth/token")
             .body(BodyInserters.fromFormData(buildRequestBody(code)))
             .retrieve()
@@ -63,7 +63,7 @@ public class KakaoAuthService {
     }
 
     private WebClient buildMutateWebClient(String accessToken) {
-        return webClient.mutate()
+        return kakaoLoginWebClient.mutate()
             .baseUrl("https://kapi.kakao.com")
             .defaultHeader("Authorization", "Bearer " + accessToken)
             .build();

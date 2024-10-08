@@ -3,17 +3,14 @@ package com.foru.freebe.auth.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.foru.freebe.auth.dto.UnlinkRequest;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
@@ -29,64 +26,63 @@ import com.foru.freebe.product.service.PhotographerProductService;
 import com.foru.freebe.profile.service.ProfileService;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class KakaoUnlinkService {
-    private final RestTemplate restTemplate;
+    private final WebClient webClient;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final PhotographerProductService photographerProductService;
     private final ProfileService profileService;
     private final DeletedMemberRepository deletedMemberRepository;
 
-    public KakaoUnlinkService(RestTemplateBuilder restTemplateBuilder, MemberRepository memberRepository,
-        ProductRepository productRepository, PhotographerProductService photographerProductService,
-        ProfileService profileService, DeletedMemberRepository deletedMemberRepository) {
-        restTemplate = restTemplateBuilder.build();
-        this.memberRepository = memberRepository;
-        this.productRepository = productRepository;
-        this.photographerProductService = photographerProductService;
-        this.profileService = profileService;
-        this.deletedMemberRepository = deletedMemberRepository;
-    }
-
     @Value("${KAKAO_API_ADMIN_KEY}")
     private String adminKey;
 
     @Transactional
     public void unlinkKakaoAccount(Long memberId, UnlinkRequest unlinkRequest) {
+        final String AUTHORIZATION_HEADER = "Authorization";
+        final String KAKAO_AUTH_PREFIX = "KakaoAK ";
+
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        Long kakaoUserId = member.getKakaoId(); // 회원의 카카오 유저 ID
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.set("Authorization", "KakaoAK " + adminKey);
-
-        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
-        params.add("target_id_type", "user_id");
-        params.add("target_id", kakaoUserId);
-
-        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(params, headers);
+        Long kakaoUserId = member.getKakaoId();
 
         try {
             String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
-            ResponseEntity<String> response = restTemplate.postForEntity(kakaoUnlinkUrl, request, String.class);
 
-            if (response.getStatusCode() == HttpStatus.OK) {
+            ResponseEntity<String> response = webClient.post()
+                .uri(kakaoUnlinkUrl)
+                .header(AUTHORIZATION_HEADER, KAKAO_AUTH_PREFIX + adminKey)
+                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                .bodyValue(constructUnlinkParams(kakaoUserId))
+                .retrieve()
+                .toEntity(String.class)
+                .block();
+
+            if (response != null && response.getStatusCode() == HttpStatus.OK) {
                 handleMemberLeaving(member, unlinkRequest.getReason());
             }
-        } catch (RestClientException e) {
+        } catch (WebClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
         }
+    }
+
+    private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
+        MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
+        params.add("target_id_type", "user_id");
+        params.add("target_id", kakaoUserId.toString());
+        return params;
     }
 
     private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
             member.updateMemberRole(Role.PHOTOGRAPHER_LEAVING);
             createDeletedMember(member.getId(), member, reason);
-            deletePhotographerProducts(member.getId(), member);
+            deletePhotographerProducts(member);
             profileService.deleteProfile(member);
         } else if (member.getRole() == Role.CUSTOMER) {
             member.updateMemberRole(Role.CUSTOMER_LEAVING);
@@ -94,10 +90,10 @@ public class KakaoUnlinkService {
         }
     }
 
-    private void deletePhotographerProducts(Long memberId, Member member) {
+    private void deletePhotographerProducts(Member member) {
         List<Product> productList = productRepository.findByMember(member);
         for (Product product : productList) {
-            photographerProductService.deleteProduct(product.getId(), memberId);
+            photographerProductService.deleteProductForUnlike(product);
         }
     }
 

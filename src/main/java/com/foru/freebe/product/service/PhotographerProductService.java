@@ -154,6 +154,15 @@ public class PhotographerProductService {
         Product product = productRepository.findByIdAndMember(productId, photographer)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
+        deleteEntityAboutProduct(product);
+    }
+
+    @Transactional
+    public void deleteProductForUnlike(Product product) {
+        deleteEntityAboutProduct(product);
+    }
+
+    private void deleteEntityAboutProduct(Product product) {
         List<ProductImage> productImages = productImageRepository.findByProduct(product);
         for (ProductImage productImage : productImages) {
             String originUrl = productImage.getOriginUrl();

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.SingleImageLink;
+import com.foru.freebe.errors.errorcode.LinkErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.LinkInfo;
 import com.foru.freebe.profile.dto.ProfileResponse;
@@ -43,6 +45,8 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
+        hasDuplicates(request.getLinkInfos());
+
         updateIntroductionContent(profile, request.getIntroductionContent());
         updateLinks(profile, request.getLinkInfos());
         updateBannerImage(photographer.getId(), request.getExistingBannerImageUrl(), bannerImageFile, profileImage);
@@ -60,6 +64,26 @@ public class PhotographerProfileService {
         }
     }
 
+    private void hasDuplicates(List<LinkInfo> linkInfos) {
+        boolean isDuplicatedTitle = linkInfos.size() != linkInfos.stream()
+            .map(LinkInfo::getLinkTitle)
+            .distinct()
+            .count();
+
+        if (isDuplicatedTitle) {
+            throw new RestApiException(LinkErrorCode.DUPLICATE_TITLE);
+        }
+
+        boolean isDuplicatedUrl = linkInfos.size() != linkInfos.stream()
+            .map(LinkInfo::getLinkUrl)
+            .distinct()
+            .count();
+
+        if (isDuplicatedUrl) {
+            throw new RestApiException(LinkErrorCode.DUPLICATE_URL);
+        }
+    }
+
     private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
         List<Link> existingLinks = linkRepository.findByProfile(profile);
 
@@ -71,12 +95,11 @@ public class PhotographerProfileService {
             }
         }
 
-        // 삭제할 링크 식별
         existingLinks.stream()
             .filter(link -> !incomingLinkTitles.contains(link.getTitle()))
             .forEach(linkRepository::delete);
 
-        // 갱신 및 추가 처리
+        int newLinkIndex = 0;
         for (LinkInfo linkInfo : linkInfos) {
             Link existingLink = existingLinks.stream()
                 .filter(link -> link.getTitle().equals(linkInfo.getLinkTitle()))
@@ -84,24 +107,40 @@ public class PhotographerProfileService {
                 .orElse(null);
 
             if (existingLink == null) {
-                // 기존에 없는 새로운 링크 추가
-                Link newLink = Link.builder()
-                    .profile(profile)
-                    .title(linkInfo.getLinkTitle())
-                    .url(linkInfo.getLinkUrl())
-                    .build();
-                linkRepository.save(newLink);
-            } else { // 기존 링크 갱신 (URL이 변경된 경우)
-                if (isLinkInfoChanged(existingLink, linkInfo)) {
+                createNewLink(profile, linkInfo, newLinkIndex);
+            } else {
+                if (isLinkOrderChanged(existingLink, newLinkIndex)) {
+                    reorderAlreadyExistingLink(newLinkIndex, existingLink);
+                }
+
+                if (isLinkUrlChanged(existingLink, linkInfo)) {
                     existingLink.assignLinkUrl(linkInfo.getLinkUrl());
                 }
             }
+            newLinkIndex++;
         }
     }
 
-    private Boolean isLinkInfoChanged(Link existingLink, LinkInfo linkInfo) {
-        return !existingLink.getUrl().equals(linkInfo.getLinkUrl()) || !existingLink.getTitle()
-            .equals(linkInfo.getLinkTitle());
+    private void createNewLink(Profile profile, LinkInfo linkInfo, int newLinkIndex) {
+        Link newLink = Link.builder()
+            .profile(profile)
+            .title(linkInfo.getLinkTitle())
+            .url(linkInfo.getLinkUrl())
+            .linkOrder(newLinkIndex)
+            .build();
+        linkRepository.save(newLink);
+    }
+
+    private static boolean isLinkOrderChanged(Link existingLink, int newLinkIndex) {
+        return existingLink.getLinkOrder() != newLinkIndex;
+    }
+
+    private void reorderAlreadyExistingLink(int newLinkIndex, Link existingLink) {
+        existingLink.assignLinkOrder(newLinkIndex);
+    }
+
+    private Boolean isLinkUrlChanged(Link existingLink, LinkInfo linkInfo) {
+        return !existingLink.getUrl().equals(linkInfo.getLinkUrl());
     }
 
     private void updateBannerImage(Long photographerId, String existingBannerImageUrl, MultipartFile newImageFile,

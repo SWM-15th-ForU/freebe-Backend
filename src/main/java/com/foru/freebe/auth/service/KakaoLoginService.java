@@ -82,6 +82,7 @@ public class KakaoLoginService {
                 .profileName(null);
         }
         throw new RestApiException(MemberErrorCode.INVALID_LOGIN_REQUEST);
+    }
 
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {
         Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),

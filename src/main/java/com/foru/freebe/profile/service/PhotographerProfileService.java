@@ -1,13 +1,14 @@
 package com.foru.freebe.profile.service;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.SingleImageLink;
+import com.foru.freebe.errors.errorcode.LinkErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.LinkInfo;
 import com.foru.freebe.profile.dto.ProfileResponse;
@@ -43,6 +44,8 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
+        validateDuplicates(request.getLinkInfos());
+
         updateIntroductionContent(profile, request.getIntroductionContent());
         updateLinks(profile, request.getLinkInfos());
         updateBannerImage(photographer.getId(), request.getExistingBannerImageUrl(), bannerImageFile, profileImage);
@@ -60,48 +63,33 @@ public class PhotographerProfileService {
         }
     }
 
-    private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
-        List<Link> existingLinks = linkRepository.findByProfile(profile);
+    private void validateDuplicates(List<LinkInfo> linkInfos) {
+        boolean isDuplicatedTitle = linkInfos.size() != linkInfos.stream()
+            .map(LinkInfo::getLinkTitle)
+            .distinct()
+            .count();
 
-        List<String> incomingLinkTitles = new ArrayList<>();
-        for (LinkInfo linkInfo : linkInfos) {
-            if (linkInfo.getLinkTitle() != null) {
-                String linkTitle = linkInfo.getLinkTitle();
-                incomingLinkTitles.add(linkTitle);
-            }
-        }
-
-        // 삭제할 링크 식별
-        existingLinks.stream()
-            .filter(link -> !incomingLinkTitles.contains(link.getTitle()))
-            .forEach(linkRepository::delete);
-
-        // 갱신 및 추가 처리
-        for (LinkInfo linkInfo : linkInfos) {
-            Link existingLink = existingLinks.stream()
-                .filter(link -> link.getTitle().equals(linkInfo.getLinkTitle()))
-                .findFirst()
-                .orElse(null);
-
-            if (existingLink == null) {
-                // 기존에 없는 새로운 링크 추가
-                Link newLink = Link.builder()
-                    .profile(profile)
-                    .title(linkInfo.getLinkTitle())
-                    .url(linkInfo.getLinkUrl())
-                    .build();
-                linkRepository.save(newLink);
-            } else { // 기존 링크 갱신 (URL이 변경된 경우)
-                if (isLinkInfoChanged(existingLink, linkInfo)) {
-                    existingLink.assignLinkUrl(linkInfo.getLinkUrl());
-                }
-            }
+        if (isDuplicatedTitle) {
+            throw new RestApiException(LinkErrorCode.DUPLICATE_TITLE);
         }
     }
 
-    private Boolean isLinkInfoChanged(Link existingLink, LinkInfo linkInfo) {
-        return !existingLink.getUrl().equals(linkInfo.getLinkUrl()) || !existingLink.getTitle()
-            .equals(linkInfo.getLinkTitle());
+    private void updateLinks(Profile profile, List<LinkInfo> linkInfos) {
+        List<Link> existingLinks = linkRepository.findByProfile(profile);
+        linkRepository.deleteAll(existingLinks);
+
+        for (LinkInfo linkInfo : linkInfos) {
+            createNewLink(profile, linkInfo);
+        }
+    }
+
+    private void createNewLink(Profile profile, LinkInfo linkInfo) {
+        Link newLink = Link.builder()
+            .profile(profile)
+            .title(linkInfo.getLinkTitle())
+            .url(linkInfo.getLinkUrl())
+            .build();
+        linkRepository.save(newLink);
     }
 
     private void updateBannerImage(Long photographerId, String existingBannerImageUrl, MultipartFile newImageFile,

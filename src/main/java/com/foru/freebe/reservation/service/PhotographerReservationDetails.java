@@ -30,11 +30,12 @@ public class PhotographerReservationDetails {
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
         Map<String, String> shootDetails = reservationForm.getPhotoInfo();
         Map<Integer, TimeSlot> preferredDates = reservationForm.getPreferredDate();
+        Map<String, String> photoInfo = reservationForm.getPhotoInfo();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
-        return FormDetailsViewResponse.builder(reservationForm.getId(),
-                reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
-                shootDetails, preferredDates)
+        return FormDetailsViewResponse.builder(reservationForm.getId(), reservationForm.getReservationStatus(),
+                statusHistories, reservationForm.getProductTitle(), customerDetails, reservationForm.getBasicPrice(),
+                photoInfo, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
             .shootingDate(reservationForm.getShootingDate())
             .originalImage(preferredImages.getOriginalImage())

@@ -32,8 +32,6 @@ public class ProfileImage extends BaseEntity {
 
     private String profileOriginUrl;
 
-    private String profileThumbnailUrl;
-
     public void assignBannerOriginUrl(String bannerOriginUrl) {
         this.bannerOriginUrl = bannerOriginUrl;
     }
@@ -42,14 +40,9 @@ public class ProfileImage extends BaseEntity {
         this.profileOriginUrl = profileOriginUrl;
     }
 
-    public void assignProfileThumbnailUrl(String profileThumbnailUrl) {
-        this.profileThumbnailUrl = profileThumbnailUrl;
-    }
-
     @Builder
-    public ProfileImage(Profile profile, String profileThumbnailUrl, String profileOriginUrl, String bannerOriginUrl) {
+    public ProfileImage(Profile profile, String profileOriginUrl, String bannerOriginUrl) {
         this.profile = profile;
-        this.profileThumbnailUrl = profileThumbnailUrl;
         this.profileOriginUrl = profileOriginUrl;
         this.bannerOriginUrl = bannerOriginUrl;
     }

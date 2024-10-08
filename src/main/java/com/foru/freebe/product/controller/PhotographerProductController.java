@@ -88,12 +88,11 @@ public class PhotographerProductController {
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseEntity<ResponseBody<ProductDetailResponse>> getProductById(
-        @PathVariable("productId") Long productId,
-        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+    public ResponseEntity<ResponseBody<ProductDetailResponse>> getProductDetails(
+        @PathVariable("productId") Long productId, @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
-        ProductDetailResponse responseData = photographerProductService.getRegisteredProductInfo(productId,
+        ProductDetailResponse responseData = photographerProductService.getRegisteredProductDetails(productId,
             photographer.getId());
 
         ResponseBody<ProductDetailResponse> responseBody = ResponseBody.<ProductDetailResponse>builder()

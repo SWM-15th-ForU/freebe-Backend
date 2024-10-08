@@ -25,6 +25,9 @@ public class UpdateProductDetailRequest {
     @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String productDescription;
 
+    @NotNull(message = "Basic price must not be null")
+    private Long basicPrice;
+
     @NotNull
     private List<ProductComponentDto> productComponents;
 
@@ -34,12 +37,14 @@ public class UpdateProductDetailRequest {
 
     @Builder
     public UpdateProductDetailRequest(Long productId, List<String> existingUrls, String productTitle,
-        String productDescription, List<ProductComponentDto> productComponents, List<ProductOptionDto> productOptions,
+        String productDescription, Long basicPrice, List<ProductComponentDto> productComponents,
+        List<ProductOptionDto> productOptions,
         List<ProductDiscountDto> productDiscounts) {
         this.productId = productId;
         this.existingUrls = existingUrls;
         this.productTitle = productTitle;
         this.productDescription = productDescription;
+        this.basicPrice = basicPrice;
         this.productComponents = productComponents;
         this.productOptions = productOptions;
         this.productDiscounts = productDiscounts;

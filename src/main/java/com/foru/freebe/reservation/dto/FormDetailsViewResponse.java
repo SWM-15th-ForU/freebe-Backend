@@ -30,6 +30,9 @@ public class FormDetailsViewResponse {
     private CustomerDetails customerDetails;
 
     @NotNull
+    private Long basicPrice;
+
+    @NotNull
     private Map<String, String> photoInfo;
 
     private Map<Integer, PhotoOption> photoOptions;
@@ -49,7 +52,7 @@ public class FormDetailsViewResponse {
 
     @Builder
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
-        List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
+        List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails, Long basicPrice,
         Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
         Map<Integer, TimeSlot> preferredDates, TimeSlot shootingDate, List<String> originalImage,
         List<String> thumbnailImage, String requestMemo, String photographerMemo) {
@@ -58,6 +61,7 @@ public class FormDetailsViewResponse {
         this.statusHistory = statusHistory;
         this.productTitle = productTitle;
         this.customerDetails = customerDetails;
+        this.basicPrice = basicPrice;
         this.photoInfo = photoInfo;
         this.photoOptions = photoOptions;
         this.preferredDates = preferredDates;
@@ -71,13 +75,14 @@ public class FormDetailsViewResponse {
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber,
         ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
+        Long basicPrice, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
             .currentReservationStatus(currentReservationStatus)
             .statusHistory(statusHistory)
             .productTitle(productTitle)
             .customerDetails(customerDetails)
+            .basicPrice(basicPrice)
             .photoInfo(photoInfo)
             .preferredDates(preferredDates);
     }

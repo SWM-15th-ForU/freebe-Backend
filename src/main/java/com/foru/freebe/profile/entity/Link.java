@@ -27,6 +27,7 @@ public class Link {
     private Profile profile;
 
     private String title;
+
     private String url;
 
     public void assignLinkUrl(String url) {
@@ -34,7 +35,7 @@ public class Link {
     }
 
     @Builder
-    public Link(Profile profile, String title, String url) {
+    public Link(Profile profile, int linkOrder, String title, String url) {
         this.profile = profile;
         this.title = title;
         this.url = url;

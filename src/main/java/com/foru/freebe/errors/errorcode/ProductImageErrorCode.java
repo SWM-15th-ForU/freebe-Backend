@@ -5,9 +5,8 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum ImageErrorCode implements ErrorCode {
-
-    PUT_OBJECT_EXCEPTION(500, "Failed to upload image to S3 due to an internal error");
+public enum ProductImageErrorCode implements ErrorCode {
+    PRODUCT_IMAGE_NOT_FOUND(404, "The product image could not be found");
 
     private final int httpStatus;
     private final String message;

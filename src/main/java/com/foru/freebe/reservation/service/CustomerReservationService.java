@@ -2,6 +2,8 @@ package com.foru.freebe.reservation.service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,13 +11,18 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.errorcode.ProductImageErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.Product;
+import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductImage;
+import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.product.service.ProductDetailConvertor;
@@ -44,6 +51,7 @@ public class CustomerReservationService {
     private final MemberRepository memberRepository;
     private final ProductDetailConvertor productDetailConvertor;
     private final ProductRepository productRepository;
+    private final ProductComponentRepository productComponentRepository;
     private final ReferenceImageRepository referenceImageRepository;
     private final ReservationVerifier reservationVerifier;
     private final S3ImageService s3ImageService;
@@ -57,12 +65,12 @@ public class CustomerReservationService {
         Member customer = findMember(id);
         customer.assignInstagramId(request.getInstagramId());
 
-        Profile photographerProfile = profileRepository.findByProfileName(request.getProfileName())
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-        Member photographer = photographerProfile.getMember();
+        Member photographer = getMemberFromProfileName(request.getProfileName());
 
-        ReservationForm reservationForm = buildReservationForm(request, photographer, customer);
-        reservationVerifier.validateReservationFormBeforeSave(request);
+        Product product = getProductFromProductId(request.getProductId());
+
+        ReservationForm reservationForm = buildReservationForm(product, request, photographer, customer);
+        reservationVerifier.validateProductIsActive(product);
         ReservationForm newReservationForm = reservationFormRepository.save(reservationForm);
 
         ReservationHistory reservationHistory = ReservationHistory.createReservationHistory(newReservationForm,
@@ -78,8 +86,7 @@ public class CustomerReservationService {
     public BasicReservationInfoResponse getBasicReservationForm(Long customerId, Long productId) {
         Member customer = findMember(customerId);
 
-        Product product = productRepository.findById(productId)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        Product product = getProductFromProductId(productId);
 
         List<ProductComponentDto> productComponentDtoList = productDetailConvertor.convertToProductComponentDtoList(
             product);
@@ -89,6 +96,7 @@ public class CustomerReservationService {
             .name(customer.getName())
             .phoneNumber(customer.getPhoneNumber())
             .instagramId(customer.getInstagramId())
+            .basicPrice(product.getBasicPrice())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();
@@ -103,11 +111,29 @@ public class CustomerReservationService {
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
+            .basicPrice(reservationForm.getBasicPrice())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();
+    }
+
+    private Member getMemberFromProfileName(String profileName) {
+        Profile photographerProfile = profileRepository.findByProfileName(profileName)
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+
+        return photographerProfile.getMember();
+    }
+
+    private Product getProductFromProductId(Long productId) {
+        return productRepository.findById(productId)
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    private Member findMember(Long id) {
+        return memberRepository.findById(id)
+            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
     private void saveReferenceImages(List<String> existingImages, List<MultipartFile> images,
@@ -116,36 +142,60 @@ public class CustomerReservationService {
         int imageIndex = 0;
         for (String existingImage : existingImages) {
             if (existingImage == null) {
-                SingleImageLink singleReferenceImage = s3ImageService.imageUploadToS3(images.get(imageIndex),
-                    S3ImageType.RESERVATION, customerId, true);
-                ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(
-                    singleReferenceImage.getOriginalUrl(), singleReferenceImage.getThumbnailUrl(), reservationForm);
-                referenceImageRepository.save(referenceImage);
+                uploadNewReferenceImage(images.get(imageIndex), reservationForm, customerId);
                 imageIndex++;
             } else {
-                ProductImage productImage = productImageRepository.findByThumbnailUrl(existingImage)
-                    .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
-                String originImage = productImage.getOriginUrl();
-                ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originImage, existingImage,
-                    reservationForm);
-                referenceImageRepository.save(referenceImage);
+                useProductImageAsReference(reservationForm, existingImage);
             }
         }
     }
 
-    private Member findMember(Long id) {
-        return memberRepository.findById(id)
-            .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
+    private void uploadNewReferenceImage(MultipartFile image, ReservationForm reservationForm, Long customerId) throws
+        IOException {
+
+        SingleImageLink singleReferenceImage = s3ImageService.imageUploadToS3(image, S3ImageType.RESERVATION,
+            customerId, true);
+
+        ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(singleReferenceImage.getOriginalUrl(),
+            singleReferenceImage.getThumbnailUrl(), reservationForm);
+
+        referenceImageRepository.save(referenceImage);
     }
 
-    private ReservationForm buildReservationForm(FormRegisterRequest request, Member photographer, Member customer) {
+    private void useProductImageAsReference(ReservationForm reservationForm, String existingImage) {
+        ProductImage productImage = productImageRepository.findByThumbnailUrl(existingImage)
+            .orElseThrow(() -> new RestApiException(ProductImageErrorCode.PRODUCT_IMAGE_NOT_FOUND));
+
+        String originImage = productImage.getOriginUrl();
+        ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originImage, existingImage,
+            reservationForm);
+
+        referenceImageRepository.save(referenceImage);
+    }
+
+    private ReservationForm buildReservationForm(Product product, FormRegisterRequest request, Member photographer,
+        Member customer) {
+        List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
+        Map<String, String> photoInfo = getProductComponentsTitleAndContent(productComponents);
+
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
-                request.getInstagramId(), request.getProductTitle(), request.getTotalPrice(),
+                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), request.getTotalPrice(),
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
-            .photoInfo(request.getPhotoInfo())
+            .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
+    }
+
+    private Map<String, String> getProductComponentsTitleAndContent(List<ProductComponent> productComponents) {
+        return productComponents.stream()
+            .collect(Collectors.toMap(
+                ProductComponent::getTitle,
+                ProductComponent::getContent,
+                (existing, replacement) -> {
+                    throw new RestApiException(ProductErrorCode.COMPONENT_TITLE_ALREADY_EXISTS);
+                }
+            ));
     }
 }

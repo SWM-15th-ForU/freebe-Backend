@@ -44,7 +44,9 @@ public class Member extends BaseEntity {
     @NotBlank
     private String phoneNumber;
 
-    private Integer birthYear;
+    private String birthYear;
+
+    private String birthDay;
 
     private String gender;
 
@@ -63,14 +65,15 @@ public class Member extends BaseEntity {
     }
 
     @Builder
-    public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, Integer birthyear,
-        String gender, String instagramId) {
+    public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, String birthYear,
+        String birthDay, String gender, String instagramId) {
         this.kakaoId = kakaoId;
         this.role = role;
         this.name = name;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.birthYear = birthyear;
+        this.birthYear = birthYear;
+        this.birthDay = birthDay;
         this.gender = gender;
         this.instagramId = instagramId;
     }

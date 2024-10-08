@@ -29,11 +29,11 @@ public class FormComponent {
     private String productTitle;
 
     @NotNull
-    private PreferredDate shootingDate;
+    private TimeSlot shootingDate;
 
     @Builder
     public FormComponent(Long reservationId, LocalDate reservationSubmissionDate, ReservationStatus reservationStatus,
-        String customerName, String productTitle, PreferredDate shootingDate) {
+        String customerName, String productTitle, TimeSlot shootingDate) {
         this.reservationId = reservationId;
         this.reservationSubmissionDate = reservationSubmissionDate;
         this.reservationStatus = reservationStatus;

@@ -1,15 +1,20 @@
 package com.foru.freebe.reservation.service;
 
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Optional;
 
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -19,6 +24,8 @@ import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.dto.ShootingDate;
+import com.foru.freebe.reservation.dto.TimeSlot;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
@@ -38,6 +45,9 @@ class ReservationServiceTest {
 
     @Mock
     ReservationHistoryRepository reservationHistoryRepository;
+
+    @InjectMocks
+    PhotographerReservationService photographerReservationService;
 
     private ReservationVerifier reservationVerifier;
 
@@ -182,7 +192,7 @@ class ReservationServiceTest {
             // given
             ReservationStatusUpdateRequest request = new ReservationStatusUpdateRequest(
                 ReservationStatus.CANCELLED_BY_PHOTOGRAPHER, null);
-            
+
             prepareMockReservationForm(memberId, formId, ReservationStatus.WAITING_FOR_DEPOSIT, isPhotographer);
 
             // when, then
@@ -195,6 +205,71 @@ class ReservationServiceTest {
             verify(reservationFormRepository, never()).save(mockReservationForm);
             verify(reservationHistoryRepository, never()).save(any(ReservationHistory.class));
         }
+    }
 
+    @Test
+    @DisplayName("사진작가 측 촬영일자 업데이트 성공")
+    void updateShootingDate_Success() {
+        // given
+        Long photographerId = 1L;
+        Long formId = 1L;
+
+        ReservationForm mockReservationForm = spy(ReservationForm.class);
+        TimeSlot shootingDate = TimeSlot.builder()
+            .date(LocalDate.of(2024, 10, 2))
+            .startTime(LocalTime.parse("21:00"))
+            .endTime(LocalTime.parse("23:00"))
+            .build();
+
+        ShootingDate newShootingDate = ShootingDate.builder()
+            .reservationFormId(formId)
+            .newShootingDate(shootingDate)
+            .build();
+
+        when(reservationFormRepository.findByPhotographerIdAndId(photographerId, formId))
+            .thenReturn(Optional.of(mockReservationForm));
+
+        // when
+        photographerReservationService.setShootingDate(photographerId, newShootingDate);
+
+        // then
+        verify(reservationFormRepository, times(1))
+            .findByPhotographerIdAndId(photographerId, formId);
+        verify(mockReservationForm, times(1))
+            .updateShootingDate(shootingDate);
+        Assertions.assertThat(mockReservationForm.getShootingDate()).isEqualTo(shootingDate);
+    }
+
+    @Test
+    @DisplayName("사진작가 측 촬영일자 업데이트 실패 - ReservationForm 미존재")
+    void updateShootingDate_ThrowsExceptionWhenReservationFormNotFound() {
+        // given
+        Long photographerId = 1L;
+        Long formId = 1L;
+
+        ReservationForm mockReservationForm = spy(ReservationForm.class);
+
+        ShootingDate newShootingDate = ShootingDate.builder()
+            .reservationFormId(formId)
+            .newShootingDate(TimeSlot.builder()
+                .date(LocalDate.of(2024, 10, 2))
+                .startTime(LocalTime.parse("21:00"))
+                .endTime(LocalTime.parse("23:00"))
+                .build())
+            .build();
+
+        // ReservationForm이 존재하지 않는 경우를 mock
+        when(reservationFormRepository.findByPhotographerIdAndId(photographerId, formId))
+            .thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> photographerReservationService.setShootingDate(photographerId, newShootingDate))
+            .isInstanceOf(RestApiException.class)
+            .hasFieldOrPropertyWithValue("errorCode", CommonErrorCode.RESOURCE_NOT_FOUND);
+
+        verify(reservationFormRepository, times(1))
+            .findByPhotographerIdAndId(photographerId, formId);
+        verify(mockReservationForm, never())
+            .updateShootingDate(any(TimeSlot.class));
     }
 }

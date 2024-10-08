@@ -23,7 +23,7 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.product.service.PhotographerProductService;
-import com.foru.freebe.profile.service.ProfileService;
+import com.foru.freebe.profile.service.PhotographerProfileService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class KakaoUnlinkService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final PhotographerProductService photographerProductService;
-    private final ProfileService profileService;
+    private final PhotographerProfileService photographerProfileService;
     private final DeletedMemberRepository deletedMemberRepository;
 
     @Value("${KAKAO_API_ADMIN_KEY}")
@@ -84,7 +84,7 @@ public class KakaoUnlinkService {
             member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
-            profileService.deleteProfile(member);
+            photographerProfileService.deleteProfile(member);
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);

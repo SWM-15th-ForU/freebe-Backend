@@ -65,6 +65,8 @@ public class KakaoUnlinkService {
 
             if (response != null && response.getStatusCode() == HttpStatus.OK) {
                 handleMemberLeaving(member, unlinkRequest.getReason());
+            } else if (response != null && response.getStatusCode() != HttpStatus.OK) {
+                throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
             }
         } catch (WebClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);

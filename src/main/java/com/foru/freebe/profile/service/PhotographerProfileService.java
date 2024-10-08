@@ -46,7 +46,7 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
-        validateDuplicates(request.getLinkInfos());
+        validateLinkTitleDuplicate(request.getLinkInfos());
 
         updateIntroductionContent(profile, request.getIntroductionContent());
         updateLinks(profile, request.getLinkInfos());
@@ -96,7 +96,7 @@ public class PhotographerProfileService {
         }
     }
 
-    private void validateDuplicates(List<LinkInfo> linkInfos) {
+    private void validateLinkTitleDuplicate(List<LinkInfo> linkInfos) {
         boolean isDuplicatedTitle = linkInfos.size() != linkInfos.stream()
             .map(LinkInfo::getLinkTitle)
             .distinct()

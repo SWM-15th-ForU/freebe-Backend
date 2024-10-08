@@ -45,7 +45,7 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
-        hasDuplicates(request.getLinkInfos());
+        validateDuplicates(request.getLinkInfos());
 
         updateIntroductionContent(profile, request.getIntroductionContent());
         updateLinks(profile, request.getLinkInfos());
@@ -64,7 +64,7 @@ public class PhotographerProfileService {
         }
     }
 
-    private void hasDuplicates(List<LinkInfo> linkInfos) {
+    private void validateDuplicates(List<LinkInfo> linkInfos) {
         boolean isDuplicatedTitle = linkInfos.size() != linkInfos.stream()
             .map(LinkInfo::getLinkTitle)
             .distinct()
@@ -72,15 +72,6 @@ public class PhotographerProfileService {
 
         if (isDuplicatedTitle) {
             throw new RestApiException(LinkErrorCode.DUPLICATE_TITLE);
-        }
-
-        boolean isDuplicatedUrl = linkInfos.size() != linkInfos.stream()
-            .map(LinkInfo::getLinkUrl)
-            .distinct()
-            .count();
-
-        if (isDuplicatedUrl) {
-            throw new RestApiException(LinkErrorCode.DUPLICATE_URL);
         }
     }
 

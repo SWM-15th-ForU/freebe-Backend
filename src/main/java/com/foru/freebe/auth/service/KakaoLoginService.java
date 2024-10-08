@@ -42,15 +42,6 @@ public class KakaoLoginService {
         return builder.build();
     }
 
-    private Member registerNewMember(KakaoUser kakaoUser, Role role) {
-        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
-                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
-            .birthyear(kakaoUser.getBirthYear())
-            .gender(kakaoUser.getGender())
-            .build();
-        return memberRepository.save(newMember);
-    }
-
     private LoginResponse.LoginResponseBuilder validateRoleType(LoginResponse.LoginResponseBuilder builder,
         Member member, Role requestedRole) {
         if (member.getRole() == requestedRole ||
@@ -91,5 +82,14 @@ public class KakaoLoginService {
                 .profileName(null);
         }
         throw new RestApiException(MemberErrorCode.INVALID_LOGIN_REQUEST);
+
+    private Member registerNewMember(KakaoUser kakaoUser, Role role) {
+        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
+                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
+            .birthYear(kakaoUser.getBirthYear())
+            .birthDay(kakaoUser.getBirthDay())
+            .gender(kakaoUser.getGender())
+            .build();
+        return memberRepository.save(newMember);
     }
 }

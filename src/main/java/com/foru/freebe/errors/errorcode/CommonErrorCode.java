@@ -12,8 +12,7 @@ public enum CommonErrorCode implements ErrorCode {
     RESOURCE_NOT_FOUND(404, "Resource not exists"),
     INTERNAL_SERVER_ERROR(500, "Internal server error"),
     IO_EXCEPTION(500, "IoException occurred"),
-    DUPLICATED_RESOURCE(500, "Duplicated resource"),
-    ;
+    DUPLICATED_RESOURCE(500, "Duplicated resource");
 
     private final int httpStatus;
     private final String message;

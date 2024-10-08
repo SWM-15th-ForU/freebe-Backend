@@ -17,7 +17,7 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
-import com.foru.freebe.profile.service.ProfileService;
+import com.foru.freebe.profile.service.PhotographerProfileService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,14 +25,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/photographer")
 public class PhotographerProfileController {
-    private final ProfileService profileService;
+    private final PhotographerProfileService photographerProfileService;
 
     @GetMapping("/profile")
     public ResponseEntity<ResponseBody<ProfileResponse>> getCurrentProfile(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
-        ProfileResponse responseData = profileService.getMyCurrentProfile(photographer);
+        ProfileResponse responseData = photographerProfileService.getMyCurrentProfile(photographer);
 
         ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
             .message("Good Response")
@@ -50,7 +50,7 @@ public class PhotographerProfileController {
         @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 
         Member photographer = memberAdapter.getMember();
-        profileService.updateProfile(photographer, request, bannerImage, profileImage);
+        photographerProfileService.updateProfile(photographer, request, bannerImage, profileImage);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Updated successfully")

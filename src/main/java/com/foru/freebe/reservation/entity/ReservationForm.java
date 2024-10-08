@@ -53,6 +53,9 @@ public class ReservationForm extends BaseEntity {
     @NotBlank(message = "Product title must not be blank")
     private String productTitle;
 
+    @NotNull(message = "Basic price must not be null")
+    private Long basicPrice;
+
     @NotNull(message = "Total price must not be null")
     @Positive
     private Long totalPrice;
@@ -95,13 +98,14 @@ public class ReservationForm extends BaseEntity {
 
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
+        Long basicPrice, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
         Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
         this.productTitle = productTitle;
+        this.basicPrice = basicPrice;
         this.totalPrice = totalPrice;
         this.serviceTermAgreement = serviceTermAgreement;
         this.photographerTermAgreement = photographerTermAgreement;
@@ -114,13 +118,14 @@ public class ReservationForm extends BaseEntity {
     }
 
     public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
-        String productTitle, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
-        ReservationStatus reservationStatus) {
+        String productTitle, Long basicPrice, Long totalPrice, Boolean serviceTermAgreement,
+        Boolean photographerTermAgreement, ReservationStatus reservationStatus) {
         return new ReservationFormBuilder()
             .photographer(photographer)
             .customer(customer)
             .instagramId(instagramId)
             .productTitle(productTitle)
+            .basicPrice(basicPrice)
             .totalPrice(totalPrice)
             .serviceTermAgreement(serviceTermAgreement)
             .photographerTermAgreement(photographerTermAgreement)

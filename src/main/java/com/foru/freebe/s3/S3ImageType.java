@@ -4,4 +4,5 @@ public enum S3ImageType {
     PROFILE,
     PRODUCT,
     RESERVATION,
+    BANNER
 }

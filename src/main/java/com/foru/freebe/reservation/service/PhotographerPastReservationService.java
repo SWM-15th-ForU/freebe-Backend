@@ -38,10 +38,13 @@ public class PhotographerPastReservationService {
         String status, String keyword, Pageable defaultPageable) {
 
         Pageable pageable = setCustomPageable(defaultPageable);
-        Page<ReservationForm> reservationFormPage;
+        Page<ReservationForm> reservationFormPage = null;
+        List<ReservationForm> reservationFormList = null;
+        int totalPages = 1;
+        List<PastReservationFormComponent> component = null;
 
-        switch (status) {
-            case CANCELLED:
+        if (status != null) {
+            if (status.equals(CANCELLED)) {
                 if (from != null && to != null) {
                     reservationFormPage = reservationFormRepository.findByPhotographerIdAndReservationStatusInAndShootingDate_DateBetween(
                         photographerId, Arrays.asList(ReservationStatus.CANCELLED_BY_CUSTOMER,
@@ -51,8 +54,7 @@ public class PhotographerPastReservationService {
                         photographerId, Arrays.asList(ReservationStatus.CANCELLED_BY_CUSTOMER,
                             ReservationStatus.CANCELLED_BY_PHOTOGRAPHER), pageable);
                 }
-                break;
-            case COMPLETED:
+            } else if (status.equals(COMPLETED)) {
                 if (from != null && to != null) {
                     reservationFormPage = reservationFormRepository.findByPhotographerIdAndReservationStatusInAndShootingDate_DateBetween(
                         photographerId, Collections.singletonList(ReservationStatus.PHOTO_COMPLETED), from, to,
@@ -61,27 +63,28 @@ public class PhotographerPastReservationService {
                     reservationFormPage = reservationFormRepository.findByPhotographerIdAndReservationStatusIn(
                         photographerId, Collections.singletonList(ReservationStatus.PHOTO_COMPLETED), pageable);
                 }
-                break;
-            default:
-                if (from != null && to != null) {
-                    reservationFormPage = reservationFormRepository.findByPhotographerIdAndShootingDate_DateBetween(
-                        photographerId, from, to, pageable);
-                } else {
-                    reservationFormPage = reservationFormRepository.findByPhotographerId(photographerId, pageable);
-                }
-                break;
+            }
+        } else {
+            if (from != null && to != null) {
+                reservationFormPage = reservationFormRepository.findByPhotographerIdAndShootingDate_DateBetween(
+                    photographerId, from, to, pageable);
+            } else {
+                reservationFormPage = reservationFormRepository.findByPhotographerId(photographerId, pageable);
+            }
         }
 
-        List<ReservationForm> reservationFormList = reservationFormPage.getContent();
+        if (reservationFormPage != null) {
+            reservationFormList = reservationFormPage.getContent();
 
-        if (keyword != null && !keyword.isEmpty()) {
-            reservationFormList = keywordFiltering(keyword, reservationFormPage);
+            if (keyword != null && !keyword.isEmpty()) {
+                reservationFormList = keywordFiltering(keyword, reservationFormPage);
+            }
         }
 
-        int totalPages = reservationFormPage.getTotalPages();
-        List<PastReservationFormComponent> component = reservationFormList.stream()
+        totalPages = reservationFormPage != null ? reservationFormPage.getTotalPages() : 1;
+        component = reservationFormList != null ? reservationFormList.stream()
             .map(this::convertToPastReservationComponent)
-            .collect(Collectors.toList());
+            .collect(Collectors.toList()) : null;
 
         return new PastReservationResponse(totalPages, component);
     }

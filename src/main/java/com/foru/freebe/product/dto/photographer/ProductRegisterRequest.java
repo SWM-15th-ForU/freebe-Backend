@@ -3,6 +3,7 @@ package com.foru.freebe.product.dto.photographer;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,7 +18,10 @@ public class ProductRegisterRequest {
     @Size(max = 100, message = "Description cannot be longer than 100 characters")
     private String productDescription;
 
-    // @NotNull
+    @NotNull(message = "Basic price must not be null")
+    private Long basicPrice;
+
+    @NotNull(message = "Product components must not be null")
     private List<ProductComponentDto> productComponents;
 
     private List<ProductOptionDto> productOptions;

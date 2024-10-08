@@ -6,8 +6,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import com.foru.freebe.errors.errorcode.CommonErrorCode;
-import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.CustomerDetails;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.PreferredDate;
@@ -30,13 +28,13 @@ public class PhotographerReservationDetails {
         List<StatusHistory> statusHistories = reservationService.getStatusHistories(reservationForm);
 
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
-        Map<String, String> shootDetails = reservationForm.getPhotoInfo();
+        Map<String, String> photoInfo = reservationForm.getPhotoInfo();
         Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
-        return FormDetailsViewResponse.builder(reservationForm.getId(),
-                reservationForm.getReservationStatus(), statusHistories, reservationForm.getProductTitle(), customerDetails,
-                shootDetails, preferredDates)
+        return FormDetailsViewResponse.builder(reservationForm.getId(), reservationForm.getReservationStatus(),
+                statusHistories, reservationForm.getProductTitle(), customerDetails, reservationForm.getBasicPrice(),
+                photoInfo, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.message.dto.DataResponse;
 import com.foru.freebe.message.dto.MessageSendResponse;
 
@@ -19,16 +20,20 @@ import lombok.RequiredArgsConstructor;
 public class MessageSendService {
     private final WebClient kakaoMessageWebClient;
     private static final String TEMPLATE_ID = "freebe_join";
+    private static final String MESSAGE_TYPE = "AT";
     @Value("${kakao.alimtalk.user-id}")
     private String userId;
     @Value("${kakao.alimtalk.profile_key}")
     private String profileKey;
 
-    public void messageSendRequest(String phoneNumber, String name) {
+    public void messageSendRequest(KakaoUser kakaoUser, boolean isNewMember) {
+        if (!isNewMember) {
+            return;
+        }
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(setBodyValue(phoneNumber, name))
+            .bodyValue(setBodyValue(kakaoUser.getPhoneNumber(), kakaoUser.getUserName()))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()
@@ -42,7 +47,7 @@ public class MessageSendService {
         Map<String, String> mapRequestBody = new HashMap<String, String>();
         List<Map<String, String>> jsonArray = new ArrayList<Map<String, String>>();
 
-        mapRequestBody.put("message_type", "AT");
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
         mapRequestBody.put("phn", phoneNumber);
         mapRequestBody.put("profile", profileKey);
         mapRequestBody.put("msg", name + "님, 프리비에 가입해주셔서 감사합니다.\n"

@@ -48,7 +48,7 @@ public class AuthController {
             .data(loginResponse.getProfileName())
             .build();
 
-        messageSendService.messageSendRequest(kakaoUser.getPhoneNumber(), kakaoUser.getUserName());
+        messageSendService.messageSendRequest(kakaoUser, loginResponse.isNewMember());
 
         return ResponseEntity.status(HttpStatus.OK)
             .headers(headers)

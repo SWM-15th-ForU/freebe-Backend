@@ -45,6 +45,7 @@ public class KakaoUnlinkService {
     public void unlinkKakaoAccount(Long memberId, UnlinkRequest unlinkRequest) {
         final String AUTHORIZATION_HEADER = "Authorization";
         final String KAKAO_AUTH_PREFIX = "KakaoAK ";
+        final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
 
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -52,8 +53,6 @@ public class KakaoUnlinkService {
         Long kakaoUserId = member.getKakaoId();
 
         try {
-            String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
-
             ResponseEntity<String> response = webClient.post()
                 .uri(kakaoUnlinkUrl)
                 .header(AUTHORIZATION_HEADER, KAKAO_AUTH_PREFIX + adminKey)

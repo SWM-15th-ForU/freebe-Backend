@@ -43,7 +43,7 @@ public class CustomerProductService {
         Product product = productRepository.findById(productId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        return productDetailConvertor.convertProductToProductDetailResponse(product);
+        return productDetailConvertor.convertProductToProductDetailResponse(product, true);
     }
 
     public List<ProductListResponse> getProductList(String profileName) {
@@ -51,7 +51,6 @@ public class CustomerProductService {
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         Member photographer = photographerProfile.getMember();
-
         List<Product> products = productRepository.findByMemberAndActiveStatus(photographer, ActiveStatus.ACTIVE);
 
         List<ProductListResponse> productListResponseList = new ArrayList<>();
@@ -61,6 +60,7 @@ public class CustomerProductService {
             ProductListResponse productListResponse = ProductListResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
+                .basicPrice(product.getBasicPrice())
                 .productRepresentativeImageUrl(productImage.get(0).getThumbnailUrl())
                 .build();
 

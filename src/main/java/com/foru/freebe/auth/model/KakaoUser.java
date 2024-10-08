@@ -33,8 +33,12 @@ public class KakaoUser {
         return "0" + phoneNumber.replace("+82 ", "");
     }
 
-    public Integer getBirthYear() {
-        return (Integer)kakaoAccount.get("birth_year");
+    public String getBirthYear() {
+        return (String)kakaoAccount.get("birthyear");
+    }
+
+    public String getBirthDay() {
+        return (String)kakaoAccount.get("birthday");
     }
 
     public String getGender() {

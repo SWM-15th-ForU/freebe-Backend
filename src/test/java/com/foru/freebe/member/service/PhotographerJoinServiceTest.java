@@ -22,7 +22,6 @@ import com.foru.freebe.profile.repository.LinkRepository;
 import com.foru.freebe.profile.repository.ProfileImageRepository;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.profile.service.ProfileService;
-import com.foru.freebe.s3.S3ImageService;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("사진작가측 회원가입 테스트")
@@ -35,9 +34,6 @@ class PhotographerJoinServiceTest {
 
     @Mock
     private ProfileImageRepository profileImageRepository;
-
-    @Mock
-    private S3ImageService s3ImageService;
 
     @Mock
     private MemberRepository memberRepository;
@@ -55,7 +51,7 @@ class PhotographerJoinServiceTest {
     void setUp() {
         MockitoAnnotations.openMocks(this);
         profileService = spy(
-            new ProfileService(profileRepository, linkRepository, profileImageRepository, s3ImageService));
+            new ProfileService(profileRepository, linkRepository, profileImageRepository));
         photographerJoinService = new PhotographerJoinService(profileService, memberRepository,
             memberTermAgreementRepository);
         photographer = Member.builder(1L, Role.PHOTOGRAPHER_PENDING, "이유리", "test@email", "010-0000-0000").build();

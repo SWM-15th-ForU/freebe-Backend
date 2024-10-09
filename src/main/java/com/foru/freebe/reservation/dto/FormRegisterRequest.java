@@ -26,7 +26,7 @@ public class FormRegisterRequest {
     private String instagramId;
 
     @NotNull(message = "Preferred dates must not be null")
-    private Map<Integer, PreferredDate> preferredDates;
+    private Map<Integer, TimeSlot> preferredDates;
 
     private Map<Integer, PhotoOption> photoOptions;
 

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.reservation.dto.CustomerDetails;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
-import com.foru.freebe.reservation.dto.PreferredDate;
 import com.foru.freebe.reservation.dto.ReferenceImageUrls;
 import com.foru.freebe.reservation.dto.StatusHistory;
+import com.foru.freebe.reservation.dto.TimeSlot;
 import com.foru.freebe.reservation.entity.ReferenceImage;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.repository.ReferenceImageRepository;
@@ -28,14 +28,16 @@ public class PhotographerReservationDetails {
         List<StatusHistory> statusHistories = reservationService.getStatusHistories(reservationForm);
 
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
+        Map<String, String> shootDetails = reservationForm.getPhotoInfo();
+        Map<Integer, TimeSlot> preferredDates = reservationForm.getPreferredDate();
         Map<String, String> photoInfo = reservationForm.getPhotoInfo();
-        Map<Integer, PreferredDate> preferredDates = reservationForm.getPreferredDate();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);
 
         return FormDetailsViewResponse.builder(reservationForm.getId(), reservationForm.getReservationStatus(),
                 statusHistories, reservationForm.getProductTitle(), customerDetails, reservationForm.getBasicPrice(),
                 photoInfo, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
+            .shootingDate(reservationForm.getShootingDate())
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())

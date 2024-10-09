@@ -38,7 +38,9 @@ public class FormDetailsViewResponse {
     private Map<Integer, PhotoOption> photoOptions;
 
     @NotNull
-    private Map<Integer, PreferredDate> preferredDates;
+    private Map<Integer, TimeSlot> preferredDates;
+
+    private TimeSlot shootingDate;
 
     private List<String> originalImage;
 
@@ -52,7 +54,7 @@ public class FormDetailsViewResponse {
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails, Long basicPrice,
         Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
-        Map<Integer, PreferredDate> preferredDates, List<String> originalImage,
+        Map<Integer, TimeSlot> preferredDates, TimeSlot shootingDate, List<String> originalImage,
         List<String> thumbnailImage, String requestMemo, String photographerMemo) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
@@ -63,6 +65,7 @@ public class FormDetailsViewResponse {
         this.photoInfo = photoInfo;
         this.photoOptions = photoOptions;
         this.preferredDates = preferredDates;
+        this.shootingDate = shootingDate;
         this.originalImage = originalImage;
         this.thumbnailImage = thumbnailImage;
         this.requestMemo = requestMemo;
@@ -70,9 +73,9 @@ public class FormDetailsViewResponse {
     }
 
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber,
-        ReservationStatus currentReservationStatus, List<StatusHistory> statusHistory, String productTitle,
-        CustomerDetails customerDetails, Long basicPrice, Map<String, String> photoInfo,
-        Map<Integer, PreferredDate> preferredDates) {
+        ReservationStatus currentReservationStatus,
+        List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
+        Long basicPrice, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
             .currentReservationStatus(currentReservationStatus)

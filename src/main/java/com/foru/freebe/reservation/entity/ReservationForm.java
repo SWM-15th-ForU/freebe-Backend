@@ -7,7 +7,7 @@ import org.hibernate.annotations.Type;
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.reservation.dto.PhotoOption;
-import com.foru.freebe.reservation.dto.PreferredDate;
+import com.foru.freebe.reservation.dto.TimeSlot;
 
 import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
@@ -78,11 +78,11 @@ public class ReservationForm extends BaseEntity {
     @Type(JsonType.class)
     @Column(name = "preferred_date", columnDefinition = "longtext")
     @NotNull(message = "Preferred Date must not be null")
-    private Map<Integer, PreferredDate> preferredDate;
+    private Map<Integer, TimeSlot> preferredDate;
 
     @Type(JsonType.class)
     @Column(name = "shooting_date", columnDefinition = "longtext")
-    private PreferredDate shootingDate;
+    private TimeSlot shootingDate;
 
     @Type(JsonType.class)
     @Column(name = "photo_option", columnDefinition = "longtext")
@@ -99,7 +99,7 @@ public class ReservationForm extends BaseEntity {
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long basicPrice, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
-        ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, PreferredDate> preferredDate,
+        ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
         Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
@@ -130,5 +130,9 @@ public class ReservationForm extends BaseEntity {
             .serviceTermAgreement(serviceTermAgreement)
             .photographerTermAgreement(photographerTermAgreement)
             .reservationStatus(reservationStatus);
+    }
+
+    public void updateShootingDate(TimeSlot newShootingDate) {
+        this.shootingDate = newShootingDate;
     }
 }

@@ -29,7 +29,7 @@ public class PastReservationFormComponent {
     private String productTitle;
 
     @NotNull
-    private PreferredDate shootingDate;
+    private TimeSlot shootingDate;
 
     @NotBlank
     private Long price;
@@ -39,7 +39,7 @@ public class PastReservationFormComponent {
 
     @Builder
     public PastReservationFormComponent(ReservationStatus reservationStatus, Long reservationId,
-        LocalDate reservationSubmissionDate, String customerName, String productTitle, PreferredDate shootingDate,
+        LocalDate reservationSubmissionDate, String customerName, String productTitle, TimeSlot shootingDate,
         Long price, String image) {
         this.reservationStatus = reservationStatus;
         this.reservationId = reservationId;

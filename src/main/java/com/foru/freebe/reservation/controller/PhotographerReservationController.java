@@ -24,6 +24,7 @@ import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PastReservationResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.dto.ShootingDate;
 import com.foru.freebe.reservation.service.PhotographerPastReservationService;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
@@ -106,6 +107,22 @@ public class PhotographerReservationController {
         ResponseBody<PastReservationResponse> responseBody = ResponseBody.<PastReservationResponse>builder()
             .message("Successfully get reservation list")
             .data(pastReservationResponse)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @PutMapping("/reservation/shooting/date")
+    public ResponseEntity<ResponseBody<Void>> setShootingDate(@AuthenticationPrincipal MemberAdapter memberAdapter,
+        @Valid @RequestBody ShootingDate request) {
+
+        Member photographer = memberAdapter.getMember();
+
+        photographerReservationService.setShootingDate(photographer.getId(), request);
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Successfully update shooting date")
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

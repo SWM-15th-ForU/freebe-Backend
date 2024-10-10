@@ -5,10 +5,10 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ProductTitleDto {
+public class ProductTitleResponse {
     private String title;
 
-    public ProductTitleDto(String title) {
+    public ProductTitleResponse(String title) {
         this.title = title;
     }
 }

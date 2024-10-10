@@ -22,7 +22,7 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductRegisterRequest;
-import com.foru.freebe.product.dto.photographer.ProductTitleDto;
+import com.foru.freebe.product.dto.photographer.ProductTitleResponse;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
@@ -139,13 +139,13 @@ public class PhotographerProductController {
     }
 
     @GetMapping("/product/title")
-    public ResponseEntity<ResponseBody<List<ProductTitleDto>>> getAllProductTitle(
+    public ResponseEntity<ResponseBody<List<ProductTitleResponse>>> getAllProductTitle(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
         Member photographer = memberAdapter.getMember();
 
-        List<ProductTitleDto> responseData = photographerProductService.getAllProductTitle(photographer.getId());
+        List<ProductTitleResponse> responseData = photographerProductService.getAllProductTitle(photographer.getId());
 
-        ResponseBody<List<ProductTitleDto>> responseBody = ResponseBody.<List<ProductTitleDto>>builder()
+        ResponseBody<List<ProductTitleResponse>> responseBody = ResponseBody.<List<ProductTitleResponse>>builder()
             .message("Successfully retrieved list of product titles")
             .data(responseData)
             .build();

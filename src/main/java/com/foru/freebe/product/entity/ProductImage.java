@@ -28,9 +28,11 @@ public class ProductImage extends BaseEntity {
     private int imageOrder;
 
     @NotNull
+    @Column(length = 600)
     private String thumbnailUrl;
 
     @NotNull
+    @Column(length = 600)
     private String originUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)

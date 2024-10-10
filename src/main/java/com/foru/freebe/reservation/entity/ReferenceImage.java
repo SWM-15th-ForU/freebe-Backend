@@ -29,9 +29,11 @@ public class ReferenceImage extends BaseEntity {
     private ReservationForm reservationForm;
 
     @NotBlank
+    @Column(length = 600)
     private String originUrl;
 
     @NotBlank
+    @Column(length = 600)
     private String thumbnailUrl;
 
     private ReferenceImage(String originUrl, String thumbnailUrl, ReservationForm reservationForm) {

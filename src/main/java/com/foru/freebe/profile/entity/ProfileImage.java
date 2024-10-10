@@ -28,8 +28,10 @@ public class ProfileImage extends BaseEntity {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @Column(length = 600)
     private String bannerOriginUrl;
 
+    @Column(length = 600)
     private String profileOriginUrl;
 
     public void assignBannerOriginUrl(String bannerOriginUrl) {

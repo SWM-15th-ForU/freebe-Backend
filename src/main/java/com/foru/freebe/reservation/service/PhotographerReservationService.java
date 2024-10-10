@@ -2,7 +2,6 @@ package com.foru.freebe.reservation.service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +12,6 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.constants.SortConstants;
 import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.member.repository.MemberRepository;
-import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.ShootingDate;
@@ -29,8 +26,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PhotographerReservationService {
     private final ReservationFormRepository reservationFormRepository;
-    private final MemberRepository memberRepository;
-    private final ProductRepository productRepository;
 
     public List<FormListViewResponse> getReservationList(Long photographerId) {
         return getReservationListAsStatus(photographerId);
@@ -82,8 +77,7 @@ public class PhotographerReservationService {
     }
 
     private List<FormListViewResponse> getReservationListAsStatus(Long id) {
-        List<ReservationForm> formList = reservationFormRepository.findAllByPhotographerId(id)
-            .orElseGet(ArrayList::new);
+        List<ReservationForm> formList = reservationFormRepository.findAllByPhotographerId(id);
 
         Map<ReservationStatus, List<FormComponent>> reservationStatusMap = groupingFormAsStatus(formList);
 

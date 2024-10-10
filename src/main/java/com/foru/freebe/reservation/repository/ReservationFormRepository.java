@@ -12,7 +12,7 @@ import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 
 public interface ReservationFormRepository extends JpaRepository<ReservationForm, Long> {
-    Optional<List<ReservationForm>> findAllByPhotographerId(Long photographerId);
+    List<ReservationForm> findAllByPhotographerId(Long photographerId);
 
     Optional<ReservationForm> findByPhotographerIdAndId(Long photographerId, Long id);
 

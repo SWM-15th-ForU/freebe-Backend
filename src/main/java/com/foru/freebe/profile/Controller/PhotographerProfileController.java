@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.profile.dto.ProfileResponse;
+import com.foru.freebe.profile.dto.PhotographerViewProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
 import com.foru.freebe.profile.service.PhotographerProfileService;
 
@@ -29,13 +29,13 @@ public class PhotographerProfileController {
     private final PhotographerProfileService photographerProfileService;
 
     @GetMapping("/profile")
-    public ResponseEntity<ResponseBody<ProfileResponse>> getCurrentProfile(
+    public ResponseEntity<ResponseBody<PhotographerViewProfileResponse>> getCurrentProfile(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
-        ProfileResponse responseData = photographerProfileService.getMyCurrentProfile(photographer);
+        PhotographerViewProfileResponse responseData = photographerProfileService.getMyCurrentProfile(photographer);
 
-        ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
+        ResponseBody<PhotographerViewProfileResponse> responseBody = ResponseBody.<PhotographerViewProfileResponse>builder()
             .message("Good Response")
             .data(responseData).build();
 

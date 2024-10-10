@@ -11,7 +11,7 @@ import com.foru.freebe.errors.errorcode.LinkErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.LinkInfo;
-import com.foru.freebe.profile.dto.ProfileResponse;
+import com.foru.freebe.profile.dto.PhotographerViewProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
 import com.foru.freebe.profile.entity.Link;
 import com.foru.freebe.profile.entity.Profile;
@@ -34,9 +34,9 @@ public class PhotographerProfileService {
     private final ProfileImageRepository profileImageRepository;
     private final LinkRepository linkRepository;
 
-    public ProfileResponse getMyCurrentProfile(Member photographer) {
+    public PhotographerViewProfileResponse getMyCurrentProfile(Member photographer) {
         Profile profile = profileService.getProfile(photographer);
-        return profileService.findPhotographerProfile(profile.getProfileName(), profile);
+        return profileService.findPhotographerViewProfile(profile);
     }
 
     @Transactional

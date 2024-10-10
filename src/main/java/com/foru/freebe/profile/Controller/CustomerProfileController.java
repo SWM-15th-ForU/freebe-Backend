@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.common.dto.ResponseBody;
-import com.foru.freebe.profile.dto.ProfileResponse;
+import com.foru.freebe.profile.dto.CustomerViewProfileResponse;
 import com.foru.freebe.profile.service.CustomerProfileService;
 
 import lombok.RequiredArgsConstructor;
@@ -20,12 +20,12 @@ public class CustomerProfileController {
     private final CustomerProfileService customerProfileService;
 
     @GetMapping("/profile/{profileName}")
-    public ResponseEntity<ResponseBody<ProfileResponse>> getPhotographerProfile(
+    public ResponseEntity<ResponseBody<CustomerViewProfileResponse>> getPhotographerProfile(
         @PathVariable("profileName") String profileName) {
 
-        ProfileResponse responseData = customerProfileService.getPhotographerProfile(profileName);
+        CustomerViewProfileResponse responseData = customerProfileService.getPhotographerProfile(profileName);
 
-        ResponseBody<ProfileResponse> responseBody = ResponseBody.<ProfileResponse>builder()
+        ResponseBody<CustomerViewProfileResponse> responseBody = ResponseBody.<CustomerViewProfileResponse>builder()
             .message("Good Response")
             .data(responseData)
             .build();

@@ -2,6 +2,7 @@ package com.foru.freebe.member.dto;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -16,6 +17,9 @@ public class PhotographerJoinRequest {
     @Size(min = 3, max = 30, message = "프로필명은 최소 3자 이상 최대 30자 이하여야합니다")
     private String profileName;
 
+    @NotNull
+    private String contact;
+
     @AssertTrue
     private Boolean termsOfServiceAgreement;
 
@@ -25,9 +29,10 @@ public class PhotographerJoinRequest {
     private Boolean marketingAgreement;
 
     @Builder
-    public PhotographerJoinRequest(String profileName, Boolean termsOfServiceAgreement, Boolean privacyPolicyAgreement,
-        Boolean marketingAgreement) {
+    public PhotographerJoinRequest(String profileName, String contact, Boolean termsOfServiceAgreement,
+        Boolean privacyPolicyAgreement, Boolean marketingAgreement) {
         this.profileName = profileName;
+        this.contact = contact;
         this.termsOfServiceAgreement = termsOfServiceAgreement;
         this.privacyPolicyAgreement = privacyPolicyAgreement;
         this.marketingAgreement = marketingAgreement;

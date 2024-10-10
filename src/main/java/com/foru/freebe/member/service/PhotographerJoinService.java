@@ -26,7 +26,8 @@ public class PhotographerJoinService {
         Member photographer = completePhotographerSignup(member);
 
         savePhotographerAgreements(photographer, request);
-        Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName());
+        Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName(),
+            request.getContact());
 
         return profile.getProfileName();
     }

@@ -25,7 +25,7 @@ import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PastReservationResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.ShootingDate;
-import com.foru.freebe.reservation.dto.UpdatePhotographerMemo;
+import com.foru.freebe.reservation.dto.UpdatePhotographerMemoRequest;
 import com.foru.freebe.reservation.service.PhotographerPastReservationService;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
@@ -134,7 +134,7 @@ public class PhotographerReservationController {
     @PutMapping("/reservation/memo/{formId}")
     public ResponseEntity<ResponseBody<Void>> updatePhotographerMemo(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestBody UpdatePhotographerMemo request,
+        @RequestBody UpdatePhotographerMemoRequest request,
         @PositiveOrZero @PathVariable("formId") Long formId) {
 
         Member photographer = memberAdapter.getMember();

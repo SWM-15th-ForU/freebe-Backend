@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UpdatePhotographerMemo {
+public class UpdatePhotographerMemoRequest {
 
     private String photographerMemo;
 }

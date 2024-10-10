@@ -46,9 +46,8 @@ public class PhotographerReservationService {
     }
 
     @Transactional
-    public void updatePhotographerMemo(Long photographerId, UpdatePhotographerMemo request) {
-        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId,
-                request.getReservationFormId())
+    public void updatePhotographerMemo(Long photographerId, UpdatePhotographerMemo request, Long formId) {
+        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId, formId)
             .orElseThrow(() -> new RestApiException(ReservationErrorCode.NO_RESERVATION_FORM));
 
         reservationForm.updatePhotographerMemo(request.getPhotographerMemo());

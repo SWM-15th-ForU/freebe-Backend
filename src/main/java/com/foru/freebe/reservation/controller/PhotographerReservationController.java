@@ -32,6 +32,7 @@ import com.foru.freebe.reservation.service.PhotographerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -130,13 +131,14 @@ public class PhotographerReservationController {
             .body(responseBody);
     }
 
-    @PutMapping("/reservation/memo")
+    @PutMapping("/reservation/memo/{formId}")
     public ResponseEntity<ResponseBody<Void>> updatePhotographerMemo(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestBody UpdatePhotographerMemo request) {
+        @RequestBody UpdatePhotographerMemo request,
+        @PositiveOrZero @PathVariable("formId") Long formId) {
 
         Member photographer = memberAdapter.getMember();
-        photographerReservationService.updatePhotographerMemo(photographer.getId(), request);
+        photographerReservationService.updatePhotographerMemo(photographer.getId(), request, formId);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update photographer memo")

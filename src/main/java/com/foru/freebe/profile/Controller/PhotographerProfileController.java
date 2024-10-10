@@ -19,6 +19,7 @@ import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.dto.UpdateProfileRequest;
 import com.foru.freebe.profile.service.PhotographerProfileService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -45,7 +46,7 @@ public class PhotographerProfileController {
     @PutMapping("/profile")
     public ResponseEntity<ResponseBody<Void>> updateProfile(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestPart(value = "request") UpdateProfileRequest request,
+        @Valid @RequestPart(value = "request") UpdateProfileRequest request,
         @RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage,
         @RequestPart(value = "profileImage", required = false) MultipartFile profileImage) throws IOException {
 

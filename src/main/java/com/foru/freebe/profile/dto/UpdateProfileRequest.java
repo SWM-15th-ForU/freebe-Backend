@@ -2,6 +2,7 @@ package com.foru.freebe.profile.dto;
 
 import java.util.List;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class UpdateProfileRequest {
+    @NotBlank
     private String contact;
     private String introductionContent;
     private String existingBannerImageUrl;

@@ -2,7 +2,6 @@ package com.foru.freebe.member.dto;
 
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -17,7 +16,7 @@ public class PhotographerJoinRequest {
     @Size(min = 3, max = 30, message = "프로필명은 최소 3자 이상 최대 30자 이하여야합니다")
     private String profileName;
 
-    @NotNull
+    @NotBlank
     private String contact;
 
     @AssertTrue

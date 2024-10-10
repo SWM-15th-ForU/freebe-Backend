@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,10 +28,12 @@ import com.foru.freebe.reservation.service.CustomerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
+@Validated
 @RequestMapping("/customer")
 public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
@@ -56,7 +59,8 @@ public class CustomerReservationController {
 
     @GetMapping("/reservation/form/{productId}")
     public ResponseEntity<ResponseBody<BasicReservationInfoResponse>> getBasicReservationForm(
-        @AuthenticationPrincipal MemberAdapter memberAdapter, @Valid @PathVariable("productId") Long productId) {
+        @AuthenticationPrincipal MemberAdapter memberAdapter,
+        @PositiveOrZero @PathVariable("productId") Long productId) {
 
         Member customer = memberAdapter.getMember();
         BasicReservationInfoResponse responseData = customerReservationService.getBasicReservationForm(
@@ -73,8 +77,7 @@ public class CustomerReservationController {
 
     @GetMapping("/reservation/{formId}")
     public ResponseEntity<ResponseBody<ReservationInfoResponse>> getReservationInfo(
-        @AuthenticationPrincipal MemberAdapter memberAdapter,
-        @Valid @PathVariable("formId") Long formId) {
+        @AuthenticationPrincipal MemberAdapter memberAdapter, @PositiveOrZero @PathVariable("formId") Long formId) {
 
         Member customer = memberAdapter.getMember();
         ReservationInfoResponse responseData = customerReservationService.getReservationInfo(formId, customer.getId());
@@ -90,7 +93,8 @@ public class CustomerReservationController {
 
     @PutMapping("/reservation/{formId}")
     public ResponseEntity<Void> updateBasicReservationForm(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @Valid @PathVariable("formId") Long formId, @Valid @RequestBody ReservationStatusUpdateRequest request) {
+        @PositiveOrZero @PathVariable("formId") Long formId,
+        @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member customer = memberAdapter.getMember();
         reservationService.updateReservationStatus(customer.getId(), formId, request, false);

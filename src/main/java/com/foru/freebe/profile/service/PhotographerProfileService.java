@@ -8,7 +8,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.LinkErrorCode;
-import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.profile.dto.LinkInfo;
@@ -47,7 +46,7 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
-        updateContact(profile, request.getContact());
+        profile.updateContact(request.getContact());
         updateIntroductionContent(profile, request.getIntroductionContent());
 
         validateLinkTitleDuplicate(request.getLinkInfos());
@@ -55,13 +54,6 @@ public class PhotographerProfileService {
 
         updateBannerImage(photographer.getId(), request.getExistingBannerImageUrl(), bannerImageFile, profileImage);
         updateProfileImage(photographer.getId(), request.getExistingProfileImageUrl(), profileImageFile, profileImage);
-    }
-
-    private static void updateContact(Profile profile, String updateContact) {
-        if (updateContact == null) {
-            throw new RestApiException(ProfileErrorCode.CONTACT_NOT_PROVIDED);
-        }
-        profile.updateContact(updateContact);
     }
 
     @Transactional

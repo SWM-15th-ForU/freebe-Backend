@@ -29,14 +29,14 @@ public class ProfileService {
     private final ProfileImageRepository profileImageRepository;
 
     @Transactional
-    public Profile initialProfileSetting(Member photographer, String profileName) {
+    public Profile initialProfileSetting(Member photographer, String profileName, String contact) {
         boolean isProfileExists = profileRepository.existsByMemberId(photographer.getId());
         if (isProfileExists) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
 
         validateProfileNameDuplicate(profileName);
-        return createMemberProfile(photographer, profileName);
+        return createMemberProfile(photographer, profileName, contact);
     }
 
     public Profile getProfile(String profileName) {
@@ -74,11 +74,12 @@ public class ProfileService {
         }
     }
 
-    private Profile createMemberProfile(Member member, String profileName) {
+    private Profile createMemberProfile(Member member, String profileName, String contact) {
         Profile profile = Profile.builder()
             .profileName(profileName)
             .introductionContent(null)
             .member(member)
+            .contact(contact)
             .build();
 
         return profileRepository.save(profile);

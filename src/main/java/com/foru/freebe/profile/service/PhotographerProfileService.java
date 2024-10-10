@@ -46,10 +46,12 @@ public class PhotographerProfileService {
         Profile profile = profileService.getProfile(photographer);
         ProfileImage profileImage = createProfileImageIfNotExists(profile);
 
-        validateLinkTitleDuplicate(request.getLinkInfos());
-
+        profile.updateContact(request.getContact());
         updateIntroductionContent(profile, request.getIntroductionContent());
+
+        validateLinkTitleDuplicate(request.getLinkInfos());
         updateLinks(profile, request.getLinkInfos());
+
         updateBannerImage(photographer.getId(), request.getExistingBannerImageUrl(), bannerImageFile, profileImage);
         updateProfileImage(photographer.getId(), request.getExistingProfileImageUrl(), profileImageFile, profileImage);
     }

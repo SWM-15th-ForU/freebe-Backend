@@ -11,7 +11,6 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.profile.dto.ProfileResponse;
 import com.foru.freebe.profile.service.CustomerProfileService;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -22,7 +21,7 @@ public class CustomerProfileController {
 
     @GetMapping("/profile/{profileName}")
     public ResponseEntity<ResponseBody<ProfileResponse>> getPhotographerProfile(
-        @Valid @PathVariable("profileName") String profileName) {
+        @PathVariable("profileName") String profileName) {
 
         ProfileResponse responseData = customerProfileService.getPhotographerProfile(profileName);
 

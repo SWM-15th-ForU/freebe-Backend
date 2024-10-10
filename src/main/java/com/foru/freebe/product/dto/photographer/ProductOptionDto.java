@@ -1,5 +1,6 @@
 package com.foru.freebe.product.dto.photographer;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -10,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ProductOptionDto {
-    @NotNull
+    @NotBlank
     @Size(max = 30, message = "Title cannot be longer than 30 characters")
     private String title;
 

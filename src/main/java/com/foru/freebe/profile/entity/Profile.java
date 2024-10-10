@@ -33,16 +33,24 @@ public class Profile extends BaseEntity {
     @NotBlank(message = "Profile name must not be blank")
     private String profileName;
 
+    @NotBlank(message = "Contact must not be blank")
+    private String contact;
+
     private String introductionContent;
 
     public void updateIntroductionContent(String introductionContent) {
         this.introductionContent = introductionContent;
     }
 
+    public void updateContact(String contact) {
+        this.contact = contact;
+    }
+
     @Builder
-    public Profile(String profileName, String introductionContent, Member member) {
-        this.profileName = profileName;
-        this.introductionContent = introductionContent;
+    public Profile(Member member, String profileName, String contact, String introductionContent) {
         this.member = member;
+        this.profileName = profileName;
+        this.contact = contact;
+        this.introductionContent = introductionContent;
     }
 }

@@ -28,7 +28,6 @@ public class PhotographerReservationDetails {
         List<StatusHistory> statusHistories = reservationService.getStatusHistories(reservationForm);
 
         CustomerDetails customerDetails = buildCustomerDetails(reservationForm);
-        Map<String, String> shootDetails = reservationForm.getPhotoInfo();
         Map<Integer, TimeSlot> preferredDates = reservationForm.getPreferredDate();
         Map<String, String> photoInfo = reservationForm.getPhotoInfo();
         ReferenceImageUrls preferredImages = getPreferredImages(reservationForm);

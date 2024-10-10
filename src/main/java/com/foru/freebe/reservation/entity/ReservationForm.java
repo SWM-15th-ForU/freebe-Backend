@@ -92,6 +92,10 @@ public class ReservationForm extends BaseEntity {
 
     private String photographerMemo;
 
+    public void updatePhotographerMemo(String updateMemo) {
+        this.photographerMemo = updateMemo;
+    }
+
     public void changeReservationStatus(ReservationStatus updateStatus) {
         this.reservationStatus = updateStatus;
     }

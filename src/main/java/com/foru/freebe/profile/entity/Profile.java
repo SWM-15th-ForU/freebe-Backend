@@ -42,6 +42,10 @@ public class Profile extends BaseEntity {
         this.introductionContent = introductionContent;
     }
 
+    public void updateContact(String contact) {
+        this.contact = contact;
+    }
+
     @Builder
     public Profile(Member member, String profileName, String contact, String introductionContent) {
         this.member = member;

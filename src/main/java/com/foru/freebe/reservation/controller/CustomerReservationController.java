@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.message.service.MessageSendService;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
@@ -38,6 +39,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
     private final ReservationService reservationService;
+    private final MessageSendService messageSendService;
 
     @PostMapping(value = "/reservation")
     public ResponseEntity<ResponseBody<Long>> registerReservationForm(
@@ -95,7 +97,6 @@ public class CustomerReservationController {
     public ResponseEntity<Void> updateReservationStatus(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
-
         Member customer = memberAdapter.getMember();
         reservationService.updateReservationStatus(customer.getId(), formId, request, false);
 

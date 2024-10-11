@@ -35,7 +35,6 @@ fi
 
 # 애플리케이션 실행
 echo "[$NOW] > $JAR 실행" >> $START_LOG
-#nohup java -javaagent:$NEW_RELIC_JAR_FILE -jar $JAR > $APP_LOG 2> $ERROR_LOG &
 nohup java -javaagent:$NEW_RELIC_JAR_FILE -Dnewrelic.config.license_key=$NEW_RELIC_LICENSE_KEY -Dnewrelic.config.app_name=$NEW_RELIC_APP_NAME -jar $JAR > $APP_LOG 2> $ERROR_LOG &
 
   # 실행된 프로세스의 PID 확인

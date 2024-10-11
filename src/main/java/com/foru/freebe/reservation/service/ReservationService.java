@@ -60,6 +60,11 @@ public class ReservationService {
             .collect(Collectors.toList());
     }
 
+    public String getCancelledProductName(Long customerId, Long formId) {
+        ReservationForm reservationForm = findReservationForm(customerId, formId, false);
+        return reservationForm.getProductTitle();
+    }
+
     private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {
         return StatusHistory.builder()
             .reservationStatus(reservationHistory.getReservationStatus())

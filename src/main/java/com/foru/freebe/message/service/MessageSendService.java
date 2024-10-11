@@ -17,7 +17,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MessageSendService {
     private final WebClient kakaoMessageWebClient;
-    private static final String TEMPLATE_ID = "freebe_join";
+    private static final String JOIN_TEMPLATE = "freebe_join";
+    private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
 
     @Value("${kakao.alimtalk.user-id}")
     private String userId;
@@ -27,12 +28,12 @@ public class MessageSendService {
             return;
         }
 
-        MessageSendRequest messageSendRequest = new MessageSendRequest(TEMPLATE_ID);
+        MessageSendRequest messageSendRequest = new MessageSendRequest(JOIN_TEMPLATE);
 
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(messageSendRequest.createMessageBody(kakaoUser.getPhoneNumber(), kakaoUser.getUserName()))
+            .bodyValue(messageSendRequest.createJoinMessage(kakaoUser.getPhoneNumber(), kakaoUser.getUserName()))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()
@@ -40,5 +41,18 @@ public class MessageSendService {
 
         MessageSendResponse messageSendResponse = response.get(0);
         DataResponse dataResponse = messageSendResponse.getData();
+    }
+
+    public void sendCancellationNoticeToCustomer(String phoneNumber, String productName) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_CANCEL_TEMPLATE);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createCustomerCancelMessage(phoneNumber, productName))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
     }
 }

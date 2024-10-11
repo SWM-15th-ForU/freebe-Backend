@@ -98,7 +98,10 @@ public class CustomerReservationController {
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
         Member customer = memberAdapter.getMember();
+        String productName = reservationService.getCancelledProductName(customer.getId(), formId);
+
         reservationService.updateReservationStatus(customer.getId(), formId, request, false);
+        messageSendService.sendCancellationNoticeToCustomer(customer.getPhoneNumber(), productName);
 
         return ResponseEntity.status(HttpStatus.OK.value()).build();
     }

@@ -1,5 +1,6 @@
 package com.foru.freebe.notice.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,7 +14,7 @@ import com.foru.freebe.errors.errorcode.NoticeErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
-import com.foru.freebe.notice.dto.NoticeRequest;
+import com.foru.freebe.notice.dto.NoticeDto;
 import com.foru.freebe.notice.entity.Notice;
 import com.foru.freebe.notice.repository.NoticeRepository;
 
@@ -21,15 +22,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class NoticeService {
+public class PhotographerNoticeService {
 
     private final NoticeRepository noticeRepository;
     private final MemberRepository memberRepository;
 
     @Transactional
-    public void updateNotice(Long photographerId, List<NoticeRequest> requestList) {
-        Member photographer = memberRepository.findById(photographerId)
-            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    public void updateNotice(Long photographerId, List<NoticeDto> requestList) {
+        Member photographer = getMember(photographerId);
 
         validateDuplicateTitles(requestList);
         noticeRepository.deleteAll();
@@ -45,7 +45,30 @@ public class NoticeService {
         noticeRepository.saveAll(notices);
     }
 
-    private void validateDuplicateTitles(List<NoticeRequest> requestList) {
+    public List<NoticeDto> getNotices(Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        List<Notice> noticeList = noticeRepository.findByMember(photographer);
+
+        List<NoticeDto> noticeDtoList = new ArrayList<>();
+        for (Notice notice : noticeList) {
+            NoticeDto noticeDto = NoticeDto.builder()
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .build();
+
+            noticeDtoList.add(noticeDto);
+        }
+
+        return noticeDtoList;
+    }
+
+    private Member getMember(Long photographerId) {
+        return memberRepository.findById(photographerId)
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private void validateDuplicateTitles(List<NoticeDto> requestList) {
         Set<String> titleSet = new HashSet<>();
 
         requestList.forEach(request -> {

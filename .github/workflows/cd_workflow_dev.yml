@@ -6,7 +6,7 @@ on:
       - develop
   pull_request:
     branches:
-      - 'fix/**'
+      - fix/**
 
 jobs:
   build:
@@ -48,6 +48,8 @@ jobs:
           echo "AWS_S3_RESERVATION_PATH=${{ secrets.AWS_S3_RESERVATION_PATH }}" >> .env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
+          echo "NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}" >> .env
+          echo "NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

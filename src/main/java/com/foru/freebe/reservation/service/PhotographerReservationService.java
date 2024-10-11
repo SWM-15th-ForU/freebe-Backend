@@ -14,7 +14,7 @@ import com.foru.freebe.errors.errorcode.ReservationErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.reservation.dto.FormComponent;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
-import com.foru.freebe.reservation.dto.ShootingDate;
+import com.foru.freebe.reservation.dto.ShootingDateRequest;
 import com.foru.freebe.reservation.dto.UpdatePhotographerMemoRequest;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationStatus;
@@ -33,12 +33,11 @@ public class PhotographerReservationService {
     }
 
     @Transactional
-    public void setShootingDate(Long photographerId, ShootingDate shootingDate) {
-        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId,
-                shootingDate.getReservationFormId())
+    public void setShootingDate(Long photographerId, Long formId, ShootingDateRequest shootingDate) {
+        ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId, formId)
             .orElseThrow(() -> new RestApiException(ReservationErrorCode.NO_RESERVATION_FORM));
 
-        validateReservationStatus(shootingDate.getReservationStatus());
+        validateReservationStatus(shootingDate.getCurrentReservationStatus());
         validateShootingDate(shootingDate.getNewShootingDate().getDate());
         validateShootingTime(shootingDate);
 
@@ -53,7 +52,7 @@ public class PhotographerReservationService {
         reservationForm.updatePhotographerMemo(request.getPhotographerMemo());
     }
 
-    private void validateShootingTime(ShootingDate shootingDate) {
+    private void validateShootingTime(ShootingDateRequest shootingDate) {
         LocalTime startTime = shootingDate.getNewShootingDate().getStartTime();
         LocalTime endTime = shootingDate.getNewShootingDate().getEndTime();
 

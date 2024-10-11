@@ -115,7 +115,7 @@ public class PhotographerReservationController {
             .body(responseBody);
     }
 
-    @PutMapping("/reservation/shooting/date/{formId}")
+    @PutMapping("/reservation/shooting-date/{formId}")
     public ResponseEntity<ResponseBody<Void>> setShootingDate(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,

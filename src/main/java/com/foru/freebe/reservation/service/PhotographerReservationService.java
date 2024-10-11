@@ -33,15 +33,15 @@ public class PhotographerReservationService {
     }
 
     @Transactional
-    public void setShootingDate(Long photographerId, Long formId, ShootingDateRequest shootingDate) {
+    public void setShootingDate(Long photographerId, Long formId, ShootingDateRequest request) {
         ReservationForm reservationForm = reservationFormRepository.findByPhotographerIdAndId(photographerId, formId)
             .orElseThrow(() -> new RestApiException(ReservationErrorCode.NO_RESERVATION_FORM));
 
-        validateReservationStatus(shootingDate.getCurrentReservationStatus());
-        validateShootingDate(shootingDate.getNewShootingDate().getDate());
-        validateShootingTime(shootingDate);
+        validateReservationStatus(request.getCurrentReservationStatus());
+        validateShootingDate(request.getNewShootingDate().getDate());
+        validateShootingTime(request);
 
-        reservationForm.updateShootingDate(shootingDate.getNewShootingDate());
+        reservationForm.updateShootingDate(request.getNewShootingDate());
     }
 
     @Transactional
@@ -52,9 +52,9 @@ public class PhotographerReservationService {
         reservationForm.updatePhotographerMemo(request.getPhotographerMemo());
     }
 
-    private void validateShootingTime(ShootingDateRequest shootingDate) {
-        LocalTime startTime = shootingDate.getNewShootingDate().getStartTime();
-        LocalTime endTime = shootingDate.getNewShootingDate().getEndTime();
+    private void validateShootingTime(ShootingDateRequest request) {
+        LocalTime startTime = request.getNewShootingDate().getStartTime();
+        LocalTime endTime = request.getNewShootingDate().getEndTime();
 
         if (endTime.isBefore(startTime)) {
             throw new RestApiException(ReservationErrorCode.INVALID_SHOOTING_TIME);

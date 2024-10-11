@@ -6,7 +6,8 @@ on:
       - develop
   pull_request:
     branches:
-      - 'fix/**'
+      - fix/**
+      - develop
 
 jobs:
   build:

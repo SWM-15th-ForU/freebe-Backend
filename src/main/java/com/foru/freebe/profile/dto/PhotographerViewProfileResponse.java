@@ -18,8 +18,7 @@ public class PhotographerViewProfileResponse {
 
     @Builder
     public PhotographerViewProfileResponse(String bannerImageUrl, String profileImageUrl, String profileName,
-        String contact,
-        String introductionContent, List<LinkInfo> linkInfos) {
+        String contact, String introductionContent, List<LinkInfo> linkInfos) {
         this.bannerImageUrl = bannerImageUrl;
         this.profileImageUrl = profileImageUrl;
         this.profileName = profileName;

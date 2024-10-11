@@ -1,4 +1,4 @@
-package com.foru.freebe.profile.Controller;
+package com.foru.freebe.profile.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

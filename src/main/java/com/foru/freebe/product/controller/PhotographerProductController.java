@@ -107,7 +107,7 @@ public class PhotographerProductController {
     @PutMapping("/product")
     public ResponseEntity<ResponseBody<Void>> updateProduct(
         @Valid @RequestPart(value = "request") UpdateProductDetailRequest request,
-        @RequestPart(value = "images") List<MultipartFile> images,
+        @RequestPart(value = "images", required = false) List<MultipartFile> images,
         @AuthenticationPrincipal MemberAdapter memberAdapter) throws IOException {
 
         Member photographer = memberAdapter.getMember();

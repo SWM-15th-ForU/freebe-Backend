@@ -162,12 +162,12 @@ public class CustomerReservationService {
         referenceImageRepository.save(referenceImage);
     }
 
-    private void useProductImageAsReference(ReservationForm reservationForm, String existingImage) {
-        ProductImage productImage = productImageRepository.findByThumbnailUrl(existingImage)
+    private void useProductImageAsReference(ReservationForm reservationForm, String existingOriginUrl) {
+        ProductImage productImage = productImageRepository.findByOriginUrl(existingOriginUrl)
             .orElseThrow(() -> new RestApiException(ProductImageErrorCode.PRODUCT_IMAGE_NOT_FOUND));
 
-        String originImage = productImage.getOriginUrl();
-        ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(originImage, existingImage,
+        String existingThumbnailUrl = productImage.getThumbnailUrl();
+        ReferenceImage referenceImage = ReferenceImage.updateReferenceImage(existingOriginUrl, existingThumbnailUrl,
             reservationForm);
 
         referenceImageRepository.save(referenceImage);

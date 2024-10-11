@@ -16,4 +16,6 @@ public interface ProductImageRepository extends JpaRepository<ProductImage, Long
     void deleteByProduct(Product product);
 
     Optional<ProductImage> findByThumbnailUrl(String thumbnailUrl);
+
+    Optional<ProductImage> findByOriginUrl(String originUrl);
 }

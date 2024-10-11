@@ -9,8 +9,9 @@ import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.profile.dto.CustomerViewProfileResponse;
 import com.foru.freebe.profile.dto.LinkInfo;
-import com.foru.freebe.profile.dto.ProfileResponse;
+import com.foru.freebe.profile.dto.PhotographerViewProfileResponse;
 import com.foru.freebe.profile.entity.Link;
 import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.entity.ProfileImage;
@@ -54,15 +55,30 @@ public class ProfileService {
         return profile.getProfileName();
     }
 
-    public ProfileResponse findPhotographerProfile(String profileName, Profile profile) {
+    public PhotographerViewProfileResponse findPhotographerViewProfile(Profile profile) {
         ProfileImage profileImage = profileImageRepository.findByProfile(profile).orElse(null);
 
         List<LinkInfo> linkInfos = getProfileLinkInfos(profile);
 
-        return ProfileResponse.builder()
+        return PhotographerViewProfileResponse.builder()
             .bannerImageUrl(profileImage != null ? profileImage.getBannerOriginUrl() : null)
             .profileImageUrl(profileImage != null ? profileImage.getProfileOriginUrl() : null)
-            .profileName(profileName)
+            .profileName(profile.getProfileName())
+            .contact(profile.getContact())
+            .introductionContent(profile.getIntroductionContent())
+            .linkInfos(linkInfos)
+            .build();
+    }
+
+    public CustomerViewProfileResponse findCustomerViewProfile(Profile profile) {
+        ProfileImage profileImage = profileImageRepository.findByProfile(profile).orElse(null);
+
+        List<LinkInfo> linkInfos = getProfileLinkInfos(profile);
+
+        return CustomerViewProfileResponse.builder()
+            .bannerImageUrl(profileImage != null ? profileImage.getBannerOriginUrl() : null)
+            .profileImageUrl(profileImage != null ? profileImage.getProfileOriginUrl() : null)
+            .profileName(profile.getProfileName())
             .introductionContent(profile.getIntroductionContent())
             .linkInfos(linkInfos)
             .build();

@@ -28,11 +28,9 @@ import com.foru.freebe.profile.service.PhotographerProfileService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class KakaoUnlinkService {
     private final WebClient webClient;
     private final MemberRepository memberRepository;
@@ -51,8 +49,7 @@ public class KakaoUnlinkService {
         final String KAKAO_AUTH_PREFIX = "KakaoAK ";
         final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
 
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Member member = getMember(memberId);
 
         Long kakaoUserId = member.getKakaoId();
         try {
@@ -75,6 +72,11 @@ public class KakaoUnlinkService {
         }
     }
 
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
     private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
@@ -84,9 +86,7 @@ public class KakaoUnlinkService {
 
     private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
-            log.info("0");
             member.updateMemberRoleToLeavingStatus();
-            log.info("1");
             createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
             photographerNoticeService.deleteAllNotices(member);

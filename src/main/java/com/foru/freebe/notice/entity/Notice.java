@@ -1,6 +1,6 @@
 package com.foru.freebe.notice.entity;
 
-import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.profile.entity.Profile;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,13 +32,13 @@ public class Notice {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
 
     @Builder
-    public Notice(String title, String content, Member member) {
+    public Notice(String title, String content, Profile profile) {
         this.title = title;
         this.content = content;
-        this.member = member;
+        this.profile = profile;
     }
 }

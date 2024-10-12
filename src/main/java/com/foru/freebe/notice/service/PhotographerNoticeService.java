@@ -1,6 +1,5 @@
 package com.foru.freebe.notice.service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,12 +10,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.errorcode.NoticeErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.notice.dto.NoticeDto;
 import com.foru.freebe.notice.entity.Notice;
 import com.foru.freebe.notice.repository.NoticeRepository;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,10 +28,12 @@ public class PhotographerNoticeService {
 
     private final NoticeRepository noticeRepository;
     private final MemberRepository memberRepository;
+    private final ProfileRepository profileRepository;
 
     @Transactional
     public void updateNotice(Long photographerId, List<NoticeDto> requestList) {
         Member photographer = getMember(photographerId);
+        Profile profile = getProfile(photographer);
 
         validateDuplicateTitles(requestList);
         noticeRepository.deleteAll();
@@ -38,7 +42,7 @@ public class PhotographerNoticeService {
             .map(request -> Notice.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
-                .member(photographer)
+                .profile(profile)
                 .build())
             .collect(Collectors.toList());
 
@@ -47,20 +51,21 @@ public class PhotographerNoticeService {
 
     public List<NoticeDto> getNotices(Long photographerId) {
         Member photographer = getMember(photographerId);
+        Profile profile = getProfile(photographer);
 
-        List<Notice> noticeList = noticeRepository.findByMember(photographer);
+        List<Notice> noticeList = noticeRepository.findByProfile(profile);
 
-        List<NoticeDto> noticeDtoList = new ArrayList<>();
-        for (Notice notice : noticeList) {
-            NoticeDto noticeDto = NoticeDto.builder()
+        return noticeList.stream()
+            .map(notice -> NoticeDto.builder()
                 .title(notice.getTitle())
                 .content(notice.getContent())
-                .build();
+                .build())
+            .collect(Collectors.toList());
+    }
 
-            noticeDtoList.add(noticeDto);
-        }
-
-        return noticeDtoList;
+    private Profile getProfile(Member photographer) {
+        return profileRepository.findByMember(photographer)
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
     }
 
     private Member getMember(Long photographerId) {

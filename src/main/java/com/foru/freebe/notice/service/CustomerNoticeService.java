@@ -36,8 +36,7 @@ public class CustomerNoticeService {
     }
 
     private Profile getProfile(String profileName) {
-        Profile profile = profileRepository.findByProfileName(profileName)
+        return profileRepository.findByProfileName(profileName)
             .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NAME_NOT_FOUND));
-        return profile;
     }
 }

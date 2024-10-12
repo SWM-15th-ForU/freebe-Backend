@@ -63,6 +63,14 @@ public class PhotographerNoticeService {
             .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void deleteAllNotices(Member photographer) {
+        Profile profile = getProfile(photographer);
+
+        List<Notice> noticeList = noticeRepository.findByProfile(profile);
+        noticeRepository.deleteAll(noticeList);
+    }
+
     private Profile getProfile(Member photographer) {
         return profileRepository.findByMember(photographer)
             .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));

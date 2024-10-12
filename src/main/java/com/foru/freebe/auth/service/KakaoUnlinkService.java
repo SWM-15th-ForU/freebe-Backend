@@ -20,6 +20,7 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.DeletedMemberRepository;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.notice.service.PhotographerNoticeService;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.product.service.PhotographerProductService;
@@ -27,9 +28,11 @@ import com.foru.freebe.profile.service.PhotographerProfileService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class KakaoUnlinkService {
     private final WebClient webClient;
     private final MemberRepository memberRepository;
@@ -37,6 +40,7 @@ public class KakaoUnlinkService {
     private final PhotographerProductService photographerProductService;
     private final PhotographerProfileService photographerProfileService;
     private final DeletedMemberRepository deletedMemberRepository;
+    private final PhotographerNoticeService photographerNoticeService;
 
     @Value("${KAKAO_API_ADMIN_KEY}")
     private String adminKey;
@@ -80,9 +84,12 @@ public class KakaoUnlinkService {
 
     private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
+            log.info("0");
             member.updateMemberRoleToLeavingStatus();
+            log.info("1");
             createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
+            photographerNoticeService.deleteAllNotices(member);
             photographerProfileService.deleteProfile(member);
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             member.updateMemberRoleToLeavingStatus();

@@ -50,7 +50,7 @@ public class PhotographerNoticeController {
         List<NoticeDto> responseData = noticeService.getNotices(photographer.getId());
 
         ResponseBody<List<NoticeDto>> responseBody = ResponseBody.<List<NoticeDto>>builder()
-            .message("Updated successfully")
+            .message("Data successfully loaded")
             .data(responseData)
             .build();
 

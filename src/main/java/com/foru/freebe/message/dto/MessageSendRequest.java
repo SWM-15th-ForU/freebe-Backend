@@ -1,21 +1,23 @@
 package com.foru.freebe.message.dto;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.foru.freebe.reservation.dto.CancelledReservationInfo;
 
 public class MessageSendRequest {
 
     private static final String MESSAGE_TYPE = "AT";
+    private static final String WEB_LINK_BUTTON_TYPE = "WL";
     private final String templateId;
-    @Value("${kakao.alimtalk.profile_key}")
-    private String profileKey;
+    private final String profileKey;
 
-    public MessageSendRequest(String templateId) {
+    public MessageSendRequest(String templateId, String profileKey) {
         this.templateId = templateId;
+        this.profileKey = profileKey;
     }
 
     public List<Map<String, String>> createJoinMessage(String phoneNumber, String name) {
@@ -56,5 +58,54 @@ public class MessageSendRequest {
 
         jsonArray.add(mapRequestBody);
         return jsonArray;
+    }
+
+    public List<Map<String, Object>> createPhotographerCancelledMessage(CancelledReservationInfo cancelledInfo) {
+        Map<String, Object> mapRequestBody = new HashMap<>();
+        List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
+        mapRequestBody.put("phn", cancelledInfo.getPhotographerPhoneNumber());
+        mapRequestBody.put("profile", profileKey);
+
+        String messageTemplate = """
+            고객의 요청으로 촬영 예약이 취소되었습니다.
+            아래 [확인하기] 버튼을 눌러 상세 내역을 확인해주세요.
+
+            ■ 고객명: {0}
+            ■ 촬영상품: {1}
+            ■ 취소사유: {2}""";
+
+        String messageFormat = MessageFormat.format(
+            messageTemplate,
+            cancelledInfo.getCustomerName(),
+            cancelledInfo.getProductTitle(),
+            cancelledInfo.getCancellationReason()
+        );
+
+        mapRequestBody.put("msg", messageFormat);
+        mapRequestBody.put("tmplId", templateId);
+
+        String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + cancelledInfo.getReservationId();
+        Button button1 = Button.builder()
+            .name("확인하기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(webUrl)
+            .urlMobile(webUrl)
+            .build();
+
+        mapRequestBody.put("button1", convertButtonToMap(button1));
+
+        jsonArray.add(mapRequestBody);
+        return jsonArray;
+    }
+
+    private Map<String, String> convertButtonToMap(Button button) {
+        return Map.of(
+            "name", button.getName(),
+            "type", button.getType(),
+            "url_pc", button.getUrlPc(),
+            "url_mobile", button.getUrlMobile()
+        );
     }
 }

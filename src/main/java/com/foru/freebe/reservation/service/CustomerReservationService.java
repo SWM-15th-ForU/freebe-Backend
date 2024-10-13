@@ -108,9 +108,13 @@ public class CustomerReservationService {
 
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
+        Profile profile = profileRepository.findByMember(reservationForm.getPhotographer())
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
+            .profileName(profile.getProfileName())
             .basicPrice(reservationForm.getBasicPrice())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())

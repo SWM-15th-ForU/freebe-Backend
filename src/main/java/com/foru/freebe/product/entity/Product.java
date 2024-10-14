@@ -15,8 +15,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -41,24 +43,26 @@ public class Product extends BaseEntity {
     @NotNull
     private Long basicPrice;
 
+    @NotBlank(message = "PhotoPlace name must not be blank")
+    private String basicPlace;
+
+    @NotNull
+    private Boolean allowPreferredPlace;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    public Product(String title, String description, ActiveStatus activeStatus, Long basicPrice, Member member) {
+    @Builder
+    public Product(String title, String description, ActiveStatus activeStatus, Long basicPrice, String basicPlace,
+        Boolean allowPreferredPlace, Member member) {
         this.title = title;
         this.description = description;
         this.activeStatus = activeStatus;
         this.basicPrice = basicPrice;
+        this.basicPlace = basicPlace;
+        this.allowPreferredPlace = allowPreferredPlace;
         this.member = member;
-    }
-
-    public static Product createProductAsActive(String title, String description, Long basicPrice, Member member) {
-        return new Product(title, description, ActiveStatus.ACTIVE, basicPrice, member);
-    }
-
-    public static Product createProductAsActiveWithoutDescription(String title, Long basicPrice, Member member) {
-        return new Product(title, null, ActiveStatus.ACTIVE, basicPrice, member);
     }
 
     public void updateProductActiveStatus(ActiveStatus newStatus) {

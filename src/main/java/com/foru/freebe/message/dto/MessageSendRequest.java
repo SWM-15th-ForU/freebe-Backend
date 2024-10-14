@@ -140,6 +140,57 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
+    //ToDo: 촬영장소 실제 장소로 수정
+    public Object createWaitShootingMessage(CustomerAlimTalkInfo customerAlimTalkInfo) {
+        Map<String, Object> mapRequestBody = new HashMap<>();
+        List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
+        mapRequestBody.put("phn", customerAlimTalkInfo.getCustomerPhoneNumber());
+        mapRequestBody.put("profile", profileKey);
+
+        String messageTemplate = """
+            [{0}] 촬영이 확정되었습니다!
+
+             ■ 촬영날짜: {1}
+             ■ 촬영시간: {2}
+             ■ 촬영장소: {3}""";
+
+        String messageFormat = MessageFormat.format(
+            messageTemplate,
+            customerAlimTalkInfo.getProductTitle(),
+            customerAlimTalkInfo.getShootingDate().getDate(),
+            customerAlimTalkInfo.getShootingDate().getStartTime().toString() + " ~ "
+                + customerAlimTalkInfo.getShootingDate().getEndTime().toString(),
+            "임의장소"
+        );
+
+        mapRequestBody.put("msg", messageFormat);
+        mapRequestBody.put("tmplId", templateId);
+
+        String webUrl = "https://www.freebe.co.kr/customer/reservation/" + customerAlimTalkInfo.getReservationId();
+        Button button1 = Button.builder()
+            .name("자세히보기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(webUrl)
+            .urlMobile(webUrl)
+            .build();
+
+        String noticeUrl = "https://www.freebe.co.kr/" + customerAlimTalkInfo.getProfileName() + "/notice";
+        Button button2 = Button.builder()
+            .name("공지사항 확인하기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(noticeUrl)
+            .urlMobile(noticeUrl)
+            .build();
+
+        mapRequestBody.put("button1", convertButtonToMap(button1));
+        mapRequestBody.put("button2", convertButtonToMap(button2));
+
+        jsonArray.add(mapRequestBody);
+        return jsonArray;
+    }
+
     private Map<String, String> convertButtonToMap(Button button) {
         return Map.of(
             "name", button.getName(),

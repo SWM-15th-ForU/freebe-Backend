@@ -14,16 +14,18 @@ public class CustomerAlimTalkInfo {
     private String cancellationReason;
     private String reservationId;
     private ReservationStatus updatedStatus;
-
-    private
+    private TimeSlot shootingDate;
+    private String profileName;
 
     @Builder
     public CustomerAlimTalkInfo(String customerPhoneNumber, String productTitle, String cancellationReason,
-        String reservationId, ReservationStatus updatedStatus) {
+        String reservationId, ReservationStatus updatedStatus, TimeSlot shootingDate, String profileName) {
         this.customerPhoneNumber = customerPhoneNumber;
         this.productTitle = productTitle;
         this.cancellationReason = cancellationReason;
         this.reservationId = reservationId;
         this.updatedStatus = updatedStatus;
+        this.shootingDate = shootingDate;
+        this.profileName = profileName;
     }
 }

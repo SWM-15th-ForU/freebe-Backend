@@ -83,13 +83,22 @@ public class ReservationService {
         String customerPhoneNumber = reservationForm.getCustomer().getPhoneNumber();
         String productTitle = reservationForm.getProductTitle();
 
-        return CustomerAlimTalkInfo.builder()
+        CustomerAlimTalkInfo.CustomerAlimTalkInfoBuilder builder = CustomerAlimTalkInfo.builder()
             .customerPhoneNumber(customerPhoneNumber)
             .productTitle(productTitle)
             .cancellationReason(request.getCancellationReason())
             .reservationId(formId.toString())
-            .updatedStatus(reservationForm.getReservationStatus())
-            .build();
+            .updatedStatus(reservationForm.getReservationStatus());
+
+        // ToDo: 실제 profileName 조회하도록 수정.
+        if (reservationForm.getReservationStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
+            return builder
+                .shootingDate(reservationForm.getShootingDate())
+                .profileName("profileName")
+                .build();
+        }
+
+        return builder.build();
     }
 
     private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {

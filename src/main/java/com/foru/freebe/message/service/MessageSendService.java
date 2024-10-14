@@ -105,10 +105,12 @@ public class MessageSendService {
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(messageSendRequest.createCustomerCancelledMessage(customerAlimTalkInfo))
+            .bodyValue(messageSendRequest.createWaitShootingMessage(customerAlimTalkInfo))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()
             .block();
+
+        MessageSendResponse messageSendResponse = response.get(0);
     }
 }

@@ -1,7 +1,5 @@
 package com.foru.freebe.member.controller;
 
-import java.io.IOException;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -25,7 +23,7 @@ public class JoinController {
 
     @PostMapping("/photographer/join")
     public ResponseEntity<ResponseBody<String>> joinPhotographer(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @Valid @RequestBody PhotographerJoinRequest request) throws IOException {
+        @Valid @RequestBody PhotographerJoinRequest request) {
 
         Member member = memberAdapter.getMember();
         String profileName = photographerJoinService.joinPhotographer(member, request);

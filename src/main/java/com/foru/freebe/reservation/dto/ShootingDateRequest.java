@@ -9,20 +9,16 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class ShootingDate {
+public class ShootingDateRequest {
     @NotNull
-    private Long reservationFormId;
-
-    @NotNull
-    private ReservationStatus reservationStatus;
+    private ReservationStatus currentReservationStatus;
 
     @NotNull
     private TimeSlot newShootingDate;
 
     @Builder
-    public ShootingDate(Long reservationFormId, ReservationStatus reservationStatus, TimeSlot newShootingDate) {
-        this.reservationFormId = reservationFormId;
-        this.reservationStatus = reservationStatus;
+    public ShootingDateRequest(ReservationStatus currentReservationStatus, TimeSlot newShootingDate) {
+        this.currentReservationStatus = currentReservationStatus;
         this.newShootingDate = newShootingDate;
     }
 }

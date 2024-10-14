@@ -119,9 +119,12 @@ public class PhotographerProductService {
             validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         }
 
-        product.assignTitle(updateProductDetailRequest.getProductTitle());
-        product.assignDescription(updateProductDetailRequest.getProductDescription());
-        product.assignBasicPrice(updateProductDetailRequest.getBasicPrice());
+        product.assignBasicProductInfo(
+            updateProductDetailRequest.getProductTitle(),
+            updateProductDetailRequest.getProductDescription(),
+            updateProductDetailRequest.getBasicPrice(),
+            updateProductDetailRequest.getBasicPlace(),
+            updateProductDetailRequest.getAllowPreferredPlace());
 
         updateProductImage(photographer.getId(), updateProductDetailRequest, images, product);
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);

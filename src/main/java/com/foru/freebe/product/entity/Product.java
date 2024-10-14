@@ -72,13 +72,22 @@ public class Product extends BaseEntity {
         this.activeStatus = newStatus;
     }
 
-    public void assignTitle(String newTitle) {
-        this.title = newTitle;
+    public void assignBasicProductInfo(String updateTitle, String updateDescription, Long updateBasicPrice,
+        String updateBasicPlace, Boolean updateAllowPreferredPlace) {
+        this.title = updateTitle;
+        this.description = updateDescription;
+        this.basicPrice = updateBasicPrice;
+        this.basicPlace = updateBasicPlace;
+        this.allowPreferredPlace = updateAllowPreferredPlace;
     }
 
-    public void assignDescription(String newDescription) {
-        this.description = newDescription;
-    }
+    // public void assignTitle(String newTitle) {
+    //     this.title = newTitle;
+    // }
+    //
+    // public void assignDescription(String newDescription) {
+    //     this.description = newDescription;
+    // }
 
     public void assignBasicPrice(Long basicPrice) {
         this.basicPrice = basicPrice;

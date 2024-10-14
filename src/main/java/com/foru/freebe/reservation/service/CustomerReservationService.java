@@ -97,6 +97,7 @@ public class CustomerReservationService {
             .phoneNumber(customer.getPhoneNumber())
             .instagramId(customer.getInstagramId())
             .basicPrice(product.getBasicPrice())
+            .basicPlace(product.getBasicPlace())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();

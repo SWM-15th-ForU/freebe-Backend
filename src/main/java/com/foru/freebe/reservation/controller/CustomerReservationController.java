@@ -22,7 +22,7 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.message.service.MessageSendService;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
-import com.foru.freebe.reservation.dto.CancelledReservationInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelInfo;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
@@ -99,12 +99,12 @@ public class CustomerReservationController {
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
         Member customer = memberAdapter.getMember();
-        CancelledReservationInfo cancelledInfo = reservationService.getCancelledInfo(customer.getId(), formId,
+        CustomerCancelInfo cancelInfo = reservationService.getCustomerCancelledInfo(customer.getId(), formId,
             request.getCancellationReason());
 
         reservationService.updateReservationStatus(customer.getId(), formId, request, false);
-        messageSendService.sendCancellationNoticeToCustomer(customer.getPhoneNumber(), cancelledInfo.getProductTitle());
-        messageSendService.sendCancellationNoticeToPhotographer(cancelledInfo);
+        messageSendService.sendCancellationNoticeToCustomer(customer.getPhoneNumber(), cancelInfo.getProductTitle());
+        messageSendService.sendCancellationNoticeToPhotographer(cancelInfo);
 
         return ResponseEntity.status(HttpStatus.OK.value()).build();
     }

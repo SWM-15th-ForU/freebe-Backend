@@ -10,7 +10,8 @@ import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.message.dto.DataResponse;
 import com.foru.freebe.message.dto.MessageSendRequest;
 import com.foru.freebe.message.dto.MessageSendResponse;
-import com.foru.freebe.reservation.dto.CancelledReservationInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,6 +22,7 @@ public class MessageSendService {
     private static final String JOIN_TEMPLATE = "freebe_join";
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
+    private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
 
     @Value("${kakao.alimtalk.user-id}")
     private String userId;
@@ -61,13 +63,26 @@ public class MessageSendService {
             .block();
     }
 
-    public void sendCancellationNoticeToPhotographer(CancelledReservationInfo cancelledReservationInfo) {
+    public void sendCancellationNoticeToPhotographer(CustomerCancelInfo customerCancelInfo) {
         MessageSendRequest messageSendRequest = new MessageSendRequest(PHOTOGRAPHER_CANCELLED_TEMPLATE, profileKey);
 
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(messageSendRequest.createPhotographerCancelledMessage(cancelledReservationInfo))
+            .bodyValue(messageSendRequest.createPhotographerCancelledMessage(customerCancelInfo))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
+    }
+
+    public void sendCancelledNoticeToCustomer(CustomerCancelledInfo customerCancelledInfo) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_CANCELLED_TEMPLATE, profileKey);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createCustomerCancelledMessage(customerCancelledInfo))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()

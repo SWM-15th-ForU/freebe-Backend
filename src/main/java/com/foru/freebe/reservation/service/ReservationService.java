@@ -7,7 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.reservation.dto.CancelledReservationInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -61,16 +62,29 @@ public class ReservationService {
             .collect(Collectors.toList());
     }
 
-    public CancelledReservationInfo getCancelledInfo(Long customerId, Long formId, String cancellationReason) {
-        ReservationForm reservationForm = findReservationForm(customerId, formId, false);
+    public CustomerCancelInfo getCustomerCancelledInfo(Long id, Long formId, String cancellationReason) {
+        ReservationForm reservationForm = findReservationForm(id, formId, false);
         String photographerPhoneNumber = reservationForm.getPhotographer().getPhoneNumber();
         String productTitle = reservationForm.getProductTitle();
         String customerName = reservationForm.getCustomer().getName();
 
-        return CancelledReservationInfo.builder()
+        return CustomerCancelInfo.builder()
             .photographerPhoneNumber(photographerPhoneNumber)
             .productTitle(productTitle)
             .customerName(customerName)
+            .cancellationReason(cancellationReason)
+            .reservationId(formId.toString())
+            .build();
+    }
+
+    public CustomerCancelledInfo getPhotographerCancelledInfo(Long id, Long formId, String cancellationReason) {
+        ReservationForm reservationForm = findReservationForm(id, formId, true);
+        String customerPhoneNumber = reservationForm.getCustomer().getPhoneNumber();
+        String productTitle = reservationForm.getProductTitle();
+
+        return CustomerCancelledInfo.builder()
+            .customerPhoneNumber(customerPhoneNumber)
+            .productTitle(productTitle)
             .cancellationReason(cancellationReason)
             .reservationId(formId.toString())
             .build();

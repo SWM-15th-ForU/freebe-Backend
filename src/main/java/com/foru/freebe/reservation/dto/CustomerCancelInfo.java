@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CancelledReservationInfo {
+public class CustomerCancelInfo {
     private String photographerPhoneNumber;
     private String customerName;
     private String productTitle;
@@ -14,7 +14,7 @@ public class CancelledReservationInfo {
     private String reservationId;
 
     @Builder
-    public CancelledReservationInfo(String photographerPhoneNumber, String customerName, String productTitle,
+    public CustomerCancelInfo(String photographerPhoneNumber, String customerName, String productTitle,
         String cancellationReason, String reservationId) {
         this.photographerPhoneNumber = photographerPhoneNumber;
         this.customerName = customerName;

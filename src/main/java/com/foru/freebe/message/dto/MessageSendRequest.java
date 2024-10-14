@@ -6,7 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.foru.freebe.reservation.dto.CancelledReservationInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
 
 public class MessageSendRequest {
 
@@ -60,7 +61,7 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
-    public List<Map<String, Object>> createPhotographerCancelledMessage(CancelledReservationInfo cancelledInfo) {
+    public List<Map<String, Object>> createPhotographerCancelledMessage(CustomerCancelInfo cancelledInfo) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 
@@ -87,6 +88,45 @@ public class MessageSendRequest {
         mapRequestBody.put("tmplId", templateId);
 
         String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + cancelledInfo.getReservationId();
+        Button button1 = Button.builder()
+            .name("확인하기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(webUrl)
+            .urlMobile(webUrl)
+            .build();
+
+        mapRequestBody.put("button1", convertButtonToMap(button1));
+
+        jsonArray.add(mapRequestBody);
+        return jsonArray;
+    }
+
+    public List<Map<String, Object>> createCustomerCancelledMessage(CustomerCancelledInfo cancelledInfo) {
+        Map<String, Object> mapRequestBody = new HashMap<>();
+        List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
+        mapRequestBody.put("phn", cancelledInfo.getCustomerPhoneNumber());
+        mapRequestBody.put("profile", profileKey);
+
+        String messageTemplate = """
+            안녕하세요 고객님,
+            {0} 촬영이 취소되어 안내드립니다.
+
+            ■ 취소사유: {1}
+
+            다시 뵐 날을 기다리겠습니다. 감사합니다.""";
+
+        String messageFormat = MessageFormat.format(
+            messageTemplate,
+            cancelledInfo.getProductTitle(),
+            cancelledInfo.getCancellationReason()
+        );
+
+        mapRequestBody.put("msg", messageFormat);
+        mapRequestBody.put("tmplId", templateId);
+
+        String webUrl = "https://www.freebe.co.kr/customer/reservation/" + cancelledInfo.getReservationId();
         Button button1 = Button.builder()
             .name("확인하기")
             .type(WEB_LINK_BUTTON_TYPE)

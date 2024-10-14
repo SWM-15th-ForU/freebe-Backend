@@ -113,6 +113,7 @@ public class CustomerReservationService {
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
             .basicPrice(reservationForm.getBasicPrice())
+            .basicPlace(reservationForm.getBasicPlace())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
             .preferredPlace(reservationForm.getPreferredPlace())

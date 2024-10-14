@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
 import com.foru.freebe.reservation.dto.CustomerCancelInfo;
-import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
 
 public class MessageSendRequest {
 
@@ -101,7 +101,7 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
-    public List<Map<String, Object>> createCustomerCancelledMessage(CustomerCancelledInfo cancelledInfo) {
+    public List<Map<String, Object>> createCustomerCancelledMessage(CustomerAlimTalkInfo cancelledInfo) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 

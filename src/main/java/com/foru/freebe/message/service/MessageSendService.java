@@ -10,8 +10,9 @@ import com.foru.freebe.auth.model.KakaoUser;
 import com.foru.freebe.message.dto.DataResponse;
 import com.foru.freebe.message.dto.MessageSendRequest;
 import com.foru.freebe.message.dto.MessageSendResponse;
+import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
 import com.foru.freebe.reservation.dto.CustomerCancelInfo;
-import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
+import com.foru.freebe.reservation.entity.ReservationStatus;
 
 import lombok.RequiredArgsConstructor;
 
@@ -23,6 +24,7 @@ public class MessageSendService {
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
+    private static final String CUSTOMER_WAIT_SHOOTING = "customer_wait_shooting";
 
     @Value("${kakao.alimtalk.user-id}")
     private String userId;
@@ -76,13 +78,34 @@ public class MessageSendService {
             .block();
     }
 
-    public void sendCancelledNoticeToCustomer(CustomerCancelledInfo customerCancelledInfo) {
+    public void sendStatusUpdateNoticeToCustomer(CustomerAlimTalkInfo customerAlimTalkInfo) {
+        if (customerAlimTalkInfo.getUpdatedStatus() == ReservationStatus.CANCELLED_BY_PHOTOGRAPHER) {
+            sendCancelledNoticeToCustomer(customerAlimTalkInfo);
+        } else if (customerAlimTalkInfo.getUpdatedStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
+            sendWaitShootingNoticeToCustomer(customerAlimTalkInfo);
+        }
+    }
+
+    private void sendCancelledNoticeToCustomer(CustomerAlimTalkInfo customerAlimTalkInfo) {
         MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_CANCELLED_TEMPLATE, profileKey);
 
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(messageSendRequest.createCustomerCancelledMessage(customerCancelledInfo))
+            .bodyValue(messageSendRequest.createCustomerCancelledMessage(customerAlimTalkInfo))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
+    }
+
+    private void sendWaitShootingNoticeToCustomer(CustomerAlimTalkInfo customerAlimTalkInfo) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_WAIT_SHOOTING, profileKey);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createCustomerCancelledMessage(customerAlimTalkInfo))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()

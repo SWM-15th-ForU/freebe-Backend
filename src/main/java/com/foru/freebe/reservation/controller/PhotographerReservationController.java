@@ -21,14 +21,13 @@ import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.message.service.MessageSendService;
-import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
+import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PastReservationResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.ShootingInfoRequest;
 import com.foru.freebe.reservation.dto.UpdatePhotographerMemoRequest;
-import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.service.PhotographerPastReservationService;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
@@ -91,11 +90,8 @@ public class PhotographerReservationController {
         Member member = memberAdapter.getMember();
         reservationService.updateReservationStatus(member.getId(), formId, request, true);
 
-        if (request.getUpdateStatus() == ReservationStatus.CANCELLED_BY_PHOTOGRAPHER) {
-            CustomerCancelledInfo cancelledInfo = reservationService.getPhotographerCancelledInfo(member.getId(),
-                formId, request.getCancellationReason());
-            messageSendService.sendCancelledNoticeToCustomer(cancelledInfo);
-        }
+        CustomerAlimTalkInfo info = reservationService.getCustomerAlimTalkInfo(member.getId(), formId, request);
+        messageSendService.sendStatusUpdateNoticeToCustomer(info);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update reservation status")

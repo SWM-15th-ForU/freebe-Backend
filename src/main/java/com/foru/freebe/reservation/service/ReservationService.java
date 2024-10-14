@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
 import com.foru.freebe.reservation.dto.CustomerCancelInfo;
-import com.foru.freebe.reservation.dto.CustomerCancelledInfo;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
 import com.foru.freebe.reservation.entity.ReservationForm;
@@ -77,16 +77,18 @@ public class ReservationService {
             .build();
     }
 
-    public CustomerCancelledInfo getPhotographerCancelledInfo(Long id, Long formId, String cancellationReason) {
+    public CustomerAlimTalkInfo getCustomerAlimTalkInfo(Long id, Long formId,
+        ReservationStatusUpdateRequest request) {
         ReservationForm reservationForm = findReservationForm(id, formId, true);
         String customerPhoneNumber = reservationForm.getCustomer().getPhoneNumber();
         String productTitle = reservationForm.getProductTitle();
 
-        return CustomerCancelledInfo.builder()
+        return CustomerAlimTalkInfo.builder()
             .customerPhoneNumber(customerPhoneNumber)
             .productTitle(productTitle)
-            .cancellationReason(cancellationReason)
+            .cancellationReason(request.getCancellationReason())
             .reservationId(formId.toString())
+            .updatedStatus(reservationForm.getReservationStatus())
             .build();
     }
 

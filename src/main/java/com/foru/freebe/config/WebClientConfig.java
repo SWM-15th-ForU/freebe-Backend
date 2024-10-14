@@ -23,6 +23,14 @@ public class WebClientConfig {
     }
 
     @Bean
+    public WebClient kakaoApiWebClient() {
+        return WebClient
+            .builder()
+            .baseUrl("https://kapi.kakao.com")
+            .build();
+    }
+
+    @Bean
     public WebClient kakaoMessageWebClient() {
         return WebClient
             .builder()

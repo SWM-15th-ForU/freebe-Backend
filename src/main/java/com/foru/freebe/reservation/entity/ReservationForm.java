@@ -89,6 +89,8 @@ public class ReservationForm extends BaseEntity {
     @Column(name = "shooting_date", columnDefinition = "longtext")
     private TimeSlot shootingDate;
 
+    private String shootingPlace;
+
     @Type(JsonType.class)
     @Column(name = "photo_option", columnDefinition = "longtext")
     private Map<Integer, PhotoOption> photoOption;
@@ -103,6 +105,11 @@ public class ReservationForm extends BaseEntity {
 
     public void changeReservationStatus(ReservationStatus updateStatus) {
         this.reservationStatus = updateStatus;
+    }
+
+    public void updateShootingInfo(TimeSlot newShootingDate, String newShootingPlace) {
+        this.shootingDate = newShootingDate;
+        this.shootingPlace = newShootingPlace;
     }
 
     @Builder
@@ -143,9 +150,5 @@ public class ReservationForm extends BaseEntity {
             .serviceTermAgreement(serviceTermAgreement)
             .photographerTermAgreement(photographerTermAgreement)
             .reservationStatus(reservationStatus);
-    }
-
-    public void updateShootingDate(TimeSlot newShootingDate) {
-        this.shootingDate = newShootingDate;
     }
 }

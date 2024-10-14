@@ -181,8 +181,9 @@ public class CustomerReservationService {
         Map<String, String> photoInfo = getProductComponentsTitleAndContent(productComponents);
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
-                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), request.getTotalPrice(),
-                request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
+                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), product.getBasicPlace(),
+                request.getTotalPrice(), request.getServiceTermAgreement(), request.getPhotographerTermAgreement(),
+                ReservationStatus.NEW)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
             .preferredPlace(request.getPreferredPlace())

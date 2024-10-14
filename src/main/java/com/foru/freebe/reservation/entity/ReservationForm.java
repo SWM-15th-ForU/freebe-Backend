@@ -56,6 +56,9 @@ public class ReservationForm extends BaseEntity {
     @NotNull(message = "Basic price must not be null")
     private Long basicPrice;
 
+    @NotBlank(message = "Basic place must not be null")
+    private String basicPlace;
+
     @NotNull(message = "Total price must not be null")
     @Positive
     private Long totalPrice;
@@ -104,7 +107,8 @@ public class ReservationForm extends BaseEntity {
 
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Long basicPrice, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
+        Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
+        Boolean photographerTermAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
         String preferredPlace, Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
@@ -112,6 +116,7 @@ public class ReservationForm extends BaseEntity {
         this.instagramId = instagramId;
         this.productTitle = productTitle;
         this.basicPrice = basicPrice;
+        this.basicPlace = basicPlace;
         this.totalPrice = totalPrice;
         this.serviceTermAgreement = serviceTermAgreement;
         this.photographerTermAgreement = photographerTermAgreement;
@@ -125,7 +130,7 @@ public class ReservationForm extends BaseEntity {
     }
 
     public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
-        String productTitle, Long basicPrice, Long totalPrice, Boolean serviceTermAgreement,
+        String productTitle, Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
         Boolean photographerTermAgreement, ReservationStatus reservationStatus) {
         return new ReservationFormBuilder()
             .photographer(photographer)
@@ -133,6 +138,7 @@ public class ReservationForm extends BaseEntity {
             .instagramId(instagramId)
             .productTitle(productTitle)
             .basicPrice(basicPrice)
+            .basicPlace(basicPlace)
             .totalPrice(totalPrice)
             .serviceTermAgreement(serviceTermAgreement)
             .photographerTermAgreement(photographerTermAgreement)

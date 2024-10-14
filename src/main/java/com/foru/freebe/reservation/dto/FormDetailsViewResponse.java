@@ -32,6 +32,9 @@ public class FormDetailsViewResponse {
     @NotNull
     private Long basicPrice;
 
+    @NotBlank
+    private String basicPlace;
+
     @NotNull
     private Map<String, String> photoInfo;
 
@@ -39,6 +42,8 @@ public class FormDetailsViewResponse {
 
     @NotNull
     private Map<Integer, TimeSlot> preferredDates;
+
+    private String preferredPlace;
 
     private TimeSlot shootingDate;
 
@@ -53,8 +58,8 @@ public class FormDetailsViewResponse {
     @Builder
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails, Long basicPrice,
-        Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
-        Map<Integer, TimeSlot> preferredDates, TimeSlot shootingDate, List<String> originalImage,
+        String basicPlace, Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
+        Map<Integer, TimeSlot> preferredDates, String preferredPlace, TimeSlot shootingDate, List<String> originalImage,
         List<String> thumbnailImage, String requestMemo, String photographerMemo) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
@@ -62,9 +67,11 @@ public class FormDetailsViewResponse {
         this.productTitle = productTitle;
         this.customerDetails = customerDetails;
         this.basicPrice = basicPrice;
+        this.basicPlace = basicPlace;
         this.photoInfo = photoInfo;
         this.photoOptions = photoOptions;
         this.preferredDates = preferredDates;
+        this.preferredPlace = preferredPlace;
         this.shootingDate = shootingDate;
         this.originalImage = originalImage;
         this.thumbnailImage = thumbnailImage;
@@ -75,7 +82,7 @@ public class FormDetailsViewResponse {
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber,
         ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails,
-        Long basicPrice, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
+        Long basicPrice, String basicPlace, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDates) {
         return new FormDetailsViewResponseBuilder()
             .reservationNumber(reservationNumber)
             .currentReservationStatus(currentReservationStatus)
@@ -83,6 +90,7 @@ public class FormDetailsViewResponse {
             .productTitle(productTitle)
             .customerDetails(customerDetails)
             .basicPrice(basicPrice)
+            .basicPlace(basicPlace)
             .photoInfo(photoInfo)
             .preferredDates(preferredDates);
     }

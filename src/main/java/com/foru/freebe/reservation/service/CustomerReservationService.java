@@ -114,6 +114,7 @@ public class CustomerReservationService {
             .basicPrice(reservationForm.getBasicPrice())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
+            .preferredPlace(reservationForm.getPreferredPlace())
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();

@@ -28,19 +28,22 @@ public class ReservationInfoResponse {
     @NotNull
     private Map<Integer, TimeSlot> preferredDate;
 
+    private String preferredPlace;
+
     private Map<Integer, PhotoOption> photoOptions;
 
     private String customerMemo;
 
     @Builder
-    public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle,
-        Long basicPrice, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
+    public ReservationInfoResponse(ReservationStatus reservationStatus, String productTitle, Long basicPrice,
+        Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate, String preferredPlace,
         Map<Integer, PhotoOption> photoOptions, String customerMemo) {
         this.reservationStatus = reservationStatus;
         this.productTitle = productTitle;
         this.basicPrice = basicPrice;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
+        this.preferredPlace = preferredPlace;
         this.photoOptions = photoOptions;
         this.customerMemo = customerMemo;
     }

@@ -80,6 +80,8 @@ public class ReservationForm extends BaseEntity {
     @NotNull(message = "Preferred Date must not be null")
     private Map<Integer, TimeSlot> preferredDate;
 
+    private String preferredPlace;
+
     @Type(JsonType.class)
     @Column(name = "shooting_date", columnDefinition = "longtext")
     private TimeSlot shootingDate;
@@ -104,7 +106,7 @@ public class ReservationForm extends BaseEntity {
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long basicPrice, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
-        Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
+        String preferredPlace, Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
@@ -116,6 +118,7 @@ public class ReservationForm extends BaseEntity {
         this.reservationStatus = reservationStatus;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
+        this.preferredPlace = preferredPlace;
         this.photoOption = photoOption;
         this.customerMemo = customerMemo;
         this.photographerMemo = photographerMemo;

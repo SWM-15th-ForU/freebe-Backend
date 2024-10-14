@@ -183,6 +183,7 @@ public class CustomerReservationService {
                 request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
+            .preferredPlace(request.getPreferredPlace())
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();

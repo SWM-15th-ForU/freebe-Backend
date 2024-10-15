@@ -20,6 +20,7 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.repository.DeletedMemberRepository;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.notice.service.PhotographerNoticeService;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.product.service.PhotographerProductService;
@@ -37,6 +38,7 @@ public class KakaoUnlinkService {
     private final PhotographerProductService photographerProductService;
     private final PhotographerProfileService photographerProfileService;
     private final DeletedMemberRepository deletedMemberRepository;
+    private final PhotographerNoticeService photographerNoticeService;
 
     @Value("${KAKAO_API_ADMIN_KEY}")
     private String adminKey;
@@ -47,8 +49,7 @@ public class KakaoUnlinkService {
         final String KAKAO_AUTH_PREFIX = "KakaoAK ";
         final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
 
-        Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+        Member member = getMember(memberId);
 
         Long kakaoUserId = member.getKakaoId();
         try {
@@ -71,6 +72,11 @@ public class KakaoUnlinkService {
         }
     }
 
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
     private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
@@ -83,6 +89,7 @@ public class KakaoUnlinkService {
             member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
+            photographerNoticeService.deleteAllNotices(member);
             photographerProfileService.deleteProfile(member);
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             member.updateMemberRoleToLeavingStatus();

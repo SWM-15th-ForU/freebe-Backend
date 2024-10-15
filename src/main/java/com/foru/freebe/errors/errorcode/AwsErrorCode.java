@@ -8,7 +8,8 @@ import lombok.RequiredArgsConstructor;
 public enum AwsErrorCode implements ErrorCode {
     AMAZON_S3_EXCEPTION(404, "Amazon S3 exception"),
     AMAZON_SERVICE_EXCEPTION(500, "Amazon service exception"),
-    DELETE_OBJECT_EXCEPTION(500, "Failed to delete image to S3 due to an internal error");
+    DELETE_OBJECT_EXCEPTION(500, "Failed to delete image to S3 due to an internal error"),
+    MAXIMUM_UPLOAD_SIZE_EXCEEDED(413, "Maximum upload size exceeded");
 
     private final int httpStatus;
     private final String message;

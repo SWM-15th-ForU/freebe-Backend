@@ -41,6 +41,8 @@ public class ProductDetailConvertor {
             .productTitle(product.getTitle())
             .productDescription(product.getDescription())
             .basicPrice(product.getBasicPrice())
+            .basicPlace(product.getBasicPlace())
+            .allowPreferredPlace(product.getAllowPreferredPlace())
             .productImageUrls(productImageUrls)
             .productComponents(productComponents)
             .productOptions(productOptions)

@@ -28,6 +28,12 @@ public class UpdateProductDetailRequest {
     @NotNull(message = "Basic price must not be null")
     private Long basicPrice;
 
+    @NotBlank(message = "PhotoPlace name must not be blank")
+    private String basicPlace;
+
+    @NotNull
+    private Boolean allowPreferredPlace;
+
     @NotNull
     private List<ProductComponentDto> productComponents;
 
@@ -37,14 +43,16 @@ public class UpdateProductDetailRequest {
 
     @Builder
     public UpdateProductDetailRequest(Long productId, List<String> existingUrls, String productTitle,
-        String productDescription, Long basicPrice, List<ProductComponentDto> productComponents,
-        List<ProductOptionDto> productOptions,
+        String productDescription, Long basicPrice, String basicPlace, Boolean allowPreferredPlace,
+        List<ProductComponentDto> productComponents, List<ProductOptionDto> productOptions,
         List<ProductDiscountDto> productDiscounts) {
         this.productId = productId;
         this.existingUrls = existingUrls;
         this.productTitle = productTitle;
         this.productDescription = productDescription;
         this.basicPrice = basicPrice;
+        this.basicPlace = basicPlace;
+        this.allowPreferredPlace = allowPreferredPlace;
         this.productComponents = productComponents;
         this.productOptions = productOptions;
         this.productDiscounts = productDiscounts;

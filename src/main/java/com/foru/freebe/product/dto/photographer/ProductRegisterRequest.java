@@ -21,6 +21,12 @@ public class ProductRegisterRequest {
     @NotNull(message = "Basic price must not be null")
     private Long basicPrice;
 
+    @NotBlank(message = "PhotoPlace name must not be blank")
+    private String basicPlace;
+
+    @NotNull
+    private Boolean allowPreferredPlace;
+
     @NotNull(message = "Product components must not be null")
     private List<ProductComponentDto> productComponents;
 

@@ -97,6 +97,8 @@ public class CustomerReservationService {
             .phoneNumber(customer.getPhoneNumber())
             .instagramId(customer.getInstagramId())
             .basicPrice(product.getBasicPrice())
+            .basicPlace(product.getBasicPlace())
+            .allowPreferredPlace(product.getAllowPreferredPlace())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();
@@ -106,18 +108,22 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(formId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        reservationVerifier.validateCustomerAccess(reservationForm, customerId);
+        Product product = productRepository.findByTitle(reservationForm.getProductTitle())
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
-        Profile profile = profileRepository.findByMember(reservationForm.getPhotographer())
-            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+        reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
-            .profileName(profile.getProfileName())
+            .productId(product.getId())
             .basicPrice(reservationForm.getBasicPrice())
+            .basicPlace(reservationForm.getBasicPlace())
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
+            .preferredPlace(reservationForm.getPreferredPlace())
+            .shootingDate(reservationForm.getShootingDate())
+            .shootingPlace(reservationForm.getShootingPlace())
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();
@@ -183,10 +189,12 @@ public class CustomerReservationService {
         Map<String, String> photoInfo = getProductComponentsTitleAndContent(productComponents);
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
-                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), request.getTotalPrice(),
-                request.getServiceTermAgreement(), request.getPhotographerTermAgreement(), ReservationStatus.NEW)
+                request.getInstagramId(), product.getTitle(), product.getBasicPrice(), product.getBasicPlace(),
+                request.getTotalPrice(), request.getServiceTermAgreement(), request.getPhotographerTermAgreement(),
+                ReservationStatus.NEW)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
+            .preferredPlace(request.getPreferredPlace())
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();

@@ -80,16 +80,4 @@ public class Product extends BaseEntity {
         this.basicPlace = updateBasicPlace;
         this.allowPreferredPlace = updateAllowPreferredPlace;
     }
-
-    // public void assignTitle(String newTitle) {
-    //     this.title = newTitle;
-    // }
-    //
-    // public void assignDescription(String newDescription) {
-    //     this.description = newDescription;
-    // }
-
-    public void assignBasicPrice(Long basicPrice) {
-        this.basicPrice = basicPrice;
-    }
 }

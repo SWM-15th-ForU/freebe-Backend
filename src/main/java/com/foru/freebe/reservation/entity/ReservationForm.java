@@ -56,6 +56,9 @@ public class ReservationForm extends BaseEntity {
     @NotNull(message = "Basic price must not be null")
     private Long basicPrice;
 
+    @NotBlank(message = "Basic place must not be null")
+    private String basicPlace;
+
     @NotNull(message = "Total price must not be null")
     @Positive
     private Long totalPrice;
@@ -80,9 +83,13 @@ public class ReservationForm extends BaseEntity {
     @NotNull(message = "Preferred Date must not be null")
     private Map<Integer, TimeSlot> preferredDate;
 
+    private String preferredPlace;
+
     @Type(JsonType.class)
     @Column(name = "shooting_date", columnDefinition = "longtext")
     private TimeSlot shootingDate;
+
+    private String shootingPlace;
 
     @Type(JsonType.class)
     @Column(name = "photo_option", columnDefinition = "longtext")
@@ -100,29 +107,37 @@ public class ReservationForm extends BaseEntity {
         this.reservationStatus = updateStatus;
     }
 
+    public void updateShootingInfo(TimeSlot newShootingDate, String newShootingPlace) {
+        this.shootingDate = newShootingDate;
+        this.shootingPlace = newShootingPlace;
+    }
+
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Long basicPrice, Long totalPrice, Boolean serviceTermAgreement, Boolean photographerTermAgreement,
+        Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
+        Boolean photographerTermAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
-        Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
+        String preferredPlace, Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
         this.productTitle = productTitle;
         this.basicPrice = basicPrice;
+        this.basicPlace = basicPlace;
         this.totalPrice = totalPrice;
         this.serviceTermAgreement = serviceTermAgreement;
         this.photographerTermAgreement = photographerTermAgreement;
         this.reservationStatus = reservationStatus;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
+        this.preferredPlace = preferredPlace;
         this.photoOption = photoOption;
         this.customerMemo = customerMemo;
         this.photographerMemo = photographerMemo;
     }
 
     public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
-        String productTitle, Long basicPrice, Long totalPrice, Boolean serviceTermAgreement,
+        String productTitle, Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
         Boolean photographerTermAgreement, ReservationStatus reservationStatus) {
         return new ReservationFormBuilder()
             .photographer(photographer)
@@ -130,13 +145,10 @@ public class ReservationForm extends BaseEntity {
             .instagramId(instagramId)
             .productTitle(productTitle)
             .basicPrice(basicPrice)
+            .basicPlace(basicPlace)
             .totalPrice(totalPrice)
             .serviceTermAgreement(serviceTermAgreement)
             .photographerTermAgreement(photographerTermAgreement)
             .reservationStatus(reservationStatus);
-    }
-
-    public void updateShootingDate(TimeSlot newShootingDate) {
-        this.shootingDate = newShootingDate;
     }
 }

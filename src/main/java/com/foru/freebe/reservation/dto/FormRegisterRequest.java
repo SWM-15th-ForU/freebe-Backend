@@ -28,6 +28,8 @@ public class FormRegisterRequest {
     @NotNull(message = "Preferred dates must not be null")
     private Map<Integer, TimeSlot> preferredDates;
 
+    private String preferredPlace;
+
     private Map<Integer, PhotoOption> photoOptions;
 
     @NotEmpty

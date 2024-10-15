@@ -92,7 +92,7 @@ public class CustomerReservationController {
     }
 
     @PutMapping("/reservation/{formId}")
-    public ResponseEntity<Void> updateBasicReservationForm(@AuthenticationPrincipal MemberAdapter memberAdapter,
+    public ResponseEntity<Void> updateReservationStatus(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 

@@ -27,6 +27,7 @@ import com.foru.freebe.product.dto.photographer.ProductTitleResponse;
 import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 import com.foru.freebe.product.dto.photographer.UpdateProductDetailRequest;
 import com.foru.freebe.product.dto.photographer.UpdateProductRequest;
+import com.foru.freebe.product.entity.ActiveStatus;
 import com.foru.freebe.product.entity.Product;
 import com.foru.freebe.product.entity.ProductComponent;
 import com.foru.freebe.product.entity.ProductDiscount;
@@ -118,9 +119,12 @@ public class PhotographerProductService {
             validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         }
 
-        product.assignTitle(updateProductDetailRequest.getProductTitle());
-        product.assignDescription(updateProductDetailRequest.getProductDescription());
-        product.assignBasicPrice(updateProductDetailRequest.getBasicPrice());
+        product.assignBasicProductInfo(
+            updateProductDetailRequest.getProductTitle(),
+            updateProductDetailRequest.getProductDescription(),
+            updateProductDetailRequest.getBasicPrice(),
+            updateProductDetailRequest.getBasicPlace(),
+            updateProductDetailRequest.getAllowPreferredPlace());
 
         updateProductImage(photographer.getId(), updateProductDetailRequest, images, product);
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
@@ -290,19 +294,20 @@ public class PhotographerProductService {
     }
 
     private Product registerActiveProduct(ProductRegisterRequest request, Member photographer) {
-        String productTitle = request.getProductTitle();
-        String productDescription = request.getProductDescription();
-        Long basicPrice = request.getBasicPrice();
 
-        Product productAsActive;
-        if (productDescription != null) {
-            productAsActive = Product.createProductAsActive(productTitle, productDescription, basicPrice, photographer);
-        } else {
-            productAsActive = Product.createProductAsActiveWithoutDescription(productTitle, basicPrice, photographer);
-        }
+        validateProductTitleBeforeRegister(request.getProductTitle(), photographer);
 
-        validateProductTitleBeforeRegister(productTitle, photographer);
-        return productRepository.save(productAsActive);
+        Product product = Product.builder()
+            .title(request.getProductTitle())
+            .description(request.getProductDescription())
+            .activeStatus(ActiveStatus.ACTIVE)
+            .basicPrice(request.getBasicPrice())
+            .basicPlace(request.getBasicPlace())
+            .allowPreferredPlace(request.getAllowPreferredPlace())
+            .member(photographer)
+            .build();
+
+        return productRepository.save(product);
     }
 
     private void validateProductTitleBeforeRegister(String productTitle, Member photographer) {

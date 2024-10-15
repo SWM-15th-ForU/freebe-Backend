@@ -34,9 +34,11 @@ public class PhotographerReservationDetails {
 
         return FormDetailsViewResponse.builder(reservationForm.getId(), reservationForm.getReservationStatus(),
                 statusHistories, reservationForm.getProductTitle(), customerDetails, reservationForm.getBasicPrice(),
-                photoInfo, preferredDates)
+                reservationForm.getBasicPlace(), photoInfo, preferredDates)
             .photoOptions(reservationForm.getPhotoOption())
+            .preferredPlace(reservationForm.getPreferredPlace())
             .shootingDate(reservationForm.getShootingDate())
+            .shootingPlace(reservationForm.getShootingPlace())
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())

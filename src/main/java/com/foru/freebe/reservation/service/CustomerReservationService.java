@@ -118,6 +118,8 @@ public class CustomerReservationService {
             .photoInfo(reservationForm.getPhotoInfo())
             .preferredDate(reservationForm.getPreferredDate())
             .preferredPlace(reservationForm.getPreferredPlace())
+            .shootingDate(reservationForm.getShootingDate())
+            .shootingPlace(reservationForm.getShootingPlace())
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();

@@ -38,6 +38,7 @@ public class PhotographerReservationDetails {
             .photoOptions(reservationForm.getPhotoOption())
             .preferredPlace(reservationForm.getPreferredPlace())
             .shootingDate(reservationForm.getShootingDate())
+            .shootingPlace(reservationForm.getShootingPlace())
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())

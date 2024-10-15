@@ -47,6 +47,8 @@ public class FormDetailsViewResponse {
 
     private TimeSlot shootingDate;
 
+    private String shootingPlace;
+
     private List<String> originalImage;
 
     private List<String> thumbnailImage;
@@ -59,8 +61,8 @@ public class FormDetailsViewResponse {
     public FormDetailsViewResponse(Long reservationNumber, ReservationStatus currentReservationStatus,
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails, Long basicPrice,
         String basicPlace, Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
-        Map<Integer, TimeSlot> preferredDates, String preferredPlace, TimeSlot shootingDate, List<String> originalImage,
-        List<String> thumbnailImage, String requestMemo, String photographerMemo) {
+        Map<Integer, TimeSlot> preferredDates, String preferredPlace, TimeSlot shootingDate, String shootingPlace,
+        List<String> originalImage, List<String> thumbnailImage, String requestMemo, String photographerMemo) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
         this.statusHistory = statusHistory;
@@ -73,6 +75,7 @@ public class FormDetailsViewResponse {
         this.preferredDates = preferredDates;
         this.preferredPlace = preferredPlace;
         this.shootingDate = shootingDate;
+        this.shootingPlace = shootingPlace;
         this.originalImage = originalImage;
         this.thumbnailImage = thumbnailImage;
         this.requestMemo = requestMemo;

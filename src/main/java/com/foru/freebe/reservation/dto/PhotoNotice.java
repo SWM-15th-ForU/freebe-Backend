@@ -2,7 +2,7 @@ package com.foru.freebe.reservation.dto;
 
 import java.io.Serializable;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,9 +10,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public class PhotoNotice implements Serializable {
 
-    @NotNull
+    @NotBlank
     private String title;
 
-    @NotNull
+    @NotBlank
     private String content;
 }

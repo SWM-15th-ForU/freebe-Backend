@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.reservation.dto.PhotoNotice;
 import com.foru.freebe.reservation.dto.PhotoOption;
 import com.foru.freebe.reservation.dto.TimeSlot;
 
@@ -63,11 +64,8 @@ public class ReservationForm extends BaseEntity {
     @Positive
     private Long totalPrice;
 
-    @NotNull(message = "Service term agreement must not be null")
-    private Boolean serviceTermAgreement;
-
-    @NotNull(message = "Photographer term agreement must not be null")
-    private Boolean photographerTermAgreement;
+    @NotNull(message = "Notice agreement must not be null")
+    private Boolean noticeAgreement;
 
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Reservation status must not be null")
@@ -95,6 +93,10 @@ public class ReservationForm extends BaseEntity {
     @Column(name = "photo_option", columnDefinition = "longtext")
     private Map<Integer, PhotoOption> photoOption;
 
+    @Type(JsonType.class)
+    @Column(name = "photo_notice", columnDefinition = "longtext")
+    private Map<Integer, PhotoNotice> photoNotice;
+
     private String customerMemo;
 
     private String photographerMemo;
@@ -114,10 +116,10 @@ public class ReservationForm extends BaseEntity {
 
     @Builder
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
-        Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
-        Boolean photographerTermAgreement,
+        Long basicPrice, String basicPlace, Long totalPrice, Boolean noticeAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
-        String preferredPlace, Map<Integer, PhotoOption> photoOption, String customerMemo, String photographerMemo) {
+        String preferredPlace, Map<Integer, PhotoOption> photoOption, Map<Integer, PhotoNotice> photoNotice,
+        String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
         this.instagramId = instagramId;
@@ -125,20 +127,20 @@ public class ReservationForm extends BaseEntity {
         this.basicPrice = basicPrice;
         this.basicPlace = basicPlace;
         this.totalPrice = totalPrice;
-        this.serviceTermAgreement = serviceTermAgreement;
-        this.photographerTermAgreement = photographerTermAgreement;
+        this.noticeAgreement = noticeAgreement;
         this.reservationStatus = reservationStatus;
         this.photoInfo = photoInfo;
         this.preferredDate = preferredDate;
         this.preferredPlace = preferredPlace;
         this.photoOption = photoOption;
+        this.photoNotice = photoNotice;
         this.customerMemo = customerMemo;
         this.photographerMemo = photographerMemo;
     }
 
     public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
-        String productTitle, Long basicPrice, String basicPlace, Long totalPrice, Boolean serviceTermAgreement,
-        Boolean photographerTermAgreement, ReservationStatus reservationStatus) {
+        String productTitle, Long basicPrice, String basicPlace, Long totalPrice, Boolean noticeAgreement,
+        ReservationStatus reservationStatus, Map<Integer, PhotoNotice> photoNotice) {
         return new ReservationFormBuilder()
             .photographer(photographer)
             .customer(customer)
@@ -147,8 +149,8 @@ public class ReservationForm extends BaseEntity {
             .basicPrice(basicPrice)
             .basicPlace(basicPlace)
             .totalPrice(totalPrice)
-            .serviceTermAgreement(serviceTermAgreement)
-            .photographerTermAgreement(photographerTermAgreement)
-            .reservationStatus(reservationStatus);
+            .noticeAgreement(noticeAgreement)
+            .reservationStatus(reservationStatus)
+            .photoNotice(photoNotice);
     }
 }

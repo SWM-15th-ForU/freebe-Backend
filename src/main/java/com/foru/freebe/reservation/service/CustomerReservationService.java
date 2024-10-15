@@ -108,11 +108,15 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(formId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
+        Product product = productRepository.findByTitle(reservationForm.getProductTitle())
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
+
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
             .reservationStatus(reservationForm.getReservationStatus())
             .productTitle(reservationForm.getProductTitle())
+            .productId(product.getId())
             .basicPrice(reservationForm.getBasicPrice())
             .basicPlace(reservationForm.getBasicPlace())
             .photoInfo(reservationForm.getPhotoInfo())

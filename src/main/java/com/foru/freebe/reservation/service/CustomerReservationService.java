@@ -98,6 +98,7 @@ public class CustomerReservationService {
             .instagramId(customer.getInstagramId())
             .basicPrice(product.getBasicPrice())
             .basicPlace(product.getBasicPlace())
+            .allowPreferredPlace(product.getAllowPreferredPlace())
             .productComponentDtoList(productComponentDtoList)
             .productOptionDtoList(productOptionDtoList)
             .build();

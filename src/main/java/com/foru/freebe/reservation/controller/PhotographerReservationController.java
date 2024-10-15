@@ -69,7 +69,7 @@ public class PhotographerReservationController {
             member.getId(), formId);
 
         ResponseBody<FormDetailsViewResponse> responseBody = ResponseBody.<FormDetailsViewResponse>builder()
-            .message("Successfully get reservation list")
+            .message("Successfully get reservation details")
             .data(responseData)
             .build();
 
@@ -115,8 +115,8 @@ public class PhotographerReservationController {
             .body(responseBody);
     }
 
-    @PutMapping("/reservation/shooting-date/{formId}")
-    public ResponseEntity<ResponseBody<Void>> setShootingDate(
+    @PutMapping("/reservation/shooting-info/{formId}")
+    public ResponseEntity<ResponseBody<Void>> setShootingInfo(
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ShootingInfoRequest request) {

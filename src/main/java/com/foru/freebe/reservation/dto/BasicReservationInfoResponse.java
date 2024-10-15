@@ -29,19 +29,23 @@ public class BasicReservationInfoResponse {
     private String basicPlace;
 
     @NotNull
+    private Boolean allowPreferredPlace;
+
+    @NotNull
     private List<ProductComponentDto> productComponentDtoList;
 
     private List<ProductOptionDto> productOptionDtoList;
 
     @Builder
     public BasicReservationInfoResponse(String name, String phoneNumber, String instagramId, Long basicPrice,
-        String basicPlace, List<ProductComponentDto> productComponentDtoList,
+        String basicPlace, Boolean allowPreferredPlace, List<ProductComponentDto> productComponentDtoList,
         List<ProductOptionDto> productOptionDtoList) {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.instagramId = instagramId;
         this.basicPrice = basicPrice;
         this.basicPlace = basicPlace;
+        this.allowPreferredPlace = allowPreferredPlace;
         this.productComponentDtoList = productComponentDtoList;
         this.productOptionDtoList = productOptionDtoList;
     }

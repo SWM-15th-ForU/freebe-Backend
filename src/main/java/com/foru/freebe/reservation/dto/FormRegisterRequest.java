@@ -43,9 +43,6 @@ public class FormRegisterRequest {
     private Long totalPrice;
 
     @NotNull
-    private Boolean serviceTermAgreement;
-
-    @NotNull
-    private Boolean photographerTermAgreement;
+    private Boolean noticeAgreement;
 }
 

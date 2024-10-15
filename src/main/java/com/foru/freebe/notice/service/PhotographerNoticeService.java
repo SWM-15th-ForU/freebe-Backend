@@ -26,6 +26,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PhotographerNoticeService {
 
+    public final String CANCELLATION_AND_REFUND_POLICY = "취소 및 환불 규정";
+    public final String RESCHEDULE_POLICY = "예약 변경 규정";
+
     private final NoticeRepository noticeRepository;
     private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
@@ -52,10 +55,10 @@ public class PhotographerNoticeService {
 
     private void validateIncludingEssentialTitle(List<NoticeDto> requestList) {
         boolean containsCancellationTitle = requestList.stream()
-            .anyMatch(notice -> "취소 및 환불 규정".equals(notice.getTitle()));
+            .anyMatch(notice -> CANCELLATION_AND_REFUND_POLICY.equals(notice.getTitle()));
 
         boolean containsChangeTitle = requestList.stream()
-            .anyMatch(notice -> "예약 변경 규정".equals(notice.getTitle()));
+            .anyMatch(notice -> RESCHEDULE_POLICY.equals(notice.getTitle()));
 
         if (!containsCancellationTitle || !containsChangeTitle) {
             throw new RestApiException(NoticeErrorCode.NOT_FOUND_ESSENTIAL_TITLE);

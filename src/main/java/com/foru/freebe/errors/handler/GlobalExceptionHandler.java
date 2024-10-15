@@ -13,8 +13,10 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
@@ -53,6 +55,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpHeaders headers,
         HttpStatusCode status, WebRequest request) {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        return handleExceptionInternal(e, errorCode);
+    }
+
+    @Override
+    public ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e,
+        HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        ErrorCode errorCode = AwsErrorCode.MAXIMUM_UPLOAD_SIZE_EXCEEDED;
         return handleExceptionInternal(e, errorCode);
     }
 

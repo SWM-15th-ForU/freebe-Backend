@@ -36,6 +36,7 @@ public class PhotographerNoticeService {
         Profile profile = getProfile(photographer);
 
         validateDuplicateTitles(requestList);
+        validateIncludingEssentialTitle(requestList);
         noticeRepository.deleteAll();
 
         List<Notice> notices = requestList.stream()
@@ -47,6 +48,18 @@ public class PhotographerNoticeService {
             .collect(Collectors.toList());
 
         noticeRepository.saveAll(notices);
+    }
+
+    private void validateIncludingEssentialTitle(List<NoticeDto> requestList) {
+        boolean containsCancellationTitle = requestList.stream()
+            .anyMatch(notice -> "취소 및 환불 규정".equals(notice.getTitle()));
+
+        boolean containsChangeTitle = requestList.stream()
+            .anyMatch(notice -> "예약 변경 규정".equals(notice.getTitle()));
+
+        if (!containsCancellationTitle || !containsChangeTitle) {
+            throw new RestApiException(NoticeErrorCode.NOT_FOUND_ESSENTIAL_TITLE);
+        }
     }
 
     public List<NoticeDto> getNotices(Long photographerId) {

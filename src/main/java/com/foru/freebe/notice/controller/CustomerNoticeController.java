@@ -22,11 +22,11 @@ public class CustomerNoticeController {
 
     private final CustomerNoticeService customerNoticeService;
 
-    @GetMapping("/notice/{profileName}")
+    @GetMapping("/notice/{productId}")
     public ResponseEntity<ResponseBody<List<NoticeDto>>> getNotices(
-        @PathVariable("profileName") String profileName) {
+        @PathVariable("productId") Long productId) {
 
-        List<NoticeDto> responseData = customerNoticeService.getNotices(profileName);
+        List<NoticeDto> responseData = customerNoticeService.getNotices(productId);
 
         ResponseBody<List<NoticeDto>> responseBody = ResponseBody.<List<NoticeDto>>builder()
             .message("Data successfully loaded")

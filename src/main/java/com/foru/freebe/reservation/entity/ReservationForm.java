@@ -95,7 +95,7 @@ public class ReservationForm extends BaseEntity {
 
     @Type(JsonType.class)
     @Column(name = "photo_notice", columnDefinition = "longtext")
-    private Map<Integer, PhotoNotice> photoNotice;
+    private Map<String, PhotoNotice> photoNotice;
 
     private String customerMemo;
 
@@ -118,7 +118,7 @@ public class ReservationForm extends BaseEntity {
     public ReservationForm(Member photographer, Member customer, String instagramId, String productTitle,
         Long basicPrice, String basicPlace, Long totalPrice, Boolean noticeAgreement,
         ReservationStatus reservationStatus, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
-        String preferredPlace, Map<Integer, PhotoOption> photoOption, Map<Integer, PhotoNotice> photoNotice,
+        String preferredPlace, Map<Integer, PhotoOption> photoOption, Map<String, PhotoNotice> photoNotice,
         String customerMemo, String photographerMemo) {
         this.photographer = photographer;
         this.customer = customer;
@@ -140,7 +140,7 @@ public class ReservationForm extends BaseEntity {
 
     public static ReservationFormBuilder builder(Member photographer, Member customer, String instagramId,
         String productTitle, Long basicPrice, String basicPlace, Long totalPrice, Boolean noticeAgreement,
-        ReservationStatus reservationStatus, Map<Integer, PhotoNotice> photoNotice) {
+        ReservationStatus reservationStatus, Map<String, PhotoNotice> photoNotice) {
         return new ReservationFormBuilder()
             .photographer(photographer)
             .customer(customer)

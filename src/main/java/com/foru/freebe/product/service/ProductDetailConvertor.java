@@ -56,7 +56,7 @@ public class ProductDetailConvertor {
             .build();
     }
 
-    private List<NoticeDto> convertToNoticeDtoList(Map<String, PhotoNotice> photoNoticeMap) {
+    public List<NoticeDto> convertToNoticeDtoList(Map<String, PhotoNotice> photoNoticeMap) {
         return photoNoticeMap.values().stream()
             .map(photoNotice -> new NoticeDto(photoNotice.getTitle(), photoNotice.getContent()))
             .collect(Collectors.toList());

@@ -116,6 +116,8 @@ public class CustomerReservationService {
         Product product = productRepository.findByTitle(reservationForm.getProductTitle())
             .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
+
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
@@ -129,6 +131,7 @@ public class CustomerReservationService {
             .preferredPlace(reservationForm.getPreferredPlace())
             .shootingDate(reservationForm.getShootingDate())
             .shootingPlace(reservationForm.getShootingPlace())
+            .photoNotice(photoNotice)
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();
@@ -197,11 +200,11 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
 
         List<Notice> noticeList = noticeRepository.findByProfile(profile);
-        Map<Integer, PhotoNotice> photoNoticeMap = getIntegerPhotoNoticeMap(noticeList);
+        Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), product.getTitle(), product.getBasicPrice(), product.getBasicPlace(),
-                request.getTotalPrice(), request.getNoticeAgreement(), ReservationStatus.NEW, photoNoticeMap)
+                request.getTotalPrice(), request.getNoticeAgreement(), ReservationStatus.NEW, photoNotice)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
             .preferredPlace(request.getPreferredPlace())

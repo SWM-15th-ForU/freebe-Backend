@@ -101,6 +101,14 @@ jobs:
             aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
           fi
 
+      - name: 배포 그룹 정보 출력
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+            echo "Using dev deployment group: ${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}"
+          else
+            echo "Using production deployment group: ${{ secrets.AWS_CODE_DEPLOY_GROUP }}"
+          fi
+          
       - name: Code Deploy 로 배포
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then

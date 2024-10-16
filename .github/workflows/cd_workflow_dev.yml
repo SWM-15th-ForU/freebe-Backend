@@ -25,7 +25,7 @@ jobs:
 
       - name: env 설정
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+          if [[ "${{ github.ref }}" == "refs/pull/62/merge" ]]; then
             echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET_DEV }}" >> .env
             echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
             echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> .env
@@ -87,7 +87,7 @@ jobs:
 
       - name: S3에 jar 업로드(실행 파일)
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+          if [[ "${{ github.ref }}" == "refs/pull/62/merge" ]]; then
             aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET_DEV}}/cicdtest/freebe.jar --region ap-northeast-2
           else
             aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
@@ -95,7 +95,7 @@ jobs:
 
       - name: S3에 zip 업로드(전체 파일)
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+          if [[ "${{ github.ref }}" == "refs/pull/62/merge" ]]; then
             aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET_DEV}}/cicdtest/freebe.zip --region ap-northeast-2
           else
             aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
@@ -103,15 +103,15 @@ jobs:
 
       - name: 배포 그룹 정보 출력
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+          if [[ "${{ github.ref }}" == "refs/pull/62/merge" ]]; then
             echo "Using dev deployment group: ${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}"
           else
             echo "Using production deployment group: ${{ secrets.AWS_CODE_DEPLOY_GROUP }}"
           fi
-          
+
       - name: Code Deploy 로 배포
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+          if [[ "${{ github.ref }}" == "refs/pull/62/merge" ]]; then
             aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
             --deployment-config-name CodeDeployDefault.AllAtOnce
             --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}

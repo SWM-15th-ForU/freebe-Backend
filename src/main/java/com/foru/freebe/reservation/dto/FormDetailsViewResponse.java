@@ -30,6 +30,9 @@ public class FormDetailsViewResponse {
     private CustomerDetails customerDetails;
 
     @NotNull
+    private Map<String, PhotoNotice> photoNotice;
+
+    @NotNull
     private Long basicPrice;
 
     @NotBlank
@@ -62,7 +65,8 @@ public class FormDetailsViewResponse {
         List<StatusHistory> statusHistory, String productTitle, CustomerDetails customerDetails, Long basicPrice,
         String basicPlace, Map<String, String> photoInfo, Map<Integer, PhotoOption> photoOptions,
         Map<Integer, TimeSlot> preferredDates, String preferredPlace, TimeSlot shootingDate, String shootingPlace,
-        List<String> originalImage, List<String> thumbnailImage, String requestMemo, String photographerMemo) {
+        List<String> originalImage, List<String> thumbnailImage, String requestMemo, String photographerMemo,
+        Map<String, PhotoNotice> photoNotice) {
         this.reservationNumber = reservationNumber;
         this.currentReservationStatus = currentReservationStatus;
         this.statusHistory = statusHistory;
@@ -80,6 +84,7 @@ public class FormDetailsViewResponse {
         this.thumbnailImage = thumbnailImage;
         this.requestMemo = requestMemo;
         this.photographerMemo = photographerMemo;
+        this.photoNotice = photoNotice;
     }
 
     public static FormDetailsViewResponseBuilder builder(Long reservationNumber,

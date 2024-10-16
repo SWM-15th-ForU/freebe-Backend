@@ -42,6 +42,7 @@ public class PhotographerReservationDetails {
             .originalImage(preferredImages.getOriginalImage())
             .thumbnailImage(preferredImages.getThumbnailImage())
             .requestMemo(reservationForm.getCustomerMemo())
+            .photoNotice(reservationForm.getPhotoNotice())
             .photographerMemo(reservationForm.getPhotographerMemo())
             .build();
     }

@@ -200,11 +200,11 @@ public class CustomerReservationService {
             .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
 
         List<Notice> noticeList = noticeRepository.findByProfile(profile);
-        Map<Integer, PhotoNotice> photoNoticeMap = getIntegerPhotoNoticeMap(noticeList);
+        Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
                 request.getInstagramId(), product.getTitle(), product.getBasicPrice(), product.getBasicPlace(),
-                request.getTotalPrice(), request.getNoticeAgreement(), ReservationStatus.NEW, photoNoticeMap)
+                request.getTotalPrice(), request.getNoticeAgreement(), ReservationStatus.NEW, photoNotice)
             .photoInfo(photoInfo)
             .preferredDate(request.getPreferredDates())
             .preferredPlace(request.getPreferredPlace())

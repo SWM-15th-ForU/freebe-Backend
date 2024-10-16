@@ -1,10 +1,16 @@
 package com.foru.freebe.product.entity;
 
+import java.util.Map;
+
+import org.hibernate.annotations.Type;
+
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.reservation.dto.PhotoNotice;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,19 +55,24 @@ public class Product extends BaseEntity {
     @NotNull
     private Boolean allowPreferredPlace;
 
+    @Type(JsonType.class)
+    @Column(name = "photo_notice", columnDefinition = "longtext")
+    private Map<String, PhotoNotice> photoNotice;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
     @Builder
     public Product(String title, String description, ActiveStatus activeStatus, Long basicPrice, String basicPlace,
-        Boolean allowPreferredPlace, Member member) {
+        Boolean allowPreferredPlace, Map<String, PhotoNotice> photoNotice, Member member) {
         this.title = title;
         this.description = description;
         this.activeStatus = activeStatus;
         this.basicPrice = basicPrice;
         this.basicPlace = basicPlace;
         this.allowPreferredPlace = allowPreferredPlace;
+        this.photoNotice = photoNotice;
         this.member = member;
     }
 

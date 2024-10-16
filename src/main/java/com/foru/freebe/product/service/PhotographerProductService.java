@@ -122,12 +122,15 @@ public class PhotographerProductService {
             validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         }
 
+        Map<String, PhotoNotice> photoNotice = getStringPhotoNoticeMap(updateProductDetailRequest.getNotices());
+
         product.assignBasicProductInfo(
             updateProductDetailRequest.getProductTitle(),
             updateProductDetailRequest.getProductDescription(),
             updateProductDetailRequest.getBasicPrice(),
             updateProductDetailRequest.getBasicPlace(),
-            updateProductDetailRequest.getAllowPreferredPlace());
+            updateProductDetailRequest.getAllowPreferredPlace(),
+            photoNotice);
 
         updateProductImage(photographer.getId(), updateProductDetailRequest, images, product);
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);

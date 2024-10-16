@@ -84,11 +84,12 @@ public class Product extends BaseEntity {
     }
 
     public void assignBasicProductInfo(String updateTitle, String updateDescription, Long updateBasicPrice,
-        String updateBasicPlace, Boolean updateAllowPreferredPlace) {
+        String updateBasicPlace, Boolean updateAllowPreferredPlace, Map<String, PhotoNotice> photoNotice) {
         this.title = updateTitle;
         this.description = updateDescription;
         this.basicPrice = updateBasicPrice;
         this.basicPlace = updateBasicPlace;
         this.allowPreferredPlace = updateAllowPreferredPlace;
+        this.photoNotice = photoNotice;
     }
 }

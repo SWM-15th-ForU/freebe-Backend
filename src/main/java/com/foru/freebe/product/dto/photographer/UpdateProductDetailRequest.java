@@ -2,7 +2,10 @@ package com.foru.freebe.product.dto.photographer;
 
 import java.util.List;
 
+import com.foru.freebe.notice.dto.NoticeDto;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
@@ -31,6 +34,9 @@ public class UpdateProductDetailRequest {
     @NotBlank(message = "PhotoPlace name must not be blank")
     private String basicPlace;
 
+    @NotEmpty(message = "Notice must not be empty")
+    private List<NoticeDto> notices;
+
     @NotNull
     private Boolean allowPreferredPlace;
 
@@ -43,7 +49,8 @@ public class UpdateProductDetailRequest {
 
     @Builder
     public UpdateProductDetailRequest(Long productId, List<String> existingUrls, String productTitle,
-        String productDescription, Long basicPrice, String basicPlace, Boolean allowPreferredPlace,
+        String productDescription, Long basicPrice, String basicPlace, List<NoticeDto> notices,
+        Boolean allowPreferredPlace,
         List<ProductComponentDto> productComponents, List<ProductOptionDto> productOptions,
         List<ProductDiscountDto> productDiscounts) {
         this.productId = productId;
@@ -52,6 +59,7 @@ public class UpdateProductDetailRequest {
         this.productDescription = productDescription;
         this.basicPrice = basicPrice;
         this.basicPlace = basicPlace;
+        this.notices = notices;
         this.allowPreferredPlace = allowPreferredPlace;
         this.productComponents = productComponents;
         this.productOptions = productOptions;

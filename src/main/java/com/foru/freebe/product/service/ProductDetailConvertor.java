@@ -3,9 +3,12 @@ package com.foru.freebe.product.service;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.notice.dto.NoticeDto;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
@@ -19,6 +22,7 @@ import com.foru.freebe.product.respository.ProductComponentRepository;
 import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
+import com.foru.freebe.reservation.dto.PhotoNotice;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,18 +40,26 @@ public class ProductDetailConvertor {
         List<ProductComponentDto> productComponents = convertToProductComponentDtoList(product);
         List<ProductOptionDto> productOptions = convertToProductOptionDtoList(product);
         List<ProductDiscountDto> productDiscounts = convertToProductDiscountDtoList(product);
+        List<NoticeDto> notices = convertToNoticeDtoList(product.getPhotoNotice());
 
         return ProductDetailResponse.builder()
             .productTitle(product.getTitle())
             .productDescription(product.getDescription())
             .basicPrice(product.getBasicPrice())
             .basicPlace(product.getBasicPlace())
+            .notices(notices)
             .allowPreferredPlace(product.getAllowPreferredPlace())
             .productImageUrls(productImageUrls)
             .productComponents(productComponents)
             .productOptions(productOptions)
             .productDiscounts(productDiscounts)
             .build();
+    }
+
+    private List<NoticeDto> convertToNoticeDtoList(Map<String, PhotoNotice> photoNoticeMap) {
+        return photoNoticeMap.values().stream()
+            .map(photoNotice -> new NoticeDto(photoNotice.getTitle(), photoNotice.getContent()))
+            .collect(Collectors.toList());
     }
 
     private List<ProductDiscountDto> convertToProductDiscountDtoList(Product product) {

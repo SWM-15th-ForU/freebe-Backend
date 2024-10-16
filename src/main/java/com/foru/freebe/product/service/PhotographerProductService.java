@@ -3,6 +3,7 @@ package com.foru.freebe.product.service;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -18,6 +19,7 @@ import com.foru.freebe.errors.errorcode.ProductImageErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
+import com.foru.freebe.notice.dto.NoticeDto;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductDiscountDto;
@@ -38,6 +40,7 @@ import com.foru.freebe.product.respository.ProductDiscountRepository;
 import com.foru.freebe.product.respository.ProductImageRepository;
 import com.foru.freebe.product.respository.ProductOptionRepository;
 import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.reservation.dto.PhotoNotice;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 import com.foru.freebe.reservation.repository.ReservationFormRepository;
 import com.foru.freebe.s3.S3ImageService;
@@ -119,12 +122,15 @@ public class PhotographerProductService {
             validateProductTitleBeforeRegister(updateProductDetailRequest.getProductTitle(), photographer);
         }
 
+        Map<String, PhotoNotice> photoNotice = getStringPhotoNoticeMap(updateProductDetailRequest.getNotices());
+
         product.assignBasicProductInfo(
             updateProductDetailRequest.getProductTitle(),
             updateProductDetailRequest.getProductDescription(),
             updateProductDetailRequest.getBasicPrice(),
             updateProductDetailRequest.getBasicPlace(),
-            updateProductDetailRequest.getAllowPreferredPlace());
+            updateProductDetailRequest.getAllowPreferredPlace(),
+            photoNotice);
 
         updateProductImage(photographer.getId(), updateProductDetailRequest, images, product);
         updateProductCompositionExcludingImage(updateProductDetailRequest, product);
@@ -297,6 +303,8 @@ public class PhotographerProductService {
 
         validateProductTitleBeforeRegister(request.getProductTitle(), photographer);
 
+        Map<String, PhotoNotice> photoNotice = getStringPhotoNoticeMap(request.getNotices());
+
         Product product = Product.builder()
             .title(request.getProductTitle())
             .description(request.getProductDescription())
@@ -304,10 +312,22 @@ public class PhotographerProductService {
             .basicPrice(request.getBasicPrice())
             .basicPlace(request.getBasicPlace())
             .allowPreferredPlace(request.getAllowPreferredPlace())
+            .photoNotice(photoNotice)
             .member(photographer)
             .build();
 
         return productRepository.save(product);
+    }
+
+    private Map<String, PhotoNotice> getStringPhotoNoticeMap(List<NoticeDto> noticeDtoList) {
+        Map<String, PhotoNotice> photoNoticeMap = new HashMap<>();
+
+        int index = 1;
+        for (NoticeDto noticeDto : noticeDtoList) {
+            photoNoticeMap.put(String.valueOf(index), new PhotoNotice(noticeDto.getTitle(), noticeDto.getContent()));
+            index += 1;
+        }
+        return photoNoticeMap;
     }
 
     private void validateProductTitleBeforeRegister(String productTitle, Member photographer) {

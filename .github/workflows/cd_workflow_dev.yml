@@ -27,81 +27,36 @@ jobs:
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
             echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET_DEV }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
+            echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> .env
+            echo "KAKAO_API_ADMIN_KEY=${{ secrets.KAKAO_API_ADMIN_KEY_DEV }}" >> .env
+            echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL_DEV }}" >> .env
+            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME_DEV }}" >> .env
+            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD_DEV }}" >> .env
+            echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL_DEV }}" >> .env
+            echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET_DEV }}" >> .env
+            echo "AWS_S3_DATA_BUCKET=${{ secrets.AWS_S3_DATA_BUCKET_DEV }}" >> .env
+            echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}" >> .env
+            echo "ENVIRONMENT=${{ secrets.ENVIRONMENT_DEV }}" >> .env
           else
             echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
-          else
             echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> .env
-          else
             echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "KAKAO_API_ADMIN_KEY=${{ secrets.KAKAO_API_ADMIN_KEY_DEV }}" >> .env
-          else
             echo "KAKAO_API_ADMIN_KEY=${{ secrets.KAKAO_API_ADMIN_KEY }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
-          else
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL_DEV }}" >> .env
-          else
             echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME_DEV }}" >> .env
-          else
             echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD_DEV }}" >> .env
-          else
             echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL_DEV }}" >> .env
-          else
             echo "FREEBE_BASE_URL=${{ secrets.FREEBE_BASE_URL }}" >> .env
+            echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET }}" >> .env
+            echo "AWS_S3_DATA_BUCKET=${{ secrets.AWS_S3_DATA_BUCKET }}" >> .env
+            echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
+            echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> .env
           fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
-          else
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-          fi
-          
+
           echo "JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
           echo "AWS_ACCESS_KEY=${{ secrets.CICD_ACCESS_KEY }}" >> .env
           echo "AWS_SECRET_KEY=${{ secrets.CICD_SECRET_KEY }}" >> .env
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET_DEV }}" >> .env
-          else
-            echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET }}" >> .env
-          fi
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "AWS_S3_DATA_BUCKET=${{ secrets.AWS_S3_DATA_BUCKET_DEV }}" >> .env
-          else
-            echo "AWS_S3_DATA_BUCKET=${{ secrets.AWS_S3_DATA_BUCKET }}" >> .env
-          fi
-          
           echo "AWS_S3_ORIGINAL_PATH=${{ secrets.AWS_S3_ORIGINAL_PATH }}" >> .env
           echo "AWS_S3_THUMBNAIL_PATH=${{ secrets.AWS_S3_THUMBNAIL_PATH }}" >> .env
           echo "AWS_S3_PHOTOGRAPHER_PATH=${{ secrets.AWS_S3_PHOTOGRAPHER_PATH }}" >> .env
@@ -111,21 +66,8 @@ jobs:
           echo "AWS_S3_BANNER_PATH=${{ secrets.AWS_S3_BANNER_PATH }}" >> .env
           echo "AWS_S3_RESERVATION_PATH=${{ secrets.AWS_S3_RESERVATION_PATH }}" >> .env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}" >> .env
-          else
-            echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
-          fi
-          
           echo "NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}" >> .env
           echo "NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}" >> .env
-          
-          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
-            echo "ENVIRONMENT=${{ secrets.ENVIRONMENT_DEV }}" >> .env
-          else
-            echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> .env
-          fi
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew
@@ -144,14 +86,31 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: S3에 jar 업로드(실행 파일)
-        run: aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+            aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET_DEV}}/cicdtest/freebe.jar --region ap-northeast-2
+          else
+            aws s3 cp ./build/libs/freebe-0.0.1-SNAPSHOT.jar s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.jar --region ap-northeast-2
+          fi
 
       - name: S3에 zip 업로드(전체 파일)
-        run: aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+            aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET_DEV}}/cicdtest/freebe.zip --region ap-northeast-2
+          else
+            aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
+          fi
 
       - name: Code Deploy 로 배포
-        run: >
-          aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
-          --deployment-config-name CodeDeployDefault.AllAtOnce
-          --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP }}
-          --s3-location bucket=${{ secrets.AWS_S3_CICD_BUCKET }},bundleType=zip,key=cicdtest/freebe.zip
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev-infra-test" ]]; then
+            aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
+            --deployment-config-name CodeDeployDefault.AllAtOnce
+            --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}
+            --s3-location bucket=${{ secrets.AWS_S3_CICD_BUCKET_DEV }},bundleType=zip,key=cicdtest/freebe.zip
+          else
+            aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
+            --deployment-config-name CodeDeployDefault.AllAtOnce
+            --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP }}
+            --s3-location bucket=${{ secrets.AWS_S3_CICD_BUCKET }},bundleType=zip,key=cicdtest/freebe.zip
+          fi

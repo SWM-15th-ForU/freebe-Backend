@@ -32,6 +32,9 @@ public class ReservationInfoResponse {
     private Map<String, String> photoInfo;
 
     @NotNull
+    private Map<String, PhotoNotice> photoNotice;
+
+    @NotNull
     private Map<Integer, TimeSlot> preferredDate;
 
     private String preferredPlace;
@@ -46,15 +49,16 @@ public class ReservationInfoResponse {
 
     @Builder
     public ReservationInfoResponse(ReservationStatus reservationStatus, Long productId, String productTitle,
-        Long basicPrice, String basicPlace, Map<String, String> photoInfo, Map<Integer, TimeSlot> preferredDate,
-        String preferredPlace, TimeSlot shootingDate, String shootingPlace, Map<Integer, PhotoOption> photoOptions,
-        String customerMemo) {
+        Long basicPrice, String basicPlace, Map<String, String> photoInfo, Map<String, PhotoNotice> photoNotice,
+        Map<Integer, TimeSlot> preferredDate, String preferredPlace, TimeSlot shootingDate, String shootingPlace,
+        Map<Integer, PhotoOption> photoOptions, String customerMemo) {
         this.reservationStatus = reservationStatus;
         this.productId = productId;
         this.productTitle = productTitle;
         this.basicPrice = basicPrice;
         this.basicPlace = basicPlace;
         this.photoInfo = photoInfo;
+        this.photoNotice = photoNotice;
         this.preferredDate = preferredDate;
         this.preferredPlace = preferredPlace;
         this.shootingDate = shootingDate;

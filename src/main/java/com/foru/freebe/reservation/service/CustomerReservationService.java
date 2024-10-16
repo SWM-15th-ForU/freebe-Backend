@@ -116,6 +116,8 @@ public class CustomerReservationService {
         Product product = productRepository.findByTitle(reservationForm.getProductTitle())
             .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
+        Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
+
         reservationVerifier.validateCustomerAccess(reservationForm, customerId);
 
         return ReservationInfoResponse.builder()
@@ -129,6 +131,7 @@ public class CustomerReservationService {
             .preferredPlace(reservationForm.getPreferredPlace())
             .shootingDate(reservationForm.getShootingDate())
             .shootingPlace(reservationForm.getShootingPlace())
+            .photoNotice(photoNotice)
             .photoOptions(reservationForm.getPhotoOption())
             .customerMemo(reservationForm.getCustomerMemo())
             .build();

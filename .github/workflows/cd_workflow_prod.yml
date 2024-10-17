@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - feat/FU-244-dev-infra-test
 
 jobs:
   build:

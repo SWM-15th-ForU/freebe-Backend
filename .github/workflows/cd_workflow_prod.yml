@@ -20,7 +20,7 @@ jobs:
           distribution: 'corretto'
 
       - name: env 설정
-        run:
+        run: |
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
@@ -74,7 +74,7 @@ jobs:
           aws s3 cp freebe.zip s3://${{secrets.AWS_S3_CICD_BUCKET}}/cicdtest/freebe.zip --region ap-northeast-2
 
       - name: Code Deploy 로 배포
-        run:
+        run: >
           aws deploy create-deployment --application-name ${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}
           --deployment-config-name CodeDeployDefault.AllAtOnce
           --deployment-group-name ${{ secrets.AWS_CODE_DEPLOY_GROUP }}

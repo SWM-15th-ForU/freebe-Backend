@@ -21,7 +21,6 @@ jobs:
 
       - name: env 설정
         run:
-          # 소스코드에 필요한 env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
@@ -46,7 +45,6 @@ jobs:
           echo "NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}" >> .env
           echo "NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}" >> .env
           
-          # 소스코드에 필요하지 않은 env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
           echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET }}" >> .env

@@ -24,7 +24,6 @@ jobs:
 
       - name: env 설정
         run:
-          # 소스코드에 필요한 env
           echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID_DEV }}" >> .env
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET_DEV }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> .env
@@ -49,12 +48,10 @@ jobs:
           echo "NEW_RELIC_LICENSE_KEY=${{ secrets.NEW_RELIC_LICENSE_KEY }}" >> .env
           echo "NEW_RELIC_APP_NAME=${{ secrets.NEW_RELIC_APP_NAME }}" >> .env
           
-          # 소스코드에 필요하지 않은 env
           echo "AWS_CODE_DEPLOY_APPLICATION=${{ secrets.AWS_CODE_DEPLOY_APPLICATION }}" >> .env
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}" >> .env
           echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET_DEV }}" >> .env
           echo "ENVIRONMENT=${{ secrets.ENVIRONMENT_DEV }}" >> .env
-
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

@@ -5,11 +5,10 @@ on:
     branches:
       - 'release/**'
   create:
-    branches:
-      - 'release/**'
 
 jobs:
   build:
+    if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release')
     runs-on: ubuntu-22.04
 
     steps:

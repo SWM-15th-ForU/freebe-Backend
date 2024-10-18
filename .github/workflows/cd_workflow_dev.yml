@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - 'release/**'
+  create:
+    branches:
+      - 'release/**'
 
 jobs:
   build:

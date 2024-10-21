@@ -91,7 +91,7 @@ public class PhotographerReservationController {
         reservationService.updateReservationStatus(member.getId(), formId, request, true);
 
         StatusUpdateNotice notice = reservationService.getAlimTalkParameter(member.getId(), formId, request);
-        messageSendService.sendStatusUpdateNoticeToCustomer(notice);
+        messageSendService.sendStatusUpdateNotice(notice);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update reservation status")

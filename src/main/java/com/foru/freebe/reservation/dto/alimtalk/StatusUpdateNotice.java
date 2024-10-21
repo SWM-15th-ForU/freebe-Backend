@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class StatusUpdateNotice {
     private String customerPhoneNumber;
+    private String photographerPhoneNumber;
+    private String customerName;
     private String productTitle;
     private String cancellationReason;
     private String reservationId;
@@ -19,9 +21,12 @@ public class StatusUpdateNotice {
     private String profileName;
 
     @Builder
-    public StatusUpdateNotice(String customerPhoneNumber, String productTitle, String cancellationReason,
-        String reservationId, ReservationStatus updatedStatus, TimeSlot shootingDate, String profileName) {
+    public StatusUpdateNotice(String customerPhoneNumber, String photographerPhoneNumber, String customerName,
+        String productTitle, String cancellationReason, String reservationId, ReservationStatus updatedStatus,
+        TimeSlot shootingDate, String profileName) {
         this.customerPhoneNumber = customerPhoneNumber;
+        this.photographerPhoneNumber = photographerPhoneNumber;
+        this.customerName = customerName;
         this.productTitle = productTitle;
         this.cancellationReason = cancellationReason;
         this.reservationId = reservationId;

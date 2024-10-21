@@ -105,6 +105,8 @@ public class ReservationService {
             return builder
                 .shootingDate(reservationForm.getShootingDate())
                 .profileName(profile.getProfileName())
+                .photographerPhoneNumber(reservationForm.getPhotographer().getPhoneNumber())
+                .customerName(reservationForm.getCustomer().getName())
                 .build();
         }
 

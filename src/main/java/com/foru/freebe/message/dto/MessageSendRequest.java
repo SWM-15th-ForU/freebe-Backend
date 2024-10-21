@@ -246,8 +246,56 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
+    public List<Map<String, Object>> createPhotographerWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
+        Map<String, Object> mapRequestBody = new HashMap<>();
+        List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
+        mapRequestBody.put("phn", statusUpdateNotice.getPhotographerPhoneNumber());
+        mapRequestBody.put("profile", profileKey);
+
+        String messageTemplate = """
+            [{0}] 촬영 예약이 최종 확정되었어요!
+
+            ■ 고객명: {1}
+            ■ 촬영날짜: {2}
+            ■ 촬영시간: {3}
+            ■ 촬영장소: {4}""";
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
+        String formattedShootingDate = statusUpdateNotice.getShootingDate().getDate().format(dateFormatter);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("a h:mm");
+
+        String messageFormat = MessageFormat.format(
+            messageTemplate,
+            statusUpdateNotice.getProductTitle(),
+            statusUpdateNotice.getCustomerName(),
+            formattedShootingDate,
+            statusUpdateNotice.getShootingDate().getStartTime().format(timeFormatter) + " ~ "
+                + statusUpdateNotice.getShootingDate().getEndTime().format(timeFormatter),
+            "임의장소"
+        );
+
+        mapRequestBody.put("msg", messageFormat);
+        mapRequestBody.put("tmplId", templateId);
+
+        String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + statusUpdateNotice.getReservationId();
+        Button button1 = Button.builder()
+            .name("자세히보기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(webUrl)
+            .urlMobile(webUrl)
+            .build();
+
+        mapRequestBody.put("button1", convertButtonToMap(button1));
+
+        jsonArray.add(mapRequestBody);
+        return jsonArray;
+    }
+
     //ToDo: rebase 후 촬영장소, 공지사항 실제데이터로 변경.
-    public List<Map<String, Object>> createWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
+    public List<Map<String, Object>> createCustomerWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 

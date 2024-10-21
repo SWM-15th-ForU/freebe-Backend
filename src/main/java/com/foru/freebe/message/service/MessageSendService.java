@@ -27,6 +27,7 @@ public class MessageSendService {
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
     private static final String CUSTOMER_WAIT_SHOOTING_TEMPLATE = "c_wait_shooting_1014";
+    private static final String PHOTOGRAPHER_WAIT_SHOOTING_TEMPLATE = "p_wait_shooting_1014";
     private static final String CUSTOMER_IN_PROGRESS_TEMPLATE = "c_in_progress_1014";
 
     @Value("${kakao.alimtalk.user-id}")
@@ -111,11 +112,12 @@ public class MessageSendService {
             .block();
     }
 
-    public void sendStatusUpdateNoticeToCustomer(StatusUpdateNotice statusUpdateNotice) {
+    public void sendStatusUpdateNotice(StatusUpdateNotice statusUpdateNotice) {
         if (statusUpdateNotice.getUpdatedStatus() == ReservationStatus.CANCELLED_BY_PHOTOGRAPHER) {
             sendCancelledNoticeToCustomer(statusUpdateNotice);
         } else if (statusUpdateNotice.getUpdatedStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
             sendWaitShootingNoticeToCustomer(statusUpdateNotice);
+            sendWaitShootingNoticeToPhotographer(statusUpdateNotice);
         } else if (statusUpdateNotice.getUpdatedStatus() == ReservationStatus.IN_PROGRESS) {
             sendInProgressNoticeToCustomer(statusUpdateNotice);
         }
@@ -153,12 +155,28 @@ public class MessageSendService {
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")
             .header("userid", userId)
-            .bodyValue(messageSendRequest.createWaitShootingMessage(statusUpdateNotice))
+            .bodyValue(messageSendRequest.createCustomerWaitShootingMessage(statusUpdateNotice))
             .retrieve()
             .bodyToFlux(MessageSendResponse.class)
             .collectList()
             .block();
 
         MessageSendResponse messageSendResponse = response.get(0);
+    }
+
+    private void sendWaitShootingNoticeToPhotographer(StatusUpdateNotice statusUpdateNotice) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(PHOTOGRAPHER_WAIT_SHOOTING_TEMPLATE, profileKey);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createPhotographerWaitShootingMessage(statusUpdateNotice))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
+
+        MessageSendResponse messageSendResponse = response.get(0);
+        System.out.println(messageSendResponse.getMessage());
     }
 }

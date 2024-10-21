@@ -28,22 +28,6 @@ public class JwtService {
     private final JwtTokenRepository jwtTokenRepository;
     private final MemberRepository memberRepository;
 
-    private JwtToken getTokenFromMemberId(Long memberId) {
-        return jwtTokenRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
-    }
-
-    private void saveRefreshToken(Long id, String refreshToken) {
-        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::delete);
-
-        JwtToken newToken = JwtToken.builder()
-            .memberId(id)
-            .refreshToken(refreshToken)
-            .expiresAt(jwtProvider.getExpiration(refreshToken))
-            .build();
-        jwtTokenRepository.save(newToken);
-    }
-
     public Authentication getAuthentication(String token) {
         String memberId = String.valueOf(jwtProvider.getMemberIdFromToken(token));
         CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
@@ -99,5 +83,26 @@ public class JwtService {
         headers.add("accessToken", token.getAccessToken());
         headers.add("refreshToken", token.getRefreshToken());
         return headers;
+    }
+
+    public void deleteRefreshTokenByUserId(Long id) {
+        JwtToken token = getTokenFromMemberId(id);
+        jwtTokenRepository.delete(token);
+    }
+
+    private JwtToken getTokenFromMemberId(Long memberId) {
+        return jwtTokenRepository.findByMemberId(memberId)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+    }
+
+    private void saveRefreshToken(Long id, String refreshToken) {
+        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::delete);
+
+        JwtToken newToken = JwtToken.builder()
+            .memberId(id)
+            .refreshToken(refreshToken)
+            .expiresAt(jwtProvider.getExpiration(refreshToken))
+            .build();
+        jwtTokenRepository.save(newToken);
     }
 }

@@ -140,7 +140,7 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
-    //ToDo: 촬영장소 실제 장소로 수정
+    //ToDo: rebase 후 촬영장소, 공지사항 실제데이터로 변경.
     public Object createWaitShootingMessage(CustomerAlimTalkInfo customerAlimTalkInfo) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
@@ -150,11 +150,14 @@ public class MessageSendRequest {
         mapRequestBody.put("profile", profileKey);
 
         String messageTemplate = """
-            [{0}] 촬영이 확정되었습니다!
+            [{0}] 촬영이 최종 확정되었습니다!
 
              ■ 촬영날짜: {1}
              ■ 촬영시간: {2}
-             ■ 촬영장소: {3}""";
+             ■ 촬영장소: {3}
+
+            [공지사항]
+            {4}""";
 
         String messageFormat = MessageFormat.format(
             messageTemplate,
@@ -162,7 +165,8 @@ public class MessageSendRequest {
             customerAlimTalkInfo.getShootingDate().getDate(),
             customerAlimTalkInfo.getShootingDate().getStartTime().toString() + " ~ "
                 + customerAlimTalkInfo.getShootingDate().getEndTime().toString(),
-            "임의장소"
+            "임의장소",
+            "공지사항"
         );
 
         mapRequestBody.put("msg", messageFormat);

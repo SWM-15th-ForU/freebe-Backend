@@ -73,9 +73,7 @@ public class JwtService {
         JwtToken refreshToken = jwtTokenRepository.findByRefreshToken(token)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
 
-        jwtVerifier.validateRefreshToken(refreshToken);
         refreshToken.revokeToken();
-        jwtTokenRepository.save(refreshToken);
     }
 
     public HttpHeaders setTokenHeaders(JwtTokenModel token) {

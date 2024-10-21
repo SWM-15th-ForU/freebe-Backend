@@ -1,6 +1,7 @@
 package com.foru.freebe.message.dto;
 
 import java.text.MessageFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -214,7 +215,7 @@ public class MessageSendRequest {
     }
 
     //ToDo: rebase 후 촬영장소, 공지사항 실제데이터로 변경.
-    public Object createWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
+    public List<Map<String, Object>> createWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 
@@ -232,12 +233,17 @@ public class MessageSendRequest {
             [공지사항]
             {4}""";
 
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
+        String formattedShootingDate = statusUpdateNotice.getShootingDate().getDate().format(dateFormatter);
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("a h:mm");
+
         String messageFormat = MessageFormat.format(
             messageTemplate,
             statusUpdateNotice.getProductTitle(),
-            statusUpdateNotice.getShootingDate().getDate(),
-            statusUpdateNotice.getShootingDate().getStartTime().toString() + " ~ "
-                + statusUpdateNotice.getShootingDate().getEndTime().toString(),
+            formattedShootingDate,
+            statusUpdateNotice.getShootingDate().getStartTime().format(timeFormatter) + " ~ "
+                + statusUpdateNotice.getShootingDate().getEndTime().format(timeFormatter),
             "임의장소",
             "공지사항"
         );
@@ -247,7 +253,7 @@ public class MessageSendRequest {
 
         String webUrl = "https://www.freebe.co.kr/customer/reservation/" + statusUpdateNotice.getReservationId();
         Button button1 = Button.builder()
-            .name("자세히보기")
+            .name("예약 내역 확인하기")
             .type(WEB_LINK_BUTTON_TYPE)
             .urlPc(webUrl)
             .urlMobile(webUrl)

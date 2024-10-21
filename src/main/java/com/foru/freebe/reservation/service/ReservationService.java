@@ -6,8 +6,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
 import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.product.entity.Product;
+import com.foru.freebe.product.respository.ProductRepository;
 import com.foru.freebe.profile.entity.Profile;
 import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
@@ -30,6 +33,7 @@ public class ReservationService {
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
     private final ProfileRepository profileRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public void updateReservationStatus(Long memberId, Long formId,
@@ -105,6 +109,17 @@ public class ReservationService {
         }
 
         return builder.build();
+    }
+
+    public String getProductTitle(Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
+        return product.getTitle();
+    }
+
+    public String getPhotographerPhoneNumber(Long formId, Long customerId) {
+        ReservationForm reservationForm = findReservationForm(customerId, formId, false);
+        return reservationForm.getPhotographer().getPhoneNumber();
     }
 
     private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {

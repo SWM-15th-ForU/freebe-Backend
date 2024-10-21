@@ -40,6 +40,38 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
+    public List<Map<String, Object>> createPhotographerNewMessage(String phoneNumber, Long formId) {
+        Map<String, Object> mapRequestBody = new HashMap<>();
+        List<Map<String, Object>> jsonArray = new ArrayList<>();
+
+        mapRequestBody.put("message_type", MESSAGE_TYPE);
+        mapRequestBody.put("phn", phoneNumber);
+        mapRequestBody.put("profile", profileKey);
+
+        String messageTemplate = """
+            새 신청이 도착했어요!
+            아래 [자세히보기] 버튼을 눌러 상세 내역을 확인해주세요.
+
+            * 기다리고 있는 고객님을 위해 빠른 확인 부탁드립니다.
+            * 조율이 필요한 경우에는 예약 수락 후 고객과 직접 이야기를 나눠보세요!""";
+
+        mapRequestBody.put("msg", messageTemplate);
+        mapRequestBody.put("tmplId", templateId);
+
+        String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + formId.toString();
+        Button button1 = Button.builder()
+            .name("자세히보기")
+            .type(WEB_LINK_BUTTON_TYPE)
+            .urlPc(webUrl)
+            .urlMobile(webUrl)
+            .build();
+
+        mapRequestBody.put("button1", convertButtonToMap(button1));
+
+        jsonArray.add(mapRequestBody);
+        return jsonArray;
+    }
+
     public List<Map<String, Object>> createCustomerNewMessage(String name, String phoneNumber, String productTitle,
         Long formId) {
         Map<String, Object> mapRequestBody = new HashMap<>();

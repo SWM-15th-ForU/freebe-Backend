@@ -51,9 +51,12 @@ public class CustomerReservationController {
         Member customer = memberAdapter.getMember();
         Long formId = customerReservationService.registerReservationForm(customer.getId(), request, images);
 
-        String productTitle = customerReservationService.getProductTitle(request.getProductId());
+        String productTitle = reservationService.getProductTitle(request.getProductId());
         messageSendService.sendReservationCompleteMessageToCustomer(customer.getName(), customer.getPhoneNumber(),
             productTitle, formId);
+
+        String photographerPhoneNumber = reservationService.getPhotographerPhoneNumber(formId, customer.getId());
+        messageSendService.sendReservationCompleteMessageToPhotographer(photographerPhoneNumber, formId);
 
         ResponseBody<Long> responseBody = ResponseBody.<Long>builder()
             .message("Good Request")

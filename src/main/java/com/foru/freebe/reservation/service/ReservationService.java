@@ -6,11 +6,14 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
-import com.foru.freebe.reservation.dto.CustomerCancelInfo;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
+import com.foru.freebe.reservation.dto.alimtalk.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.alimtalk.StatusUpdateNotice;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
@@ -26,6 +29,7 @@ public class ReservationService {
     private final ReservationVerifier reservationVerifier;
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
+    private final ProfileRepository profileRepository;
 
     @Transactional
     public void updateReservationStatus(Long memberId, Long formId,
@@ -77,24 +81,26 @@ public class ReservationService {
             .build();
     }
 
-    public CustomerAlimTalkInfo getCustomerAlimTalkInfo(Long id, Long formId,
-        ReservationStatusUpdateRequest request) {
+    public StatusUpdateNotice getAlimTalkParameter(Long id, Long formId, ReservationStatusUpdateRequest request) {
         ReservationForm reservationForm = findReservationForm(id, formId, true);
         String customerPhoneNumber = reservationForm.getCustomer().getPhoneNumber();
         String productTitle = reservationForm.getProductTitle();
 
-        CustomerAlimTalkInfo.CustomerAlimTalkInfoBuilder builder = CustomerAlimTalkInfo.builder()
+        StatusUpdateNotice.StatusUpdateNoticeBuilder builder = StatusUpdateNotice.builder()
             .customerPhoneNumber(customerPhoneNumber)
             .productTitle(productTitle)
-            .cancellationReason(request.getCancellationReason())
+            .cancellationReason(request.getCancellationReason() != null ? request.getCancellationReason() : null)
             .reservationId(formId.toString())
             .updatedStatus(reservationForm.getReservationStatus());
 
         // ToDo: 실제 profileName 조회하도록 수정.
         if (reservationForm.getReservationStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
+            Profile profile = profileRepository.findByMemberId(id)
+                .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NAME_NOT_FOUND));
+
             return builder
                 .shootingDate(reservationForm.getShootingDate())
-                .profileName("profileName")
+                .profileName(profile.getProfileName())
                 .build();
         }
 

@@ -22,10 +22,10 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.message.service.MessageSendService;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
-import com.foru.freebe.reservation.dto.CustomerCancelInfo;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.dto.alimtalk.CustomerCancelInfo;
 import com.foru.freebe.reservation.service.CustomerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
 
@@ -43,7 +43,7 @@ public class CustomerReservationController {
     private final MessageSendService messageSendService;
 
     @PostMapping(value = "/reservation")
-    public ResponseEntity<ResponseBody<Long>> registerReservationForm(
+    public ResponseEntity<ResponseBody<Long>> registerReservation(
         @Valid @RequestPart("request") FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
@@ -95,9 +95,10 @@ public class CustomerReservationController {
     }
 
     @PutMapping("/reservation/{formId}")
-    public ResponseEntity<Void> updateReservationStatus(@AuthenticationPrincipal MemberAdapter memberAdapter,
+    public ResponseEntity<Void> cancelReservation(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
+
         Member customer = memberAdapter.getMember();
         CustomerCancelInfo cancelInfo = reservationService.getCustomerCancelledInfo(customer.getId(), formId,
             request.getCancellationReason());

@@ -1,4 +1,4 @@
-package com.foru.freebe.reservation.dto;
+package com.foru.freebe.reservation.dto.alimtalk;
 
 import lombok.Builder;
 import lombok.Getter;

@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.foru.freebe.reservation.dto.CustomerAlimTalkInfo;
-import com.foru.freebe.reservation.dto.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.alimtalk.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.alimtalk.StatusUpdateNotice;
 
 public class MessageSendRequest {
 
@@ -101,7 +101,7 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
-    public List<Map<String, Object>> createCustomerCancelledMessage(CustomerAlimTalkInfo cancelledInfo) {
+    public List<Map<String, Object>> createCustomerCancelledMessage(StatusUpdateNotice cancelledInfo) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 
@@ -141,12 +141,12 @@ public class MessageSendRequest {
     }
 
     //ToDo: rebase 후 촬영장소, 공지사항 실제데이터로 변경.
-    public Object createWaitShootingMessage(CustomerAlimTalkInfo customerAlimTalkInfo) {
+    public Object createWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
 
         mapRequestBody.put("message_type", MESSAGE_TYPE);
-        mapRequestBody.put("phn", customerAlimTalkInfo.getCustomerPhoneNumber());
+        mapRequestBody.put("phn", statusUpdateNotice.getCustomerPhoneNumber());
         mapRequestBody.put("profile", profileKey);
 
         String messageTemplate = """
@@ -161,10 +161,10 @@ public class MessageSendRequest {
 
         String messageFormat = MessageFormat.format(
             messageTemplate,
-            customerAlimTalkInfo.getProductTitle(),
-            customerAlimTalkInfo.getShootingDate().getDate(),
-            customerAlimTalkInfo.getShootingDate().getStartTime().toString() + " ~ "
-                + customerAlimTalkInfo.getShootingDate().getEndTime().toString(),
+            statusUpdateNotice.getProductTitle(),
+            statusUpdateNotice.getShootingDate().getDate(),
+            statusUpdateNotice.getShootingDate().getStartTime().toString() + " ~ "
+                + statusUpdateNotice.getShootingDate().getEndTime().toString(),
             "임의장소",
             "공지사항"
         );
@@ -172,7 +172,7 @@ public class MessageSendRequest {
         mapRequestBody.put("msg", messageFormat);
         mapRequestBody.put("tmplId", templateId);
 
-        String webUrl = "https://www.freebe.co.kr/customer/reservation/" + customerAlimTalkInfo.getReservationId();
+        String webUrl = "https://www.freebe.co.kr/customer/reservation/" + statusUpdateNotice.getReservationId();
         Button button1 = Button.builder()
             .name("자세히보기")
             .type(WEB_LINK_BUTTON_TYPE)
@@ -180,7 +180,7 @@ public class MessageSendRequest {
             .urlMobile(webUrl)
             .build();
 
-        String noticeUrl = "https://www.freebe.co.kr/" + customerAlimTalkInfo.getProfileName() + "/notice";
+        String noticeUrl = "https://www.freebe.co.kr/" + statusUpdateNotice.getProfileName() + "/notice";
         Button button2 = Button.builder()
             .name("공지사항 확인하기")
             .type(WEB_LINK_BUTTON_TYPE)

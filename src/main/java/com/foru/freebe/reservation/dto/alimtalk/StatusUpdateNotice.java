@@ -1,5 +1,6 @@
-package com.foru.freebe.reservation.dto;
+package com.foru.freebe.reservation.dto.alimtalk;
 
+import com.foru.freebe.reservation.dto.TimeSlot;
 import com.foru.freebe.reservation.entity.ReservationStatus;
 
 import lombok.Builder;
@@ -8,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class CustomerAlimTalkInfo {
+public class StatusUpdateNotice {
     private String customerPhoneNumber;
     private String productTitle;
     private String cancellationReason;
@@ -18,7 +19,7 @@ public class CustomerAlimTalkInfo {
     private String profileName;
 
     @Builder
-    public CustomerAlimTalkInfo(String customerPhoneNumber, String productTitle, String cancellationReason,
+    public StatusUpdateNotice(String customerPhoneNumber, String productTitle, String cancellationReason,
         String reservationId, ReservationStatus updatedStatus, TimeSlot shootingDate, String profileName) {
         this.customerPhoneNumber = customerPhoneNumber;
         this.productTitle = productTitle;

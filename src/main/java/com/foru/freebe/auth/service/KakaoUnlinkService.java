@@ -32,6 +32,10 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class KakaoUnlinkService {
+    final String AUTHORIZATION_HEADER = "Authorization";
+    final String KAKAO_AUTH_PREFIX = "KakaoAK ";
+    final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
+
     private final WebClient webClient;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
@@ -45,26 +49,16 @@ public class KakaoUnlinkService {
 
     @Transactional
     public void unlinkKakaoAccount(Long memberId, UnlinkRequest unlinkRequest) {
-        final String AUTHORIZATION_HEADER = "Authorization";
-        final String KAKAO_AUTH_PREFIX = "KakaoAK ";
-        final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
-
         Member member = getMember(memberId);
-
         Long kakaoUserId = member.getKakaoId();
-        try {
-            ResponseEntity<String> response = webClient.post()
-                .uri(kakaoUnlinkUrl)
-                .header(AUTHORIZATION_HEADER, KAKAO_AUTH_PREFIX + adminKey)
-                .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                .bodyValue(constructUnlinkParams(kakaoUserId))
-                .retrieve()
-                .toEntity(String.class)
-                .block();
 
-            if (response != null && response.getStatusCode() == HttpStatus.OK) {
-                handleMemberLeaving(member, unlinkRequest.getReason());
-            } else if (response != null && response.getStatusCode() != HttpStatus.OK) {
+        try {
+            deleteInfoOfPhotographer(member);
+
+            ResponseEntity<String> response = unlinkKakao(kakaoUserId);
+            createDeletedMember(member.getId(), member, unlinkRequest.getReason());
+
+            if (response.getStatusCode() != HttpStatus.OK) {
                 throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
             }
         } catch (WebClientException e) {
@@ -72,9 +66,23 @@ public class KakaoUnlinkService {
         }
     }
 
-    private Member getMember(Long memberId) {
-        return memberRepository.findById(memberId)
-            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    private void deleteInfoOfPhotographer(Member member) {
+        if (member.getRole() == Role.PHOTOGRAPHER) {
+            deletePhotographerProducts(member);
+            photographerNoticeService.deleteAllNotices(member);
+            photographerProfileService.deleteProfile(member);
+        }
+    }
+
+    private ResponseEntity<String> unlinkKakao(Long kakaoUserId) {
+        return webClient.post()
+            .uri(kakaoUnlinkUrl)
+            .header(AUTHORIZATION_HEADER, KAKAO_AUTH_PREFIX + adminKey)
+            .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .bodyValue(constructUnlinkParams(kakaoUserId))
+            .retrieve()
+            .toEntity(String.class)
+            .block();
     }
 
     private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
@@ -84,13 +92,31 @@ public class KakaoUnlinkService {
         return params;
     }
 
+    private void createDeletedMember(Long memberId, Member member, String reason) {
+        member.updateMemberRoleToLeavingStatus();
+
+        DeletedMember deletedMember = DeletedMember.builder()
+            .kakaoId(member.getKakaoId())
+            .memberId(memberId)
+            .unlinkReason(reason)
+            .build();
+
+        deletedMemberRepository.save(deletedMember);
+        member.deleteKakaoId();
+    }
+
+    private Member getMember(Long memberId) {
+        return memberRepository.findById(memberId)
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
     private void handleMemberLeaving(Member member, String reason) {
         if (member.getRole() == Role.PHOTOGRAPHER) {
             member.updateMemberRoleToLeavingStatus();
-            createDeletedMember(member.getId(), member, reason);
             deletePhotographerProducts(member);
             photographerNoticeService.deleteAllNotices(member);
             photographerProfileService.deleteProfile(member);
+            createDeletedMember(member.getId(), member, reason);
         } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
             member.updateMemberRoleToLeavingStatus();
             createDeletedMember(member.getId(), member, reason);
@@ -107,13 +133,4 @@ public class KakaoUnlinkService {
         }
     }
 
-    private void createDeletedMember(Long memberId, Member member, String reason) {
-        DeletedMember deletedMember = DeletedMember.builder()
-            .kakaoId(member.getKakaoId())
-            .memberId(memberId)
-            .unlinkReason(reason)
-            .build();
-        deletedMemberRepository.save(deletedMember);
-        member.deleteKakaoId();
-    }
 }

@@ -57,6 +57,7 @@ public class KakaoUnlinkService {
 
             ResponseEntity<String> response = unlinkKakao(kakaoUserId);
             createDeletedMember(member.getId(), member, unlinkRequest.getReason());
+            updateExistingMember(member);
 
             if (response.getStatusCode() != HttpStatus.OK) {
                 throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
@@ -64,6 +65,11 @@ public class KakaoUnlinkService {
         } catch (WebClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
         }
+    }
+
+    private void updateExistingMember(Member member) {
+        member.updateMemberRoleToLeavingStatus();
+        member.deleteKakaoId();
     }
 
     private void deleteInfoOfPhotographer(Member member) {
@@ -93,8 +99,6 @@ public class KakaoUnlinkService {
     }
 
     private void createDeletedMember(Long memberId, Member member, String reason) {
-        member.updateMemberRoleToLeavingStatus();
-
         DeletedMember deletedMember = DeletedMember.builder()
             .kakaoId(member.getKakaoId())
             .memberId(memberId)
@@ -102,7 +106,6 @@ public class KakaoUnlinkService {
             .build();
 
         deletedMemberRepository.save(deletedMember);
-        member.deleteKakaoId();
     }
 
     private Member getMember(Long memberId) {

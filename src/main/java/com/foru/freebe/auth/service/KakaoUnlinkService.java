@@ -110,27 +110,10 @@ public class KakaoUnlinkService {
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 
-    private void handleMemberLeaving(Member member, String reason) {
-        if (member.getRole() == Role.PHOTOGRAPHER) {
-            member.updateMemberRoleToLeavingStatus();
-            deletePhotographerProducts(member);
-            photographerNoticeService.deleteAllNotices(member);
-            photographerProfileService.deleteProfile(member);
-            createDeletedMember(member.getId(), member, reason);
-        } else if (member.getRole() == Role.PHOTOGRAPHER_PENDING) {
-            member.updateMemberRoleToLeavingStatus();
-            createDeletedMember(member.getId(), member, reason);
-        } else if (member.getRole() == Role.CUSTOMER) {
-            member.updateMemberRoleToLeavingStatus();
-            createDeletedMember(member.getId(), member, reason);
-        }
-    }
-
     private void deletePhotographerProducts(Member member) {
         List<Product> productList = productRepository.findByMember(member);
         for (Product product : productList) {
             photographerProductService.deleteProductForUnlike(product);
         }
     }
-
 }

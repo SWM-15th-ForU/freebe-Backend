@@ -25,7 +25,8 @@ public class MessageSendService {
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
-    private static final String CUSTOMER_WAIT_SHOOTING = "customer_wait_shooting";
+    private static final String CUSTOMER_WAIT_SHOOTING_TEMPLATE = "customer_wait_shooting";
+    private static final String CUSTOMER_IN_PROGRESS_TEMPLATE = "c_in_progress_1014";
 
     @Value("${kakao.alimtalk.user-id}")
     private String userId;
@@ -98,7 +99,22 @@ public class MessageSendService {
             sendCancelledNoticeToCustomer(statusUpdateNotice);
         } else if (statusUpdateNotice.getUpdatedStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
             sendWaitShootingNoticeToCustomer(statusUpdateNotice);
+        } else if (statusUpdateNotice.getUpdatedStatus() == ReservationStatus.IN_PROGRESS) {
+            sendInProgressNoticeToCustomer(statusUpdateNotice);
         }
+    }
+
+    private void sendInProgressNoticeToCustomer(StatusUpdateNotice statusUpdateNotice) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_IN_PROGRESS_TEMPLATE, profileKey);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createCustomerInProgressMessage(statusUpdateNotice))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
     }
 
     private void sendCancelledNoticeToCustomer(StatusUpdateNotice statusUpdateNotice) {
@@ -115,7 +131,7 @@ public class MessageSendService {
     }
 
     private void sendWaitShootingNoticeToCustomer(StatusUpdateNotice statusUpdateNotice) {
-        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_WAIT_SHOOTING, profileKey);
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_WAIT_SHOOTING_TEMPLATE, profileKey);
 
         List<MessageSendResponse> response = kakaoMessageWebClient.post()
             .uri("/v2/sender/send")

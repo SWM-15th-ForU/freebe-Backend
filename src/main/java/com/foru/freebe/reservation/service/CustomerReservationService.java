@@ -137,6 +137,12 @@ public class CustomerReservationService {
             .build();
     }
 
+    public String getProductTitle(Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
+        return product.getTitle();
+    }
+
     private Member getMemberFromProfileName(String profileName) {
         Profile photographerProfile = profileRepository.findByProfileName(profileName)
             .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));

@@ -49,11 +49,15 @@ public class CustomerReservationController {
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member customer = memberAdapter.getMember();
-        Long responseData = customerReservationService.registerReservationForm(customer.getId(), request, images);
+        Long formId = customerReservationService.registerReservationForm(customer.getId(), request, images);
+
+        String productTitle = customerReservationService.getProductTitle(request.getProductId());
+        messageSendService.sendReservationCompleteMessageToCustomer(customer.getName(), customer.getPhoneNumber(),
+            productTitle, formId);
 
         ResponseBody<Long> responseBody = ResponseBody.<Long>builder()
             .message("Good Request")
-            .data(responseData)
+            .data(formId)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 public class MessageSendService {
     private final WebClient kakaoMessageWebClient;
     private static final String JOIN_TEMPLATE = "freebe_join";
+    private static final String CUSTOMER_NEW_TEMPLATE = "c_new_1014";
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
@@ -50,6 +51,20 @@ public class MessageSendService {
 
         MessageSendResponse messageSendResponse = response.get(0);
         DataResponse dataResponse = messageSendResponse.getData();
+    }
+
+    public void sendReservationCompleteMessageToCustomer(String name, String phoneNumber, String productTitle,
+        Long formId) {
+        MessageSendRequest messageSendRequest = new MessageSendRequest(CUSTOMER_NEW_TEMPLATE, profileKey);
+
+        List<MessageSendResponse> response = kakaoMessageWebClient.post()
+            .uri("/v2/sender/send")
+            .header("userid", userId)
+            .bodyValue(messageSendRequest.createCustomerNewMessage(name, phoneNumber, productTitle, formId))
+            .retrieve()
+            .bodyToFlux(MessageSendResponse.class)
+            .collectList()
+            .block();
     }
 
     public void sendCancellationNoticeToCustomer(String phoneNumber, String productName) {

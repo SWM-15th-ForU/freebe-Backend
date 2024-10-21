@@ -1,0 +1,67 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-name: Kakao
+            client-id: ${KAKAO_CLIENT_ID}
+            client-secret: ${KAKAO_CLIENT_SECRET}
+            client-authentication-method: client_secret_post
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - account_email
+              - name
+              - birthday
+              - birthyear
+              - phone_number
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+
+cloud:
+  aws:
+    credentials:
+      secret-key: ${AWS_SECRET_KEY}
+      access-key: ${AWS_ACCESS_KEY}
+    region:
+      static: ${AWS_REGION}
+    s3:
+      bucket: ${AWS_S3_DATA_BUCKET}
+      base-path:
+        original: ${AWS_S3_ORIGINAL_PATH}
+        thumbnail: ${AWS_S3_THUMBNAIL_PATH}
+        photographer: ${AWS_S3_PHOTOGRAPHER_PATH}
+        customer: ${AWS_S3_CUSTOMER_PATH}
+        product: ${AWS_S3_PRODUCT_PATH}
+        profile: ${AWS_S3_PROFILE_PATH}
+        banner: ${AWS_S3_BANNER_PATH}
+        reservation: ${AWS_S3_RESERVATION_PATH}
+
+logging:
+  level:
+    web: debug

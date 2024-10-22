@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.auth.model.CustomUserDetails;
 import com.foru.freebe.auth.service.CustomUserDetailsService;
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
+import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
+import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.model.JwtToken;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
@@ -66,7 +68,7 @@ public class JwtService {
     }
 
     @Transactional
-    public void revokeRefreshTokenByUserId(Long id) {
+    public void revokeTokenOnUnlink(Long id) {
         List<JwtToken> tokenList = getTokenFromMemberId(id);
 
         for (JwtToken token : tokenList) {
@@ -84,7 +86,7 @@ public class JwtService {
     public Role getMemberRole(String token) {
         Long memberId = jwtProvider.getMemberIdFromToken(token);
         Member member = memberRepository.findById(memberId)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
+            .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
 
         return member.getRole();
     }
@@ -98,12 +100,12 @@ public class JwtService {
 
     private JwtToken findRefreshToken(String refreshToken) {
         return jwtTokenRepository.findByRefreshToken(refreshToken)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
     }
 
     private List<JwtToken> getTokenFromMemberId(Long memberId) {
         return jwtTokenRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
     }
 
     private boolean isTokenExpiringSoon(String refreshToken) {

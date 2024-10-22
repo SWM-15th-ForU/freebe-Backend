@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum JwtErrorCode implements ErrorCode {
-    INVALID_TOKEN(400, "Invalid token"),
-    EXPIRED_TOKEN(401, "Expired token"),
-    REVOKED_TOKEN(403, "Revoked token"),
-    TOKEN_NOT_FOUND(404, "Token not found");
+    MISSING_TOKEN(400, "Missing token"),
+    EXPIRED_ACCESS_TOKEN(401, "Access token has expired"),
+    REVOKED_TOKEN(403, "This token has been revoked"),
+    INVALID_TOKEN(403, "Invalid token");
 
     private final int httpStatus;
     private final String message;

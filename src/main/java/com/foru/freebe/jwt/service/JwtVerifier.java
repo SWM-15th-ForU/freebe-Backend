@@ -24,7 +24,7 @@ public class JwtVerifier {
 
     public void validateRefreshToken(String refreshToken) {
         if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+            throw new JwtTokenException(JwtErrorCode.MISSING_TOKEN);
         }
     }
 

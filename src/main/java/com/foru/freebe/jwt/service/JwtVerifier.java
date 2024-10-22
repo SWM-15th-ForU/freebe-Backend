@@ -9,6 +9,8 @@ import com.foru.freebe.errors.exception.JwtTokenException;
 import com.foru.freebe.jwt.model.JwtToken;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -38,13 +40,7 @@ public class JwtVerifier {
     }
 
     public boolean isAccessTokenValid(String accessToken) {
-        validateTokenExpiration(accessToken, false);
-
-        Long memberId = jwtProvider.getMemberIdFromToken(accessToken);
-        JwtToken refreshToken = jwtTokenRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
-
-        validateRefreshToken(refreshToken);
+        Jws<Claims> claimsJws = jwtProvider.parseClaims(accessToken);
         return true;
     }
 }

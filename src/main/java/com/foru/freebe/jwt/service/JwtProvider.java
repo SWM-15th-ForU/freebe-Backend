@@ -9,8 +9,13 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.foru.freebe.errors.errorcode.JwtErrorCode;
+import com.foru.freebe.errors.exception.JwtTokenException;
+
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
@@ -63,16 +68,22 @@ public class JwtProvider {
             .compact();
     }
 
-    public Jws<Claims> parseClaims(String token) {
-        return Jwts.parser()
-            .verifyWith(secretKey)
-            .build()
-            .parseSignedClaims(token);
-    }
-
     public LocalDateTime getExpiration(String token) {
         Jws<Claims> claims = parseClaims(token);
         Date expiration = claims.getPayload().getExpiration();
         return expiration.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
+
+    public Jws<Claims> parseClaims(String token) {
+        try {
+            return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token);
+        } catch (ExpiredJwtException e) {
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+        } catch (JwtException e) {
+            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+        }
     }
 }

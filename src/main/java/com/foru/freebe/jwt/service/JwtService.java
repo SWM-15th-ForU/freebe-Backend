@@ -1,5 +1,6 @@
 package com.foru.freebe.jwt.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpHeaders;
@@ -42,23 +43,24 @@ public class JwtService {
 
     @Transactional
     public JwtTokenModel reissueToken(String refreshToken) {
-        if (refreshToken == null || refreshToken.isEmpty()) {
-            throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
+        jwtVerifier.validateRefreshToken(refreshToken);
+
+        JwtToken oldToken = findRefreshToken(refreshToken);
+        Long memberId = jwtProvider.getMemberIdFromToken(refreshToken);
+
+        jwtVerifier.validateRefreshTokenRevocation(oldToken);
+
+        if (isTokenExpiringSoon(refreshToken)) {
+            oldToken.revokeToken();
+            return generateToken(memberId);
         }
 
-        Long memberId = jwtProvider.getMemberIdFromToken(refreshToken);
-        JwtToken oldToken = getTokenFromMemberId(memberId);
-        jwtVerifier.validateRefreshToken(oldToken);
-
-        jwtTokenRepository.delete(oldToken);
-
-        return generateToken(memberId);
+        return reissueAccessToken(refreshToken, memberId);
     }
 
     @Transactional
     public void revokeTokenOnLogout(String token) {
-        JwtToken refreshToken = jwtTokenRepository.findByRefreshToken(token)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+        JwtToken refreshToken = findRefreshToken(token);
 
         refreshToken.revokeToken();
     }
@@ -94,9 +96,19 @@ public class JwtService {
         return headers;
     }
 
+    private JwtToken findRefreshToken(String refreshToken) {
+        return jwtTokenRepository.findByRefreshToken(refreshToken)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+    }
+
     private List<JwtToken> getTokenFromMemberId(Long memberId) {
         return jwtTokenRepository.findByMemberId(memberId)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+    }
+
+    private boolean isTokenExpiringSoon(String refreshToken) {
+        LocalDateTime expirationDate = jwtProvider.getExpiration(refreshToken);
+        return expirationDate.plusDays(3).isBefore(LocalDateTime.now());
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
@@ -106,5 +118,10 @@ public class JwtService {
             .expiresAt(jwtProvider.getExpiration(refreshToken))
             .build();
         jwtTokenRepository.save(newToken);
+    }
+
+    private JwtTokenModel reissueAccessToken(String refreshToken, Long memberId) {
+        String newAccessToken = jwtProvider.generateAccessToken(memberId);
+        return new JwtTokenModel(newAccessToken, refreshToken);
     }
 }

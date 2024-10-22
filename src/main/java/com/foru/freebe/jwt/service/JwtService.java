@@ -94,8 +94,6 @@ public class JwtService {
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {
-        jwtTokenRepository.findByMemberId(id).ifPresent(jwtTokenRepository::delete);
-
         JwtToken newToken = JwtToken.builder()
             .memberId(id)
             .refreshToken(refreshToken)

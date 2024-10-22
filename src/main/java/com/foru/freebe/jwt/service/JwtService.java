@@ -1,5 +1,7 @@
 package com.foru.freebe.jwt.service;
 
+import java.util.List;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,13 +30,6 @@ public class JwtService {
     private final JwtTokenRepository jwtTokenRepository;
     private final MemberRepository memberRepository;
 
-    public Authentication getAuthentication(String token) {
-        String memberId = String.valueOf(jwtProvider.getMemberIdFromToken(token));
-        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
-
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
-
     @Transactional
     public JwtTokenModel generateToken(Long id) {
         String accessToken = jwtProvider.generateAccessToken(id);
@@ -60,20 +55,36 @@ public class JwtService {
         return generateToken(memberId);
     }
 
+    @Transactional
+    public void revokeTokenOnLogout(String token) {
+        JwtToken refreshToken = jwtTokenRepository.findByRefreshToken(token)
+            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
+
+        refreshToken.revokeToken();
+    }
+
+    @Transactional
+    public void revokeRefreshTokenByUserId(Long id) {
+        List<JwtToken> tokenList = getTokenFromMemberId(id);
+
+        for (JwtToken token : tokenList) {
+            token.revokeToken();
+        }
+    }
+
+    public Authentication getAuthentication(String token) {
+        String memberId = String.valueOf(jwtProvider.getMemberIdFromToken(token));
+        CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(memberId);
+
+        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+    }
+
     public Role getMemberRole(String token) {
         Long memberId = jwtProvider.getMemberIdFromToken(token);
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.INVALID_TOKEN));
 
         return member.getRole();
-    }
-
-    @Transactional
-    public void revokeToken(String token) {
-        JwtToken refreshToken = jwtTokenRepository.findByRefreshToken(token)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
-
-        refreshToken.revokeToken();
     }
 
     public HttpHeaders setTokenHeaders(JwtTokenModel token) {
@@ -83,12 +94,7 @@ public class JwtService {
         return headers;
     }
 
-    public void deleteRefreshTokenByUserId(Long id) {
-        JwtToken token = getTokenFromMemberId(id);
-        jwtTokenRepository.delete(token);
-    }
-
-    private JwtToken getTokenFromMemberId(Long memberId) {
+    private List<JwtToken> getTokenFromMemberId(Long memberId) {
         return jwtTokenRepository.findByMemberId(memberId)
             .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
     }

@@ -72,7 +72,7 @@ public class AuthController {
 
         Member member = memberAdapter.getMember();
         kakaoUnlinkService.unlinkKakaoAccount(member.getId(), request);
-        jwtService.deleteRefreshTokenByUserId(member.getId());
+        jwtService.revokeRefreshTokenByUserId(member.getId());
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully delete member")

@@ -35,7 +35,7 @@ public class CustomLogoutHandler implements LogoutHandler {
                 throw new JwtTokenException(JwtErrorCode.INVALID_TOKEN);
             }
             Role role = jwtService.getMemberRole(refreshToken);
-            jwtService.revokeToken(refreshToken);
+            jwtService.revokeTokenOnLogout(refreshToken);
 
             switch (role) {
                 case CUSTOMER -> response.sendRedirect(freebeBaseUrl + "/login/customer");

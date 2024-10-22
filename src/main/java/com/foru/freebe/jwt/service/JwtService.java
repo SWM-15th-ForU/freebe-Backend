@@ -32,6 +32,7 @@ public class JwtService {
     private final JwtVerifier jwtVerifier;
     private final JwtTokenRepository jwtTokenRepository;
     private final MemberRepository memberRepository;
+    private static final int REISSUE_THRESHOLD_DAYS = 3;
 
     @Transactional
     public JwtTokenModel generateToken(Long id) {
@@ -110,7 +111,7 @@ public class JwtService {
 
     private boolean isTokenExpiringSoon(String refreshToken) {
         LocalDateTime expirationDate = jwtProvider.getExpiration(refreshToken);
-        return expirationDate.plusDays(3).isBefore(LocalDateTime.now());
+        return expirationDate.plusDays(REISSUE_THRESHOLD_DAYS).isBefore(LocalDateTime.now());
     }
 
     private void saveRefreshToken(Long id, String refreshToken) {

@@ -17,6 +17,7 @@ public class PhotographerJoinRequest {
     private String profileName;
 
     @NotBlank
+    @Size(max = 100, message = "연락처는 최대 100자까지 입력 가능합니다.")
     private String contact;
 
     @AssertTrue

@@ -25,13 +25,14 @@ public class ProductRegisterRequest {
     private Long basicPrice;
 
     @NotBlank(message = "PhotoPlace name must not be blank")
+    @Size(max = 100, message = "촬영장소는 최대 100자까지 입력 가능합니다.")
     private String basicPlace;
 
+    @NotNull
+
+    private Boolean allowPreferredPlace;
     @NotEmpty(message = "Notice must not be empty")
     private List<NoticeDto> notices;
-
-    @NotNull
-    private Boolean allowPreferredPlace;
 
     @NotNull(message = "Product components must not be null")
     private List<ProductComponentDto> productComponents;

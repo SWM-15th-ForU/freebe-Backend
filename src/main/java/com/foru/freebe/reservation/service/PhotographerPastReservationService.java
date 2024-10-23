@@ -111,7 +111,7 @@ public class PhotographerPastReservationService {
     }
 
     private PastReservationFormComponent convertToPastReservationComponent(ReservationForm form) {
-        Product product = productRepository.findByTitle(form.getProductTitle())
+        Product product = productRepository.findByTitleAndMember(form.getProductTitle(), form.getPhotographer())
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         List<ProductImage> productImage = productImageRepository.findByProduct(product);

@@ -113,7 +113,8 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(formId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        Product product = productRepository.findByTitle(reservationForm.getProductTitle())
+        Product product = productRepository.findByTitleAndMember(reservationForm.getProductTitle(),
+                reservationForm.getPhotographer())
             .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();

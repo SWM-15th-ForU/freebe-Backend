@@ -91,7 +91,7 @@ public class KakaoUnlinkService {
             .block();
     }
 
-    private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
+    private MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
         params.add("target_id", kakaoUserId.toString());

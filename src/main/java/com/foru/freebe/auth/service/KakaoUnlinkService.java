@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientException;
 import com.foru.freebe.auth.dto.UnlinkRequest;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.entity.DeletedMember;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
@@ -43,6 +44,7 @@ public class KakaoUnlinkService {
     private final PhotographerProfileService photographerProfileService;
     private final DeletedMemberRepository deletedMemberRepository;
     private final PhotographerNoticeService photographerNoticeService;
+    private final JwtService jwtService;
 
     @Value("${KAKAO_API_ADMIN_KEY}")
     private String adminKey;
@@ -62,6 +64,8 @@ public class KakaoUnlinkService {
             if (response.getStatusCode() != HttpStatus.OK) {
                 throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
             }
+
+            jwtService.revokeTokenOnUnlink(member.getId());
         } catch (WebClientException e) {
             throw new RestApiException(MemberErrorCode.ERROR_MEMBER_LEAVING_FAILED);
         }

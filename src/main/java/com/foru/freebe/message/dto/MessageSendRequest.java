@@ -274,7 +274,7 @@ public class MessageSendRequest {
             formattedShootingDate,
             statusUpdateNotice.getShootingDate().getStartTime().format(timeFormatter) + " ~ "
                 + statusUpdateNotice.getShootingDate().getEndTime().format(timeFormatter),
-            "임의장소"
+            statusUpdateNotice.getShootingPlace()
         );
 
         mapRequestBody.put("msg", messageFormat);
@@ -294,7 +294,6 @@ public class MessageSendRequest {
         return jsonArray;
     }
 
-    //ToDo: rebase 후 촬영장소, 공지사항 실제데이터로 변경.
     public List<Map<String, Object>> createCustomerWaitShootingMessage(StatusUpdateNotice statusUpdateNotice) {
         Map<String, Object> mapRequestBody = new HashMap<>();
         List<Map<String, Object>> jsonArray = new ArrayList<>();
@@ -304,14 +303,11 @@ public class MessageSendRequest {
         mapRequestBody.put("profile", profileKey);
 
         String messageTemplate = """
-            [{0}] 촬영이 최종 확정되었습니다!
+            [{0}] 촬영이 확정되었습니다!
 
              ■ 촬영날짜: {1}
              ■ 촬영시간: {2}
-             ■ 촬영장소: {3}
-
-            [공지사항]
-            {4}""";
+             ■ 촬영장소: {3}""";
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 M월 d일");
         String formattedShootingDate = statusUpdateNotice.getShootingDate().getDate().format(dateFormatter);
@@ -324,8 +320,7 @@ public class MessageSendRequest {
             formattedShootingDate,
             statusUpdateNotice.getShootingDate().getStartTime().format(timeFormatter) + " ~ "
                 + statusUpdateNotice.getShootingDate().getEndTime().format(timeFormatter),
-            "임의장소",
-            "공지사항"
+            statusUpdateNotice.getShootingPlace()
         );
 
         mapRequestBody.put("msg", messageFormat);
@@ -333,7 +328,7 @@ public class MessageSendRequest {
 
         String webUrl = "https://www.freebe.co.kr/customer/reservation/" + statusUpdateNotice.getReservationId();
         Button button1 = Button.builder()
-            .name("예약 내역 확인하기")
+            .name("자세히보기")
             .type(WEB_LINK_BUTTON_TYPE)
             .urlPc(webUrl)
             .urlMobile(webUrl)

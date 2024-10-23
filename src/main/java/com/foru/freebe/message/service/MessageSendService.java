@@ -26,7 +26,7 @@ public class MessageSendService {
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";
-    private static final String CUSTOMER_WAIT_SHOOTING_TEMPLATE = "c_wait_shooting_1014";
+    private static final String CUSTOMER_WAIT_SHOOTING_TEMPLATE = "customer_wait_shooting";
     private static final String PHOTOGRAPHER_WAIT_SHOOTING_TEMPLATE = "p_wait_shooting_1014";
     private static final String CUSTOMER_IN_PROGRESS_TEMPLATE = "c_in_progress_1014";
 
@@ -177,6 +177,5 @@ public class MessageSendService {
             .block();
 
         MessageSendResponse messageSendResponse = response.get(0);
-        System.out.println(messageSendResponse.getMessage());
     }
 }

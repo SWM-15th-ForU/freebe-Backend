@@ -97,7 +97,6 @@ public class ReservationService {
             .reservationId(formId.toString())
             .updatedStatus(reservationForm.getReservationStatus());
 
-        // ToDo: 실제 profileName 조회하도록 수정.
         if (reservationForm.getReservationStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
             Profile profile = profileRepository.findByMemberId(id)
                 .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NAME_NOT_FOUND));
@@ -107,6 +106,7 @@ public class ReservationService {
                 .profileName(profile.getProfileName())
                 .photographerPhoneNumber(reservationForm.getPhotographer().getPhoneNumber())
                 .customerName(reservationForm.getCustomer().getName())
+                .shootingPlace(reservationForm.getShootingPlace())
                 .build();
         }
 

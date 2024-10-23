@@ -19,11 +19,12 @@ public class StatusUpdateNotice {
     private ReservationStatus updatedStatus;
     private TimeSlot shootingDate;
     private String profileName;
+    private String shootingPlace;
 
     @Builder
     public StatusUpdateNotice(String customerPhoneNumber, String photographerPhoneNumber, String customerName,
         String productTitle, String cancellationReason, String reservationId, ReservationStatus updatedStatus,
-        TimeSlot shootingDate, String profileName) {
+        TimeSlot shootingDate, String profileName, String shootingPlace) {
         this.customerPhoneNumber = customerPhoneNumber;
         this.photographerPhoneNumber = photographerPhoneNumber;
         this.customerName = customerName;
@@ -33,5 +34,6 @@ public class StatusUpdateNotice {
         this.updatedStatus = updatedStatus;
         this.shootingDate = shootingDate;
         this.profileName = profileName;
+        this.shootingPlace = shootingPlace;
     }
 }

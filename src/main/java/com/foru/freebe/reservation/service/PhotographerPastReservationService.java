@@ -66,10 +66,15 @@ public class PhotographerPastReservationService {
             }
         } else {
             if (from != null && to != null) {
-                reservationFormPage = reservationFormRepository.findByPhotographerIdAndShootingDate_DateBetween(
-                    photographerId, from, to, pageable);
+                reservationFormPage = reservationFormRepository.findByPhotographerIdAndReservationStatusInAndShootingDate_DateBetween(
+                    photographerId, Arrays.asList(ReservationStatus.CANCELLED_BY_PHOTOGRAPHER,
+                        ReservationStatus.CANCELLED_BY_PHOTOGRAPHER, ReservationStatus.PHOTO_COMPLETED), from, to,
+                    pageable);
             } else {
-                reservationFormPage = reservationFormRepository.findByPhotographerId(photographerId, pageable);
+                reservationFormPage = reservationFormRepository.findByPhotographerIdAndReservationStatusIn(
+                    photographerId,
+                    Arrays.asList(ReservationStatus.CANCELLED_BY_PHOTOGRAPHER, ReservationStatus.CANCELLED_BY_CUSTOMER,
+                        ReservationStatus.PHOTO_COMPLETED), pageable);
             }
         }
 

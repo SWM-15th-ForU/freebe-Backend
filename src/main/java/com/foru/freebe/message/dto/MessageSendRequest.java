@@ -50,7 +50,7 @@ public class MessageSendRequest {
 
         String messageTemplate = """
             새 신청이 도착했어요!
-            아래 [자세히보기] 버튼을 눌러 상세 내역을 확인해주세요.
+            아래 [자세히 보기] 버튼을 눌러 상세 내역을 확인해주세요.
 
             * 기다리고 있는 고객님을 위해 빠른 확인 부탁드립니다.
             * 조율이 필요한 경우에는 예약 수락 후 고객과 직접 이야기를 나눠보세요!""";
@@ -60,7 +60,7 @@ public class MessageSendRequest {
 
         String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + formId.toString();
         Button button1 = Button.builder()
-            .name("자세히보기")
+            .name("자세히 보기")
             .type(WEB_LINK_BUTTON_TYPE)
             .urlPc(webUrl)
             .urlMobile(webUrl)

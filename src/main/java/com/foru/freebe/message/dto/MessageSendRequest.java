@@ -282,7 +282,7 @@ public class MessageSendRequest {
 
         String webUrl = "https://www.freebe.co.kr/photographer/reservation/" + statusUpdateNotice.getReservationId();
         Button button1 = Button.builder()
-            .name("자세히보기")
+            .name("자세히 보기")
             .type(WEB_LINK_BUTTON_TYPE)
             .urlPc(webUrl)
             .urlMobile(webUrl)
@@ -303,7 +303,7 @@ public class MessageSendRequest {
         mapRequestBody.put("profile", profileKey);
 
         String messageTemplate = """
-            [{0}] 촬영이 확정되었습니다!
+            [{0}] 촬영이 최종 확정되었습니다!
 
              ■ 촬영날짜: {1}
              ■ 촬영시간: {2}
@@ -328,22 +328,13 @@ public class MessageSendRequest {
 
         String webUrl = "https://www.freebe.co.kr/customer/reservation/" + statusUpdateNotice.getReservationId();
         Button button1 = Button.builder()
-            .name("자세히보기")
+            .name("자세히 보기")
             .type(WEB_LINK_BUTTON_TYPE)
             .urlPc(webUrl)
             .urlMobile(webUrl)
             .build();
 
-        String noticeUrl = "https://www.freebe.co.kr/" + statusUpdateNotice.getProfileName() + "/notice";
-        Button button2 = Button.builder()
-            .name("공지사항 확인하기")
-            .type(WEB_LINK_BUTTON_TYPE)
-            .urlPc(noticeUrl)
-            .urlMobile(noticeUrl)
-            .build();
-
         mapRequestBody.put("button1", convertButtonToMap(button1));
-        mapRequestBody.put("button2", convertButtonToMap(button2));
 
         jsonArray.add(mapRequestBody);
         return jsonArray;

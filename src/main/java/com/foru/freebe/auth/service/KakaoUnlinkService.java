@@ -35,9 +35,9 @@ import lombok.RequiredArgsConstructor;
 public class KakaoUnlinkService {
     final String AUTHORIZATION_HEADER = "Authorization";
     final String KAKAO_AUTH_PREFIX = "KakaoAK ";
-    final String kakaoUnlinkUrl = "https://kapi.kakao.com/v1/user/unlink";
+    final String kakaoUnlinkUrl = "/v1/user/unlink";
 
-    private final WebClient webClient;
+    private final WebClient kakaoApiWebClient;
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
     private final PhotographerProductService photographerProductService;
@@ -85,7 +85,7 @@ public class KakaoUnlinkService {
     }
 
     private ResponseEntity<String> unlinkKakao(Long kakaoUserId) {
-        return webClient.post()
+        return kakaoApiWebClient.post()
             .uri(kakaoUnlinkUrl)
             .header(AUTHORIZATION_HEADER, KAKAO_AUTH_PREFIX + adminKey)
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
@@ -95,7 +95,7 @@ public class KakaoUnlinkService {
             .block();
     }
 
-    private static MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
+    private MultiValueMap<String, Object> constructUnlinkParams(Long kakaoUserId) {
         MultiValueMap<String, Object> params = new LinkedMultiValueMap<>();
         params.add("target_id_type", "user_id");
         params.add("target_id", kakaoUserId.toString());

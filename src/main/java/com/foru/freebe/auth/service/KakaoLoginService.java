@@ -1,5 +1,7 @@
 package com.foru.freebe.auth.service;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.dto.LoginResponse;
@@ -25,19 +27,23 @@ public class KakaoLoginService {
 
     @Transactional
     public LoginResponse findOrRegisterMember(KakaoUser kakaoUser, Role role) {
+        AtomicBoolean atomicIsNewMember = new AtomicBoolean(false);
+
         Member member = memberRepository.findByKakaoId(kakaoUser.getKakaoId())
             .orElseGet(() -> {
+                atomicIsNewMember.set(true);
                 if (role == Role.PHOTOGRAPHER) {
                     return registerNewMember(kakaoUser, Role.PHOTOGRAPHER_PENDING);
                 }
                 return registerNewMember(kakaoUser, role);
             });
 
-        JwtTokenModel token = jwtService.generateToken(member.getId());
-
         LoginResponse.LoginResponseBuilder builder = LoginResponse.builder();
+
+        JwtTokenModel token = jwtService.generateToken(member.getId());
         builder = builder.token(token);
         builder = validateRoleType(builder, member, role);
+        builder = builder.isNewMember(atomicIsNewMember.get());
 
         return builder.build();
     }
@@ -85,8 +91,8 @@ public class KakaoLoginService {
     }
 
     private Member registerNewMember(KakaoUser kakaoUser, Role role) {
-        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(),
-                kakaoUser.getEmail(), kakaoUser.getPhoneNumber())
+        Member newMember = Member.builder(kakaoUser.getKakaoId(), role, kakaoUser.getUserName(), kakaoUser.getEmail(),
+                kakaoUser.getPhoneNumber())
             .birthYear(kakaoUser.getBirthYear())
             .birthDay(kakaoUser.getBirthDay())
             .gender(kakaoUser.getGender())

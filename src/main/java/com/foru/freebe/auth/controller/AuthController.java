@@ -42,6 +42,7 @@ public class AuthController {
         KakaoUser kakaoUser = kakaoAuthService.getUserInfo(accessToken);
 
         LoginResponse loginResponse = kakaoLoginService.findOrRegisterMember(kakaoUser, loginRequest.getRoleType());
+
         HttpHeaders headers = jwtService.setTokenHeaders(loginResponse.getToken());
         ResponseBody<?> responseBody = ResponseBody.builder()
             .message(loginResponse.getMessage())

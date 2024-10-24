@@ -15,7 +15,8 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowCredentials(true);
-        configuration.setAllowedOrigins(Arrays.asList("https://www.freebe.co.kr", "http://localhost:3000"));
+        configuration.setAllowedOrigins(
+            Arrays.asList("https://www.freebe.co.kr", "http://localhost:3000", "15.164.160.132:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setExposedHeaders(Arrays.asList("accessToken", "refreshToken"));
         configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Authorization", "refreshToken"));

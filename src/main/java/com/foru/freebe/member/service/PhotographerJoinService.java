@@ -2,6 +2,8 @@ package com.foru.freebe.member.service;
 
 import org.springframework.stereotype.Service;
 
+import com.foru.freebe.auth.model.ServiceTermsAgreement;
+import com.foru.freebe.auth.service.KakaoAuthService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.MemberTermAgreement;
@@ -20,12 +22,14 @@ public class PhotographerJoinService {
     private final ProfileService profileService;
     private final MemberRepository memberRepository;
     private final MemberTermAgreementRepository memberTermAgreementRepository;
+    private final KakaoAuthService kakaoAuthService;
 
     @Transactional
     public String joinPhotographer(Member member, PhotographerJoinRequest request) {
         Member photographer = completePhotographerSignup(member);
 
-        savePhotographerAgreements(photographer, request);
+        ServiceTermsAgreement serviceTermsAgreement = kakaoAuthService.getAgreementStatus(photographer.getKakaoId());
+        savePhotographerAgreements(photographer, serviceTermsAgreement);
         Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName(),
             request.getContact());
 
@@ -37,12 +41,10 @@ public class PhotographerJoinService {
         return memberRepository.save(member);
     }
 
-    private void savePhotographerAgreements(Member member, PhotographerJoinRequest request) {
+    private void savePhotographerAgreements(Member member, ServiceTermsAgreement serviceTermsAgreement) {
         MemberTermAgreement memberTermAgreement = MemberTermAgreement.builder()
             .member(member)
-            .termsOfServiceAgreement(request.getTermsOfServiceAgreement())
-            .privacyPolicyAgreement(request.getPrivacyPolicyAgreement())
-            .marketingAgreement(request.getMarketingAgreement())
+            .marketingAgreement(serviceTermsAgreement.getMarketingServiceTermsAgreement())
             .build();
         memberTermAgreementRepository.save(memberTermAgreement);
     }

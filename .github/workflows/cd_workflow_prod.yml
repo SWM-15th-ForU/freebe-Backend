@@ -48,6 +48,7 @@ jobs:
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP }}" >> .env
           echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET }}" >> .env
           echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> .env
+          echo "TERMS_OF_MARKETING_TAG=${{ secrets.TERMS_OF_MARKETING_TAG }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

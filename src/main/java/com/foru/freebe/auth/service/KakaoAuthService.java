@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.foru.freebe.auth.model.KakaoToken;
 import com.foru.freebe.auth.model.KakaoUser;
+import com.foru.freebe.auth.model.ServiceTermsAgreement;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class KakaoAuthService {
     private final WebClient kakaoLoginWebClient;
+    private final WebClient kakaoApiWebClient;
 
     @Value("${KAKAO_CLIENT_ID}")
     private String clientId;
@@ -26,6 +28,12 @@ public class KakaoAuthService {
 
     @Value("${KAKAO_CLIENT_SECRET}")
     private String clientSecret;
+
+    @Value("${KAKAO_API_ADMIN_KEY}")
+    private String adminKey;
+
+    @Value("${TERMS_OF_MARKETING_TAG}")
+    private String termsOfMarketingTag;
 
     public String getToken(String code) {
         Mono<KakaoToken> kakaoToken = kakaoLoginWebClient.post()
@@ -49,6 +57,25 @@ public class KakaoAuthService {
             )
             .retrieve()
             .bodyToMono(KakaoUser.class)
+            .block();
+    }
+
+    public ServiceTermsAgreement getAgreementStatus(Long kakaoId) {
+        String authorizationHeader = "Authorization";
+        String kakaoAuthPrefix = "KakaoAK ";
+        String targetIdType = "user_id";
+
+        return kakaoApiWebClient.get()
+            .uri(uriBuilder -> uriBuilder
+                .path("v2/user/service_terms")
+                .queryParam("target_id_type", targetIdType)
+                .queryParam("target_id", kakaoId)
+                .queryParam("tags", termsOfMarketingTag)
+                .build()
+            )
+            .header(authorizationHeader, kakaoAuthPrefix + adminKey)
+            .retrieve()
+            .bodyToMono(ServiceTermsAgreement.class)
             .block();
     }
 

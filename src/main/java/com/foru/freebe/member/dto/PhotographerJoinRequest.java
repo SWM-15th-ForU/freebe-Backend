@@ -1,6 +1,5 @@
 package com.foru.freebe.member.dto;
 
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -20,21 +19,9 @@ public class PhotographerJoinRequest {
     @Size(max = 100, message = "연락처는 최대 100자까지 입력 가능합니다.")
     private String contact;
 
-    @AssertTrue
-    private Boolean termsOfServiceAgreement;
-
-    @AssertTrue
-    private Boolean privacyPolicyAgreement;
-
-    private Boolean marketingAgreement;
-
     @Builder
-    public PhotographerJoinRequest(String profileName, String contact, Boolean termsOfServiceAgreement,
-        Boolean privacyPolicyAgreement, Boolean marketingAgreement) {
+    public PhotographerJoinRequest(String profileName, String contact) {
         this.profileName = profileName;
         this.contact = contact;
-        this.termsOfServiceAgreement = termsOfServiceAgreement;
-        this.privacyPolicyAgreement = privacyPolicyAgreement;
-        this.marketingAgreement = marketingAgreement;
     }
 }

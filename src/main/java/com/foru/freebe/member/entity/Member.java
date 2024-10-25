@@ -68,7 +68,7 @@ public class Member extends BaseEntity {
     }
 
     public void deleteKakaoId() {
-        this.kakaoId = null;
+        this.kakaoId = -1L;
     }
 
     @Builder

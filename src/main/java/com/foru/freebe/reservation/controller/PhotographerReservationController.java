@@ -20,16 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.message.service.MessageSendService;
 import com.foru.freebe.reservation.dto.FormDetailsViewResponse;
 import com.foru.freebe.reservation.dto.FormListViewResponse;
 import com.foru.freebe.reservation.dto.PastReservationResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.ShootingInfoRequest;
 import com.foru.freebe.reservation.dto.UpdatePhotographerMemoRequest;
+import com.foru.freebe.reservation.dto.alimtalk.StatusUpdateNotice;
 import com.foru.freebe.reservation.service.PhotographerPastReservationService;
 import com.foru.freebe.reservation.service.PhotographerReservationDetails;
 import com.foru.freebe.reservation.service.PhotographerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
+import com.foru.freebe.reservation.service.ReservationVerifier;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -43,6 +46,8 @@ public class PhotographerReservationController {
     private final PhotographerReservationDetails photographerReservationDetails;
     private final ReservationService reservationService;
     private final PhotographerPastReservationService photographerPastReservationService;
+    private final MessageSendService messageSendService;
+    private final ReservationVerifier reservationVerifier;
 
     @GetMapping("/reservation/list")
     public ResponseEntity<ResponseBody<List<FormListViewResponse>>> getReservationList(
@@ -78,12 +83,15 @@ public class PhotographerReservationController {
     }
 
     @PutMapping("/reservation/details/{formId}")
-    public ResponseEntity<ResponseBody<Void>> updateReservationFormDetails(
+    public ResponseEntity<ResponseBody<Void>> updateReservationStatus(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member member = memberAdapter.getMember();
         reservationService.updateReservationStatus(member.getId(), formId, request, true);
+
+        StatusUpdateNotice notice = reservationService.getAlimTalkParameter(member.getId(), formId, request);
+        messageSendService.sendStatusUpdateNotice(notice);
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Successfully update reservation status")

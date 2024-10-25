@@ -1,7 +1,5 @@
 package com.foru.freebe.jwt.service;
 
-import java.time.LocalDateTime;
-
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.JwtErrorCode;
@@ -9,6 +7,8 @@ import com.foru.freebe.errors.exception.JwtTokenException;
 import com.foru.freebe.jwt.model.JwtToken;
 import com.foru.freebe.jwt.repository.JwtTokenRepository;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -17,34 +17,20 @@ public class JwtVerifier {
     private final JwtProvider jwtProvider;
     private final JwtTokenRepository jwtTokenRepository;
 
-    private void validateTokenExpiration(String token, Boolean isRefreshToken) {
-        if (jwtProvider.getExpiration(token).isBefore(LocalDateTime.now())) {
-            if (isRefreshToken) {
-                jwtTokenRepository.deleteByRefreshToken(token);
-            }
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+    public boolean isAccessTokenValid(String accessToken) {
+        Jws<Claims> claimsJws = jwtProvider.parseClaims(accessToken);
+        return true;
+    }
+
+    public void validateRefreshToken(String refreshToken) {
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            throw new JwtTokenException(JwtErrorCode.MISSING_TOKEN);
         }
     }
 
-    private void validateRefreshTokenRevocation(JwtToken refreshToken) {
+    public void validateRefreshTokenRevocation(JwtToken refreshToken) {
         if (refreshToken.getIsRevoked()) {
             throw new JwtTokenException(JwtErrorCode.REVOKED_TOKEN);
         }
-    }
-
-    public void validateRefreshToken(JwtToken refreshToken) {
-        validateTokenExpiration(refreshToken.getRefreshToken(), true);
-        validateRefreshTokenRevocation(refreshToken);
-    }
-
-    public boolean isAccessTokenValid(String accessToken) {
-        validateTokenExpiration(accessToken, false);
-
-        Long memberId = jwtProvider.getMemberIdFromToken(accessToken);
-        JwtToken refreshToken = jwtTokenRepository.findByMemberId(memberId)
-            .orElseThrow(() -> new JwtTokenException(JwtErrorCode.TOKEN_NOT_FOUND));
-
-        validateRefreshToken(refreshToken);
-        return true;
     }
 }

@@ -48,7 +48,7 @@ public class ReservationVerifier {
             || request.getUpdateStatus() == ReservationStatus.WAITING_FOR_PHOTO
             || request.getUpdateStatus() == ReservationStatus.PHOTO_COMPLETED) {
             if (shootingDate == null) {
-                throw new RestApiException(ReservationErrorCode.INVALID_STATUS_TRANSITION);
+                throw new RestApiException(ReservationErrorCode.NO_SHOOTING_DATE);
             }
         }
 

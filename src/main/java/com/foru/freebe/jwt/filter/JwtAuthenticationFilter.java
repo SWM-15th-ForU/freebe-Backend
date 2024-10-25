@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (ExpiredJwtException e) {
-            throw new JwtTokenException(JwtErrorCode.EXPIRED_TOKEN);
+            throw new JwtTokenException(JwtErrorCode.EXPIRED_ACCESS_TOKEN);
         } catch (JwtException e) {
             throw new JwtException(e.getMessage(), e);
         }

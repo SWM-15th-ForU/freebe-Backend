@@ -6,9 +6,17 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductErrorCode;
+import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.product.entity.Product;
+import com.foru.freebe.product.respository.ProductRepository;
+import com.foru.freebe.profile.entity.Profile;
+import com.foru.freebe.profile.repository.ProfileRepository;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
 import com.foru.freebe.reservation.dto.StatusHistory;
+import com.foru.freebe.reservation.dto.alimtalk.CustomerCancelInfo;
+import com.foru.freebe.reservation.dto.alimtalk.StatusUpdateNotice;
 import com.foru.freebe.reservation.entity.ReservationForm;
 import com.foru.freebe.reservation.entity.ReservationHistory;
 import com.foru.freebe.reservation.entity.ReservationStatus;
@@ -24,6 +32,8 @@ public class ReservationService {
     private final ReservationVerifier reservationVerifier;
     private final ReservationFormRepository reservationFormRepository;
     private final ReservationHistoryRepository reservationHistoryRepository;
+    private final ProfileRepository profileRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public void updateReservationStatus(Long memberId, Long formId,
@@ -58,6 +68,60 @@ public class ReservationService {
             .stream()
             .map(this::toStatusHistory)
             .collect(Collectors.toList());
+    }
+
+    public CustomerCancelInfo getCustomerCancelledInfo(Long id, Long formId, String cancellationReason) {
+        ReservationForm reservationForm = findReservationForm(id, formId, false);
+        String photographerPhoneNumber = reservationForm.getPhotographer().getPhoneNumber();
+        String productTitle = reservationForm.getProductTitle();
+        String customerName = reservationForm.getCustomer().getName();
+
+        return CustomerCancelInfo.builder()
+            .photographerPhoneNumber(photographerPhoneNumber)
+            .productTitle(productTitle)
+            .customerName(customerName)
+            .cancellationReason(cancellationReason)
+            .reservationId(formId.toString())
+            .build();
+    }
+
+    public StatusUpdateNotice getAlimTalkParameter(Long id, Long formId, ReservationStatusUpdateRequest request) {
+        ReservationForm reservationForm = findReservationForm(id, formId, true);
+        String customerPhoneNumber = reservationForm.getCustomer().getPhoneNumber();
+        String productTitle = reservationForm.getProductTitle();
+
+        StatusUpdateNotice.StatusUpdateNoticeBuilder builder = StatusUpdateNotice.builder()
+            .customerPhoneNumber(customerPhoneNumber)
+            .productTitle(productTitle)
+            .cancellationReason(request.getCancellationReason() != null ? request.getCancellationReason() : null)
+            .reservationId(formId.toString())
+            .updatedStatus(reservationForm.getReservationStatus());
+
+        if (reservationForm.getReservationStatus() == ReservationStatus.WAITING_FOR_PHOTO) {
+            Profile profile = profileRepository.findByMemberId(id)
+                .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NAME_NOT_FOUND));
+
+            return builder
+                .shootingDate(reservationForm.getShootingDate())
+                .profileName(profile.getProfileName())
+                .photographerPhoneNumber(reservationForm.getPhotographer().getPhoneNumber())
+                .customerName(reservationForm.getCustomer().getName())
+                .shootingPlace(reservationForm.getShootingPlace())
+                .build();
+        }
+
+        return builder.build();
+    }
+
+    public String getProductTitle(Long productId) {
+        Product product = productRepository.findById(productId)
+            .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
+        return product.getTitle();
+    }
+
+    public String getPhotographerPhoneNumber(Long formId, Long customerId) {
+        ReservationForm reservationForm = findReservationForm(customerId, formId, false);
+        return reservationForm.getPhotographer().getPhoneNumber();
     }
 
     private StatusHistory toStatusHistory(ReservationHistory reservationHistory) {

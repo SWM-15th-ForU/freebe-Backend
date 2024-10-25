@@ -32,6 +32,7 @@ public class UpdateProductDetailRequest {
     private Long basicPrice;
 
     @NotBlank(message = "PhotoPlace name must not be blank")
+    @Size(max = 100, message = "촬영장소는 최대 100자까지 입력 가능합니다.")
     private String basicPlace;
 
     @NotEmpty(message = "Notice must not be empty")

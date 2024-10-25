@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +17,6 @@ import com.foru.freebe.errors.errorcode.ProfileErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.repository.MemberRepository;
-import com.foru.freebe.notice.entity.Notice;
-import com.foru.freebe.notice.repository.NoticeRepository;
 import com.foru.freebe.product.dto.photographer.ProductComponentDto;
 import com.foru.freebe.product.dto.photographer.ProductOptionDto;
 import com.foru.freebe.product.entity.Product;
@@ -61,7 +58,6 @@ public class CustomerReservationService {
     private final S3ImageService s3ImageService;
     private final ProfileRepository profileRepository;
     private final ProductImageRepository productImageRepository;
-    private final NoticeRepository noticeRepository;
 
     @Transactional
     public Long registerReservationForm(Long id, FormRegisterRequest request, List<MultipartFile> images) throws
@@ -113,7 +109,8 @@ public class CustomerReservationService {
         ReservationForm reservationForm = reservationFormRepository.findById(formId)
             .orElseThrow(() -> new RestApiException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        Product product = productRepository.findByTitle(reservationForm.getProductTitle())
+        Product product = productRepository.findByTitleAndMember(reservationForm.getProductTitle(),
+                reservationForm.getPhotographer())
             .orElseThrow(() -> new RestApiException(ProductErrorCode.PRODUCT_NOT_FOUND));
 
         Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
@@ -196,10 +193,6 @@ public class CustomerReservationService {
         List<ProductComponent> productComponents = productComponentRepository.findByProduct(product);
         Map<String, String> photoInfo = getProductComponentsTitleAndContent(productComponents);
 
-        Profile profile = profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
-
-        List<Notice> noticeList = noticeRepository.findByProfile(profile);
         Map<String, PhotoNotice> photoNotice = product.getPhotoNotice();
 
         ReservationForm.ReservationFormBuilder builder = ReservationForm.builder(photographer, customer,
@@ -211,15 +204,6 @@ public class CustomerReservationService {
             .photoOption(request.getPhotoOptions())
             .customerMemo(request.getCustomerMemo());
         return builder.build();
-    }
-
-    private static Map<Integer, PhotoNotice> getIntegerPhotoNoticeMap(List<Notice> noticeList) {
-        return IntStream.range(0, noticeList.size())
-            .boxed()
-            .collect(Collectors.toMap(
-                i -> i,
-                i -> new PhotoNotice(noticeList.get(i).getTitle(), noticeList.get(i).getContent())
-            ));
     }
 
     private Map<String, String> getProductComponentsTitleAndContent(List<ProductComponent> productComponents) {

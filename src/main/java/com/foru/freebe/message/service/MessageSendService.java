@@ -22,7 +22,7 @@ public class MessageSendService {
     private final WebClient kakaoMessageWebClient;
     private static final String JOIN_TEMPLATE = "freebe_join";
     private static final String CUSTOMER_NEW_TEMPLATE = "c_new_1014";
-    private static final String PHOTOGRAPHER_NEW_TEMPLATE = "p_new_1014";
+    private static final String PHOTOGRAPHER_NEW_TEMPLATE = "p_new_1023";
     private static final String CUSTOMER_CANCEL_TEMPLATE = "customer_cancel";
     private static final String PHOTOGRAPHER_CANCELLED_TEMPLATE = "photographer_cancelled";
     private static final String CUSTOMER_CANCELLED_TEMPLATE = "customer_cancelled";

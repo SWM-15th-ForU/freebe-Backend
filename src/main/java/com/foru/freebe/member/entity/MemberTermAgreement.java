@@ -9,7 +9,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.AssertTrue;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,20 +28,11 @@ public class MemberTermAgreement {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @AssertTrue
-    private Boolean termsOfServiceAgreement;
-
-    @AssertTrue
-    private Boolean privacyPolicyAgreement;
-
     private Boolean marketingAgreement;
 
     @Builder
-    public MemberTermAgreement(Member member, Boolean termsOfServiceAgreement, Boolean privacyPolicyAgreement,
-        Boolean marketingAgreement) {
+    public MemberTermAgreement(Member member, Boolean marketingAgreement) {
         this.member = member;
-        this.termsOfServiceAgreement = termsOfServiceAgreement;
-        this.privacyPolicyAgreement = privacyPolicyAgreement;
         this.marketingAgreement = marketingAgreement;
     }
 }

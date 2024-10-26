@@ -70,4 +70,10 @@ kakao:
 
 logging:
   level:
+    org:
+      springframework:
+        jdbc: debug
     web: debug
+    com:
+      zaxxer:
+        hikari: debug

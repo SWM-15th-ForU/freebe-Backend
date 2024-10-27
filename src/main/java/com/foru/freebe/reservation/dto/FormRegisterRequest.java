@@ -28,6 +28,7 @@ public class FormRegisterRequest {
     @NotNull(message = "Preferred dates must not be null")
     private Map<Integer, TimeSlot> preferredDates;
 
+    @Size(max = 100, message = "촬영장소는 최대 100자까지 입력 가능합니다.")
     private String preferredPlace;
 
     private Map<Integer, PhotoOption> photoOptions;
@@ -36,7 +37,7 @@ public class FormRegisterRequest {
     @Size(min = 1)
     private List<String> existingImages;
 
-    @Size(max = 300, message = "Memo cannot be longer than 300 characters")
+    @Size(max = 500, message = "메모는 최대 500자까지 입력 가능합니다.")
     private String customerMemo;
 
     @NotNull

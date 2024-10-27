@@ -20,6 +20,7 @@ import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.jwt.model.JwtTokenModel;
 import com.foru.freebe.jwt.service.JwtService;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.message.service.MessageSendService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -32,6 +33,7 @@ public class AuthController {
     private final KakaoAuthService kakaoAuthService;
     private final KakaoLoginService kakaoLoginService;
     private final KakaoUnlinkService kakaoUnlinkService;
+    private final MessageSendService messageSendService;
 
     @PostMapping("/login")
     public ResponseEntity<ResponseBody<?>> login(@RequestBody LoginRequest loginRequest) {
@@ -41,12 +43,13 @@ public class AuthController {
 
         LoginResponse loginResponse = kakaoLoginService.findOrRegisterMember(kakaoUser, loginRequest.getRoleType());
 
+        HttpHeaders headers = jwtService.setTokenHeaders(loginResponse.getToken());
         ResponseBody<?> responseBody = ResponseBody.builder()
             .message(loginResponse.getMessage())
             .data(loginResponse.getProfileName())
             .build();
 
-        HttpHeaders headers = jwtService.setTokenHeaders(loginResponse.getToken());
+        messageSendService.sendWelcomeMessage(kakaoUser, loginResponse.isNewMember());
 
         return ResponseEntity.status(HttpStatus.OK)
             .headers(headers)

@@ -6,7 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ReservationErrorCode implements ErrorCode {
-    INVALID_STATUS_TRANSITION(404, "상태 전환이 불가능합니다"),
+    INVALID_STATUS_TRANSITION(400, "상태 전환이 불가능합니다"),
+    NO_SHOOTING_DATE(400, "확정일자가 필요합니다"),
     NO_RESERVATION_FORM(404, "해당하는 예약서가 존재하지 않습니다"),
     INVALID_SHOOTING_DATE(400, "해당 날짜는 확정일자로 등록할 수 없습니다"),
     INVALID_SHOOTING_TIME(400, "해당 촬영시간은 확정일자로 등록할 수 없습니다"),

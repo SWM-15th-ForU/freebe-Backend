@@ -25,6 +25,9 @@ jobs:
           echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET_DEV }}" >> .env
           echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI_DEV }}" >> .env
           echo "KAKAO_API_ADMIN_KEY=${{ secrets.KAKAO_API_ADMIN_KEY_DEV }}" >> .env
+          echo "KAKAO_ALIM_TALK_API_HOST=${{ secrets.KAKAO_ALIM_TALK_API_HOST_DEV }}" >> .env
+          echo "KAKAO_ALIM_TALK_USER_ID=${{ secrets.KAKAO_ALIM_TALK_USER_ID }}" >> .env
+          echo "KAKAO_ALIM_TALK_PROFILE_KEY=${{ secrets.KAKAO_ALIM_TALK_PROFILE_KEY }}" >> .env
           echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL_DEV }}" >> .env
           echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME_DEV }}" >> .env
           echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD_DEV }}" >> .env
@@ -48,6 +51,7 @@ jobs:
           echo "AWS_CODE_DEPLOY_GROUP=${{ secrets.AWS_CODE_DEPLOY_GROUP_DEV }}" >> .env
           echo "AWS_S3_CICD_BUCKET=${{ secrets.AWS_S3_CICD_BUCKET_DEV }}" >> .env
           echo "ENVIRONMENT=${{ secrets.ENVIRONMENT_DEV }}" >> .env
+          echo "TERMS_OF_MARKETING_TAG=${{ secrets.TERMS_OF_MARKETING_TAG }}" >> .env
 
       - name: gradlew에 실행 권한 부여
         run: chmod +x ./gradlew

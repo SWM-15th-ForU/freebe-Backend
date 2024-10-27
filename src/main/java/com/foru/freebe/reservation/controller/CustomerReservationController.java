@@ -20,10 +20,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.message.service.MessageSendService;
 import com.foru.freebe.reservation.dto.BasicReservationInfoResponse;
 import com.foru.freebe.reservation.dto.FormRegisterRequest;
 import com.foru.freebe.reservation.dto.ReservationInfoResponse;
 import com.foru.freebe.reservation.dto.ReservationStatusUpdateRequest;
+import com.foru.freebe.reservation.dto.alimtalk.CustomerCancelInfo;
 import com.foru.freebe.reservation.service.CustomerReservationService;
 import com.foru.freebe.reservation.service.ReservationService;
 
@@ -38,19 +40,27 @@ import lombok.RequiredArgsConstructor;
 public class CustomerReservationController {
     private final CustomerReservationService customerReservationService;
     private final ReservationService reservationService;
+    private final MessageSendService messageSendService;
 
     @PostMapping(value = "/reservation")
-    public ResponseEntity<ResponseBody<Long>> registerReservationForm(
+    public ResponseEntity<ResponseBody<Long>> registerReservation(
         @Valid @RequestPart("request") FormRegisterRequest request,
         @AuthenticationPrincipal MemberAdapter memberAdapter,
         @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
 
         Member customer = memberAdapter.getMember();
-        Long responseData = customerReservationService.registerReservationForm(customer.getId(), request, images);
+        Long formId = customerReservationService.registerReservationForm(customer.getId(), request, images);
+
+        String productTitle = reservationService.getProductTitle(request.getProductId());
+        messageSendService.sendReservationCompleteMessageToCustomer(customer.getName(), customer.getPhoneNumber(),
+            productTitle, formId);
+
+        String photographerPhoneNumber = reservationService.getPhotographerPhoneNumber(formId, customer.getId());
+        messageSendService.sendReservationCompleteMessageToPhotographer(photographerPhoneNumber, formId);
 
         ResponseBody<Long> responseBody = ResponseBody.<Long>builder()
             .message("Good Request")
-            .data(responseData)
+            .data(formId)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())
@@ -92,12 +102,17 @@ public class CustomerReservationController {
     }
 
     @PutMapping("/reservation/{formId}")
-    public ResponseEntity<Void> updateReservationStatus(@AuthenticationPrincipal MemberAdapter memberAdapter,
+    public ResponseEntity<Void> cancelReservation(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @PositiveOrZero @PathVariable("formId") Long formId,
         @Valid @RequestBody ReservationStatusUpdateRequest request) {
 
         Member customer = memberAdapter.getMember();
+        CustomerCancelInfo cancelInfo = reservationService.getCustomerCancelledInfo(customer.getId(), formId,
+            request.getCancellationReason());
+
         reservationService.updateReservationStatus(customer.getId(), formId, request, false);
+        messageSendService.sendCancellationNoticeToCustomer(customer.getPhoneNumber(), cancelInfo.getProductTitle());
+        messageSendService.sendCancellationNoticeToPhotographer(cancelInfo);
 
         return ResponseEntity.status(HttpStatus.OK.value()).build();
     }

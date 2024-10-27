@@ -62,6 +62,15 @@ cloud:
         banner: ${AWS_S3_BANNER_PATH}
         reservation: ${AWS_S3_RESERVATION_PATH}
 
+kakao:
+  alimtalk:
+    api-server-host: ${KAKAO_ALIM_TALK_API_HOST}
+    user-id: ${KAKAO_ALIM_TALK_USER_ID}
+    profile_key: ${KAKAO_ALIM_TALK_PROFILE_KEY}
+
 logging:
   level:
+    org:
+      springframework:
+        jdbc: debug
     web: debug

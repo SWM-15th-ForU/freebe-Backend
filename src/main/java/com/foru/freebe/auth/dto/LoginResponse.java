@@ -12,11 +12,13 @@ public class LoginResponse {
     private JwtTokenModel token;
     private String profileName;
     private String message;
+    private boolean isNewMember;
 
     @Builder
-    public LoginResponse(JwtTokenModel token, String profileName, String message) {
+    public LoginResponse(JwtTokenModel token, String profileName, String message, boolean isNewMember) {
         this.token = token;
         this.profileName = profileName;
         this.message = message;
+        this.isNewMember = isNewMember;
     }
 }

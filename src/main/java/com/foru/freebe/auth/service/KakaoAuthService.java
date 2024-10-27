@@ -9,6 +9,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import com.foru.freebe.auth.model.KakaoToken;
 import com.foru.freebe.auth.model.KakaoUser;
+import com.foru.freebe.auth.model.ServiceTermsAgreement;
 
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -16,7 +17,8 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class KakaoAuthService {
-    private final WebClient webClient;
+    private final WebClient kakaoLoginWebClient;
+    private final WebClient kakaoApiWebClient;
 
     @Value("${KAKAO_CLIENT_ID}")
     private String clientId;
@@ -27,8 +29,14 @@ public class KakaoAuthService {
     @Value("${KAKAO_CLIENT_SECRET}")
     private String clientSecret;
 
+    @Value("${KAKAO_API_ADMIN_KEY}")
+    private String adminKey;
+
+    @Value("${TERMS_OF_MARKETING_TAG}")
+    private String termsOfMarketingTag;
+
     public String getToken(String code) {
-        Mono<KakaoToken> kakaoToken = webClient.post()
+        Mono<KakaoToken> kakaoToken = kakaoLoginWebClient.post()
             .uri("/oauth/token")
             .body(BodyInserters.fromFormData(buildRequestBody(code)))
             .retrieve()
@@ -52,6 +60,25 @@ public class KakaoAuthService {
             .block();
     }
 
+    public ServiceTermsAgreement getAgreementStatus(Long kakaoId) {
+        String authorizationHeader = "Authorization";
+        String kakaoAuthPrefix = "KakaoAK ";
+        String targetIdType = "user_id";
+
+        return kakaoApiWebClient.get()
+            .uri(uriBuilder -> uriBuilder
+                .path("v2/user/service_terms")
+                .queryParam("target_id_type", targetIdType)
+                .queryParam("target_id", kakaoId)
+                .queryParam("tags", termsOfMarketingTag)
+                .build()
+            )
+            .header(authorizationHeader, kakaoAuthPrefix + adminKey)
+            .retrieve()
+            .bodyToMono(ServiceTermsAgreement.class)
+            .block();
+    }
+
     private MultiValueMap<String, String> buildRequestBody(String code) {
         MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
         requestBody.add("grant_type", "authorization_code");
@@ -63,7 +90,7 @@ public class KakaoAuthService {
     }
 
     private WebClient buildMutateWebClient(String accessToken) {
-        return webClient.mutate()
+        return kakaoLoginWebClient.mutate()
             .baseUrl("https://kapi.kakao.com")
             .defaultHeader("Authorization", "Bearer " + accessToken)
             .build();

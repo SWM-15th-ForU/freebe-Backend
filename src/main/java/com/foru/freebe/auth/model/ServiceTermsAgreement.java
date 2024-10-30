@@ -17,6 +17,9 @@ public class ServiceTermsAgreement {
     private List<ServiceTerms> scopes;
 
     public Boolean getMarketingServiceTermsAgreement() {
+        if (scopes == null || scopes.isEmpty()) {
+            return false;
+        }
         return scopes.get(0).getAgreed();
     }
 }

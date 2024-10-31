@@ -102,7 +102,7 @@ public class PhotographerNoticeService {
 
         requestList.forEach(request -> {
             if (!titleSet.add(request.getTitle())) {
-                throw new RestApiException(NoticeErrorCode.TITLE_DUPLICATE);
+                throw new RestApiException(NoticeErrorCode.NOTICE_TITLE_DUPLICATE);
             }
         });
     }

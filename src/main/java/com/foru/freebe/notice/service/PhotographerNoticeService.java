@@ -89,7 +89,7 @@ public class PhotographerNoticeService {
 
     private Profile getProfile(Member photographer) {
         return profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NOT_FOUND));
     }
 
     private Member getMember(Long photographerId) {

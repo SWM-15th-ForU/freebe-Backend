@@ -16,7 +16,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.errorcode.ErrorCode;
 import com.foru.freebe.errors.exception.JwtTokenException;
@@ -49,12 +48,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, message);
     }
 
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
-        ErrorCode errorCode = CommonErrorCode.PAYLOAD_TOO_LARGE;
-        return handleExceptionInternal(errorCode, e.getMessage());
-    }
-
     // 메서드 인자의 유효성 검사가 실패했을 때 발생
     // 주로 Spring의 @Valid, @Validated 애노테이션을 사용한 검증 실패시 발생
     @Override
@@ -67,7 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     public ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e,
         HttpHeaders headers, HttpStatusCode status, WebRequest request) {
-        ErrorCode errorCode = AwsErrorCode.MAXIMUM_UPLOAD_SIZE_EXCEEDED;
+        ErrorCode errorCode = CommonErrorCode.MAXIMUM_UPLOAD_SIZE_EXCEEDED;
         return handleExceptionInternal(e, errorCode);
     }
 

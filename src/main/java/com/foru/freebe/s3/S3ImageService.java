@@ -114,9 +114,8 @@ public class S3ImageService {
 
     private String uploadOriginalImage(MultipartFile image, S3ImageType s3ImageType, Long memberId) throws IOException {
         String originUrl = null;
+        String originKey = generateImagePath(image, s3ImageType, memberId, true);
         try {
-            String originKey = generateImagePath(image, s3ImageType, memberId, true);
-
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentLength(image.getSize());
             metadata.setContentType(image.getContentType());
@@ -134,23 +133,22 @@ public class S3ImageService {
     private String uploadThumbnailImage(MultipartFile image, S3ImageType s3ImageType, Long memberId,
         int thumbnailSize) throws IOException {
         String thumbnailUrl = null;
-        try {
-            String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
-            try (InputStream originalImageStream = image.getInputStream();
-                 ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
+        String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
 
-                resizeForThumbnail(thumbnailSize, originalImageStream, thumbnailOutputStream);
+        try (
+            InputStream originalImageStream = image.getInputStream();
+            ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
 
-                InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+            resizeForThumbnail(thumbnailSize, originalImageStream, thumbnailOutputStream);
 
-                ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image,
-                    thumbnailOutputStream);
+            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
 
-                uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+            ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image,
+                thumbnailOutputStream);
 
-                thumbnailUrl = amazonS3.getUrl(bucketName, thumbnailKey).toString();
-                log.info("Thumbnail image uploaded successfully: {}", thumbnailUrl);
-            }
+            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+
+            thumbnailUrl = amazonS3.getUrl(bucketName, thumbnailKey).toString();
         } catch (Exception e) {
             log.error("Failed to upload thumbnail image: {}", e.getMessage());
             throw e;

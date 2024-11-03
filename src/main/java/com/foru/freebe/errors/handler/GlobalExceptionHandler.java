@@ -49,6 +49,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, message);
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Object> handleMaxUploadSizeExceeded(MaxUploadSizeExceededException e) {
+        ErrorCode errorCode = CommonErrorCode.PAYLOAD_TOO_LARGE;
+        return handleExceptionInternal(errorCode, e.getMessage());
+    }
+
     // 메서드 인자의 유효성 검사가 실패했을 때 발생
     // 주로 Spring의 @Valid, @Validated 애노테이션을 사용한 검증 실패시 발생
     @Override

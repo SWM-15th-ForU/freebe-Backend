@@ -12,7 +12,7 @@ public enum CommonErrorCode implements ErrorCode {
     RESOURCE_NOT_FOUND(404, "Resource not exists"),
     INTERNAL_SERVER_ERROR(500, "Internal server error"),
     IO_EXCEPTION(500, "IoException occurred"),
-    MAXIMUM_UPLOAD_SIZE_EXCEEDED(413, "Maximum upload size exceeded");
+    MAXIMUM_UPLOAD_SIZE_EXCEEDED(500, "Maximum upload size exceeded");
 
     private final int httpStatus;
     private final String message;

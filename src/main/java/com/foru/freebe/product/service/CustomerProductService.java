@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
+import com.foru.freebe.errors.errorcode.ProductImageErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.product.dto.customer.ProductDetailResponse;
@@ -55,18 +56,26 @@ public class CustomerProductService {
 
         List<ProductListResponse> productListResponseList = new ArrayList<>();
         for (Product product : products) {
-            List<ProductImage> productImage = productImageRepository.findByProduct(product);
-
             ProductListResponse productListResponse = ProductListResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())
                 .basicPrice(product.getBasicPrice())
-                .productRepresentativeImageUrl(productImage.get(0).getThumbnailUrl())
+                .productRepresentativeImageUrl(getRepresentativeProductImage(product))
                 .build();
 
             productListResponseList.add(productListResponse);
         }
 
         return productListResponseList;
+    }
+
+    private String getRepresentativeProductImage(Product product) {
+        List<ProductImage> productImage = productImageRepository.findByProduct(product);
+
+        return productImage.stream()
+            .filter(image -> image.getImageOrder() == 0)
+            .map(ProductImage::getThumbnailUrl)
+            .findFirst()
+            .orElseThrow(() -> new RestApiException(ProductImageErrorCode.PRODUCT_IMAGE_NOT_FOUND));
     }
 }

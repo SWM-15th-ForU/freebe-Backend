@@ -56,8 +56,6 @@ public class CustomerProductService {
 
         List<ProductListResponse> productListResponseList = new ArrayList<>();
         for (Product product : products) {
-            List<ProductImage> productImage = productImageRepository.findByProduct(product);
-
             ProductListResponse productListResponse = ProductListResponse.builder()
                 .productId(product.getId())
                 .productTitle(product.getTitle())

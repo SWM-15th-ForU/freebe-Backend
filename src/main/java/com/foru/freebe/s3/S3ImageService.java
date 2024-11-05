@@ -1,5 +1,6 @@
 package com.foru.freebe.s3;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -28,11 +31,14 @@ import com.foru.freebe.common.dto.SingleImageLink;
 import com.foru.freebe.errors.errorcode.AwsErrorCode;
 import com.foru.freebe.errors.errorcode.CommonErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.s3.model.ImageSize;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class S3ImageService {
     private final AmazonS3 amazonS3;
 
@@ -98,6 +104,19 @@ public class S3ImageService {
         return new SingleImageLink(originUrl, thumbnailUrl);
     }
 
+    public void deleteImageFromS3(String imageAddress) {
+        String key = getKeyFromImageAddress(imageAddress);
+        try {
+            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
+        } catch (AmazonS3Exception e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_S3_EXCEPTION);
+        } catch (AmazonServiceException e) {
+            throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
+        } catch (Exception e) {
+            throw new RestApiException(AwsErrorCode.DELETE_OBJECT_EXCEPTION);
+        }
+    }
+
     private int determineThumbnailSize(S3ImageType s3ImageType) {
         int size;
 
@@ -111,62 +130,86 @@ public class S3ImageService {
     }
 
     private String uploadOriginalImage(MultipartFile image, S3ImageType s3ImageType, Long memberId) throws IOException {
+        String originUrl = null;
         String originKey = generateImagePath(image, s3ImageType, memberId, true);
+        try {
+            ObjectMetadata metadata = setImageMetadata(image);
 
+            uploadToS3(originKey, image.getInputStream(), metadata);
+
+            originUrl = amazonS3.getUrl(bucketName, originKey).toString();
+        } catch (Exception e) {
+            log.error("Failed to upload original image: {}", e.getMessage());
+            throw e;
+        }
+        return originUrl;
+    }
+
+    private ObjectMetadata setImageMetadata(MultipartFile image) {
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(image.getSize());
         metadata.setContentType(image.getContentType());
-
-        uploadToS3(originKey, image.getInputStream(), metadata);
-
-        return amazonS3.getUrl(bucketName, originKey).toString();
+        return metadata;
     }
 
     private String uploadThumbnailImage(MultipartFile image, S3ImageType s3ImageType, Long memberId,
         int thumbnailSize) throws IOException {
+
         String thumbnailKey = generateImagePath(image, s3ImageType, memberId, false);
+
         try (InputStream originalImageStream = image.getInputStream();
              ByteArrayOutputStream thumbnailOutputStream = new ByteArrayOutputStream()) {
 
-            resizeForThumbnail(thumbnailSize, originalImageStream, thumbnailOutputStream);
+            ImageSize thumbnail = calculateThumbnailSize(image, thumbnailSize);
 
-            InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray());
+            resizeForThumbnail(thumbnail.getWidth(), thumbnail.getHeight(), originalImageStream, thumbnailOutputStream);
 
-            ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image,
-                thumbnailOutputStream);
+            try (InputStream thumbnailInputStream = new ByteArrayInputStream(thumbnailOutputStream.toByteArray())) {
+                ObjectMetadata thumbnailMetadata = createMetadataForThumbnail(image, thumbnailOutputStream);
 
-            uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
+                uploadToS3(thumbnailKey, thumbnailInputStream, thumbnailMetadata);
 
-            return amazonS3.getUrl(bucketName, thumbnailKey).toString();
+                return amazonS3.getUrl(bucketName, thumbnailKey).toString();
+            }
         }
     }
 
-    private ObjectMetadata createMetadataForThumbnail(MultipartFile image,
-        ByteArrayOutputStream thumbnailOutputStream) {
+    private ImageSize calculateThumbnailSize(MultipartFile image, int thumbnailSize) throws IOException {
+        ImageSize originalSize = getOriginalSize(image);
+
+        int thumbnailWidth;
+        int thumbnailHeight;
+
+        if (originalSize.getWidth() < originalSize.getHeight()) {
+            thumbnailWidth = thumbnailSize;
+            thumbnailHeight = (int)((thumbnailSize / (double)originalSize.getWidth()) * originalSize.getHeight());
+        } else {
+            thumbnailHeight = thumbnailSize;
+            thumbnailWidth = (int)((thumbnailSize / (double)originalSize.getHeight()) * originalSize.getWidth());
+        }
+
+        return new ImageSize(thumbnailWidth, thumbnailHeight);
+    }
+
+    private ImageSize getOriginalSize(MultipartFile image) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(image.getInputStream());
+        int originalWidth = bufferedImage.getWidth();
+        int originalHeight = bufferedImage.getHeight();
+        return new ImageSize(originalWidth, originalHeight);
+    }
+
+    private ObjectMetadata createMetadataForThumbnail(MultipartFile image, ByteArrayOutputStream outputStream) {
         ObjectMetadata thumbnailMetadata = new ObjectMetadata();
         thumbnailMetadata.setContentType(image.getContentType());
-        thumbnailMetadata.setContentLength(thumbnailOutputStream.size());
+        thumbnailMetadata.setContentLength(outputStream.size());
         return thumbnailMetadata;
     }
 
-    private void resizeForThumbnail(int thumbnailSize, InputStream originalImageStream,
-        ByteArrayOutputStream thumbnailOutputStream) throws IOException {
+    private void resizeForThumbnail(int width, int thumbnailSize, InputStream originalImageStream,
+        ByteArrayOutputStream outputStream) throws IOException {
         Thumbnails.of(originalImageStream)
-            .size(thumbnailSize, thumbnailSize)
-            .toOutputStream(thumbnailOutputStream);
-    }
-
-    public void deleteImageFromS3(String imageAddress) {
-        String key = getKeyFromImageAddress(imageAddress);
-        try {
-            amazonS3.deleteObject(new DeleteObjectRequest(bucketName, key));
-        } catch (AmazonS3Exception e) {
-            throw new RestApiException(AwsErrorCode.AMAZON_S3_EXCEPTION);
-        } catch (AmazonServiceException e) {
-            throw new RestApiException(AwsErrorCode.AMAZON_SERVICE_EXCEPTION);
-        } catch (Exception e) {
-            throw new RestApiException(AwsErrorCode.DELETE_OBJECT_EXCEPTION);
-        }
+            .size(width, thumbnailSize)
+            .toOutputStream(outputStream);
     }
 
     private String generateImagePath(MultipartFile image, S3ImageType s3ImageType, Long memberId, Boolean isOrigin) {
@@ -195,11 +238,6 @@ public class S3ImageService {
         } catch (Exception e) {
             throw new RestApiException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
-    }
-
-    private void addImageUrlFromS3(String key, List<String> originalImageUrls) {
-        String imageUrl = amazonS3.getUrl(bucketName, key).toString();
-        originalImageUrls.add(imageUrl);
     }
 
     private String getKeyFromImageAddress(String imageAddress) {

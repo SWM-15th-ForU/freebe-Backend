@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum LinkErrorCode implements ErrorCode {
 
-    DUPLICATE_TITLE(400, "Title is duplicated");
+    LINK_TITLE_DUPLICATE(400, "Title is duplicated");
 
     private final int httpStatus;
     private final String message;

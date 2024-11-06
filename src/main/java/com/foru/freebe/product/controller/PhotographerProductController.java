@@ -40,7 +40,7 @@ public class PhotographerProductController {
     @PostMapping("/product")
     public ResponseEntity<ResponseBody<Void>> registerProduct(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @Valid @RequestPart(value = "request") ProductRegisterRequest request,
-        @RequestPart(value = "images", required = false) List<MultipartFile> images) throws IOException {
+        @RequestPart(value = "images") List<MultipartFile> images) throws IOException {
 
         Member photographer = memberAdapter.getMember();
         photographerProductService.registerProduct(request, images, photographer.getId());

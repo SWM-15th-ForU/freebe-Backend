@@ -105,7 +105,7 @@ public class PhotographerProfileService {
             .count();
 
         if (isDuplicatedTitle) {
-            throw new RestApiException(LinkErrorCode.DUPLICATE_TITLE);
+            throw new RestApiException(LinkErrorCode.LINK_TITLE_DUPLICATE);
         }
     }
 

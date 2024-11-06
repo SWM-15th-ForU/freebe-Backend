@@ -60,7 +60,7 @@ class ProfileServiceTest {
     // @Nested
     // @DisplayName("프로필 조회 테스트")
     // class ProfileQueryTest {
-    //     private Profile profile;
+    //     private Profile profile;:Qa
     //     private ProfileImage profileImage;
     //     private List<Link> links;
     //

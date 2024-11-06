@@ -89,7 +89,7 @@ public class PhotographerNoticeService {
 
     private Profile getProfile(Member photographer) {
         return profileRepository.findByMember(photographer)
-            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NOT_FOUND));
     }
 
     private Member getMember(Long photographerId) {
@@ -102,7 +102,7 @@ public class PhotographerNoticeService {
 
         requestList.forEach(request -> {
             if (!titleSet.add(request.getTitle())) {
-                throw new RestApiException(NoticeErrorCode.TITLE_DUPLICATE);
+                throw new RestApiException(NoticeErrorCode.NOTICE_TITLE_DUPLICATE);
             }
         });
     }

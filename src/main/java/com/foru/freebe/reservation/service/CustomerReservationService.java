@@ -136,7 +136,7 @@ public class CustomerReservationService {
 
     private Member getMemberFromProfileName(String profileName) {
         Profile photographerProfile = profileRepository.findByProfileName(profileName)
-            .orElseThrow(() -> new RestApiException(ProfileErrorCode.MEMBER_NOT_FOUND));
+            .orElseThrow(() -> new RestApiException(ProfileErrorCode.PROFILE_NOT_FOUND));
 
         return photographerProfile.getMember();
     }

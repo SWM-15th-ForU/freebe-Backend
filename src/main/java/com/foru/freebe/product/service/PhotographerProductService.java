@@ -344,8 +344,6 @@ public class PhotographerProductService {
     private void registerProductImage(List<MultipartFile> images, Product product, Long photographerId) throws
         IOException {
 
-        validateProductImage(images);
-
         ImageLinkSet productImageLinkSet = s3ImageService.imageUploadToS3(images, S3ImageType.PRODUCT, photographerId,
             true);
         saveProductImages(product, productImageLinkSet);
@@ -358,12 +356,6 @@ public class PhotographerProductService {
             ProductImage productImage = ProductImage.createProductImage(i, originalImages.get(i),
                 thumbnailImages.get(i), product);
             productImageRepository.save(productImage);
-        }
-    }
-
-    private void validateProductImage(List<MultipartFile> images) {
-        if (images.isEmpty()) {
-            throw new RestApiException(CommonErrorCode.INVALID_PARAMETER);
         }
     }
 

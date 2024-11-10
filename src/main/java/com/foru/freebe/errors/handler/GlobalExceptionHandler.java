@@ -40,12 +40,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, e.getMessage());
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler(DataTruncation.class)
     public ResponseEntity<Object> handleDataTruncation(DataTruncation e) {
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-        String message = e.getMessage();
+        return handleExceptionInternal(errorCode, e.getMessage());
+    }
 
-        return handleExceptionInternal(errorCode, message);
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Object> handleDataIntegrityViolation(DataIntegrityViolationException e) {
+        ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
+        return handleExceptionInternal(errorCode, e.getMessage());
     }
 
     // 메서드 인자의 유효성 검사가 실패했을 때 발생

@@ -27,6 +27,7 @@ public class DailyScheduleService {
         return dailyScheduleRepository.findByMember(photographer)
             .stream()
             .map(dailySchedule -> DailyScheduleResponse.builder()
+                .scheduleId(dailySchedule.getId())
                 .scheduleStatus(dailySchedule.getScheduleStatus())
                 .date(dailySchedule.getDate())
                 .startTime(dailySchedule.getStartTime())

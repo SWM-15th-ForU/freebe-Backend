@@ -28,11 +28,11 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/photographer/schedule/daily")
+@RequestMapping("/photographer")
 public class DailyScheduleController {
     private final DailyScheduleService dailyScheduleService;
 
-    @GetMapping("/")
+    @GetMapping("/schedule/daily")
     public ResponseEntity<ResponseBody<List<DailyScheduleResponse>>> getDailySchedules(
         @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
@@ -48,7 +48,7 @@ public class DailyScheduleController {
             .body(responseBody);
     }
 
-    @PostMapping("/")
+    @PostMapping("/schedule/daily")
     public ResponseEntity<ResponseBody<DailyScheduleAddResponse>> addDailySchedule(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @Valid @RequestBody DailyScheduleRequest request) {
 
@@ -64,7 +64,7 @@ public class DailyScheduleController {
             .body(responseBody);
     }
 
-    @PutMapping("/{scheduleId}")
+    @PutMapping("/schedule/daily/{scheduleId}")
     public ResponseEntity<ResponseBody<Void>> updateDailySchedule(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @Positive @PathVariable("scheduleId") Long scheduleId, @Valid @RequestBody DailyScheduleRequest request) {
 
@@ -80,7 +80,7 @@ public class DailyScheduleController {
             .body(responseBody);
     }
 
-    @DeleteMapping("/{scheduleId}")
+    @DeleteMapping("/schedule/daily/{scheduleId}")
     public ResponseEntity<ResponseBody<Void>> deleteDailySchedule(
         @AuthenticationPrincipal MemberAdapter memberAdapter, @Positive @PathVariable("scheduleId") Long scheduleId) {
 
@@ -92,7 +92,7 @@ public class DailyScheduleController {
             .data(null)
             .build();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT.value())
+        return ResponseEntity.status(HttpStatus.OK.value())
             .body(responseBody);
     }
 }

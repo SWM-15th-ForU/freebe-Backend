@@ -13,6 +13,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class DailyScheduleResponse {
+    @NotNull(message = "Daily schedule id must not be null")
+    private Long scheduleId;
+
     @NotNull(message = "ScheduleStatus must not be null")
     private ScheduleStatus scheduleStatus;
 
@@ -26,8 +29,9 @@ public class DailyScheduleResponse {
     private LocalTime endTime;
 
     @Builder
-    public DailyScheduleResponse(ScheduleStatus scheduleStatus, LocalDate date, LocalTime startTime,
+    public DailyScheduleResponse(Long scheduleId, ScheduleStatus scheduleStatus, LocalDate date, LocalTime startTime,
         LocalTime endTime) {
+        this.scheduleId = scheduleId;
         this.scheduleStatus = scheduleStatus;
         this.date = date;
         this.startTime = startTime;

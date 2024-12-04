@@ -69,7 +69,7 @@ public class DailyScheduleService {
 
     private void validScheduleOverlap(Member member, DailyScheduleRequest request) {
         List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findOverlappingSchedules(member,
-            request.getStartTime(), request.getEndTime());
+            request.getDate(), request.getStartTime(), request.getEndTime());
 
         if (!overlappingSchedules.isEmpty()) {
             throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);

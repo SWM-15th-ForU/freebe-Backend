@@ -57,4 +57,20 @@ public class DailySchedule extends BaseEntity {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
+    public void updateScheduleStatus(ScheduleStatus newScheduleStatus) {
+        this.scheduleStatus = newScheduleStatus;
+    }
+
+    public void updateDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public void updateStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public void updateEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
 }

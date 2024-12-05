@@ -1,5 +1,6 @@
 package com.foru.freebe.schedule.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,18 +27,14 @@ public class DailyScheduleService {
     public List<DailyScheduleResponse> getDailySchedules(Member photographer) {
         return dailyScheduleRepository.findByMember(photographer)
             .stream()
-            .map(dailySchedule -> DailyScheduleResponse.builder()
-                .scheduleId(dailySchedule.getId())
-                .scheduleStatus(dailySchedule.getScheduleStatus())
-                .date(dailySchedule.getDate())
-                .startTime(dailySchedule.getStartTime())
-                .endTime(dailySchedule.getEndTime())
-                .build())
+            .map(this::toDailyScheduleResponse)
+            .filter(this::isAfterToday)
             .collect(Collectors.toList());
     }
 
     public DailyScheduleAddResponse addDailySchedule(Member photographer, DailyScheduleRequest request) {
-        validScheduleOverlap(photographer, request);
+        validateScheduleInFuture(request);
+        validateScheduleOverlap(photographer, request);
 
         DailySchedule dailySchedule = DailySchedule.builder()
             .member(photographer)
@@ -55,7 +52,8 @@ public class DailyScheduleService {
         DailySchedule dailySchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND));
 
-        validScheduleOverlap(photographer, request);
+        validateScheduleInFuture(request);
+        validateScheduleOverlap(photographer, request, scheduleId);
 
         dailySchedule.updateScheduleStatus(request.getScheduleStatus());
         dailySchedule.updateDate(request.getDate());
@@ -68,12 +66,49 @@ public class DailyScheduleService {
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND)));
     }
 
-    private void validScheduleOverlap(Member member, DailyScheduleRequest request) {
+    private void validateScheduleOverlap(Member member, DailyScheduleRequest request) {
         List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findOverlappingSchedules(member,
             request.getDate(), request.getStartTime(), request.getEndTime());
 
         if (!overlappingSchedules.isEmpty()) {
             throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
         }
+    }
+
+    private void validateScheduleOverlap(Member member, DailyScheduleRequest request, Long scheduleId) {
+        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findOverlappingSchedules(member,
+            request.getDate(), request.getStartTime(), request.getEndTime());
+
+        if (overlappingSchedules.size() == 1 && overlappingSchedules.get(0).getId().equals(scheduleId)) {
+            return;
+        }
+        if (!overlappingSchedules.isEmpty()) {
+            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
+        }
+    }
+
+    private void validateScheduleInFuture(DailyScheduleRequest request) {
+        LocalDateTime requestDateTime = request.getDate().atTime(request.getStartTime());
+
+        if (requestDateTime.isBefore(LocalDateTime.now())) {
+            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
+        }
+    }
+
+    private DailyScheduleResponse toDailyScheduleResponse(DailySchedule dailySchedule) {
+        return DailyScheduleResponse.builder()
+            .scheduleId(dailySchedule.getId())
+            .scheduleStatus(dailySchedule.getScheduleStatus())
+            .date(dailySchedule.getDate())
+            .startTime(dailySchedule.getStartTime())
+            .endTime(dailySchedule.getEndTime())
+            .build();
+    }
+
+    private boolean isAfterToday(DailyScheduleResponse dailySchedule) {
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime requestDateTime = dailySchedule.getDate().atTime(dailySchedule.getStartTime());
+
+        return requestDateTime.isAfter(today);
     }
 }

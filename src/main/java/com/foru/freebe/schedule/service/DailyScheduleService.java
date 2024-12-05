@@ -1,5 +1,6 @@
 package com.foru.freebe.schedule.service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class DailyScheduleService {
     private final DailyScheduleRepository dailyScheduleRepository;
+    private final Clock clock;
 
     public List<DailyScheduleResponse> getDailySchedules(Member photographer) {
         return dailyScheduleRepository.findByMember(photographer)
@@ -90,7 +92,7 @@ public class DailyScheduleService {
     private void validateScheduleInFuture(DailyScheduleRequest request) {
         LocalDateTime requestDateTime = request.getDate().atTime(request.getStartTime());
 
-        if (requestDateTime.isBefore(LocalDateTime.now())) {
+        if (requestDateTime.isBefore(LocalDateTime.now(clock))) {
             throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
         }
     }
@@ -106,7 +108,7 @@ public class DailyScheduleService {
     }
 
     private boolean isAfterToday(DailyScheduleResponse dailySchedule) {
-        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime today = LocalDateTime.now(clock);
         LocalDateTime requestDateTime = dailySchedule.getDate().atTime(dailySchedule.getStartTime());
 
         return requestDateTime.isAfter(today);

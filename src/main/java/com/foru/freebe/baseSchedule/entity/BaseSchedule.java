@@ -40,4 +40,9 @@ public class BaseSchedule extends BaseEntity {
 
     @NotNull(message = "End time must not be null")
     private DateTime endTime;
+
+    public void updateScheduleTime(DateTime startTime, DateTime endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

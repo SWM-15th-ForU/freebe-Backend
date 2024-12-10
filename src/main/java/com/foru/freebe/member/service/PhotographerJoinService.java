@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.model.ServiceTermsAgreement;
 import com.foru.freebe.auth.service.KakaoAuthService;
+import com.foru.freebe.baseSchedule.service.BaseScheduleService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.MemberTermAgreement;
@@ -23,6 +24,7 @@ public class PhotographerJoinService {
     private final MemberRepository memberRepository;
     private final MemberTermAgreementRepository memberTermAgreementRepository;
     private final KakaoAuthService kakaoAuthService;
+    private final BaseScheduleService baseScheduleService;
 
     @Transactional
     public String joinPhotographer(Member member, PhotographerJoinRequest request) {
@@ -32,6 +34,8 @@ public class PhotographerJoinService {
         savePhotographerAgreements(photographer, serviceTermsAgreement);
         Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName(),
             request.getContact());
+
+        baseScheduleService.createDefaultSchedule(photographer);
 
         return profile.getProfileName();
     }

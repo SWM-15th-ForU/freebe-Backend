@@ -1,8 +1,8 @@
 package com.foru.freebe.baseSchedule.service;
 
+import java.time.LocalTime;
 import java.util.List;
 
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
@@ -20,6 +20,8 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class BaseScheduleService {
+    public static final LocalTime DEFAULT_START_TIME = LocalTime.of(9, 0, 0);
+    public static final LocalTime DEFAULT_END_TIME = LocalTime.of(18, 0, 0);
 
     private final BaseScheduleRepository baseScheduleRepository;
     private final MemberRepository memberRepository;
@@ -29,8 +31,8 @@ public class BaseScheduleService {
 
         for (BaseScheduleDto baseScheduleDto : baseScheduleDtoList) {
             DayOfWeek dayOfWeek = baseScheduleDto.getDayOfWeek();
-            DateTime startTime = baseScheduleDto.getStartTime();
-            DateTime endTime = baseScheduleDto.getEndTime();
+            LocalTime startTime = baseScheduleDto.getStartTime();
+            LocalTime endTime = baseScheduleDto.getEndTime();
 
             validateScheduleTime(startTime, endTime);
 
@@ -41,7 +43,20 @@ public class BaseScheduleService {
         }
     }
 
-    private void validateScheduleTime(DateTime startTime, DateTime endTime) {
+    public void createDefaultSchedule(Member photographer) {
+        for(DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            BaseSchedule baseSchedule = BaseSchedule.builder()
+                .photographer(photographer)
+                .dayOfWeek(dayOfWeek)
+                .startTime(DEFAULT_START_TIME)
+                .endTime(DEFAULT_END_TIME)
+                .build();
+
+            baseScheduleRepository.save(baseSchedule);
+        }
+    }
+
+    private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
         if (startTime.isAfter(endTime)) {
             throw new RestApiException(ScheduleErrorCode.INCORRECT_TIME);
         }

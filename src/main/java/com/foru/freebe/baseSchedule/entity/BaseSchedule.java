@@ -1,6 +1,7 @@
 package com.foru.freebe.baseSchedule.entity;
 
-import org.joda.time.DateTime;
+
+import java.time.LocalTime;
 
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
@@ -15,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,12 +38,20 @@ public class BaseSchedule extends BaseEntity {
     private DayOfWeek dayOfWeek;
 
     @NotNull(message = "Start time must not be null")
-    private DateTime startTime;
+    private LocalTime startTime;
 
     @NotNull(message = "End time must not be null")
-    private DateTime endTime;
+    private LocalTime endTime;
 
-    public void updateScheduleTime(DateTime startTime, DateTime endTime) {
+    public void updateScheduleTime(LocalTime startTime, LocalTime endTime) {
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
+
+    @Builder
+    public BaseSchedule(Member photographer, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.photographer = photographer;
+        this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
     }

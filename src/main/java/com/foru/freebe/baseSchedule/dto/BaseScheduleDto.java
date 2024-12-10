@@ -1,6 +1,6 @@
 package com.foru.freebe.baseSchedule.dto;
 
-import org.joda.time.DateTime;
+import java.time.LocalTime;
 
 import com.foru.freebe.baseSchedule.entity.DayOfWeek;
 
@@ -14,8 +14,8 @@ public class BaseScheduleDto {
     private DayOfWeek dayOfWeek;
 
     @NotNull
-    private DateTime startTime;
+    private LocalTime startTime;
 
     @NotNull
-    private DateTime endTime;
+    private LocalTime endTime;
 }

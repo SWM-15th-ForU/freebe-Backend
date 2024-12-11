@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
 import com.foru.freebe.baseSchedule.dto.ScheduleUnitDto;
@@ -84,6 +85,12 @@ public class BaseScheduleService {
     public ScheduleUnitDto getScheduleUnit(Long photographerId) {
         Member photographer = getMember(photographerId);
         return new ScheduleUnitDto(photographer.getScheduleUnit());
+    }
+
+    @Transactional
+    public void updateScheduleUnit(Long photographerId, ScheduleUnitDto scheduleUnitDto) {
+        Member photographer = getMember(photographerId);
+        photographer.updateScheduleUnit(scheduleUnitDto.getScheduleUnit());
     }
 
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {

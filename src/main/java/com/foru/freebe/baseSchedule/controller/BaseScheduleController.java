@@ -76,4 +76,20 @@ public class BaseScheduleController {
         return ResponseEntity.status(HttpStatus.OK.value())
             .body(responseBody);
     }
+
+
+    @PutMapping("/schedule/unit")
+    public ResponseEntity<ResponseBody<Void>> updateScheduleUnit(@RequestBody ScheduleUnitDto request, @AuthenticationPrincipal MemberAdapter memberAdapter) {
+
+        Member photographer = memberAdapter.getMember();
+        baseScheduleService.updateScheduleUnit(photographer.getId(), request);
+
+        ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
+            .message("Schedule Unit successfully changed")
+            .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
 }

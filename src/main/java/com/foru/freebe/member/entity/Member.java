@@ -58,6 +58,10 @@ public class Member extends BaseEntity {
         this.scheduleUnit = ScheduleUnit.SIXTY_MINUTES;
     }
 
+    public void updateScheduleUnit(ScheduleUnit scheduleUnit) {
+        this.scheduleUnit = scheduleUnit;
+    }
+
     public void assignRole(Role role) {
         this.role = role;
     }

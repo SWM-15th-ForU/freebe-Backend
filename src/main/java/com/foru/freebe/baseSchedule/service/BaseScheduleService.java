@@ -1,6 +1,7 @@
 package com.foru.freebe.baseSchedule.service;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -25,6 +26,24 @@ public class BaseScheduleService {
 
     private final BaseScheduleRepository baseScheduleRepository;
     private final MemberRepository memberRepository;
+
+    public List<BaseScheduleDto> getBaseSchedules(Long photographerId) {
+        Member photographer = getMember(photographerId);
+
+        List<BaseSchedule> baseSchedules = baseScheduleRepository.findByPhotographerId(photographer.getId());
+
+        List<BaseScheduleDto> baseScheduleDtoList = new ArrayList<>();
+        for (BaseSchedule baseSchedule : baseSchedules) {
+            BaseScheduleDto baseScheduleDto = BaseScheduleDto.builder()
+                .dayOfWeek(baseSchedule.getDayOfWeek())
+                .startTime(baseSchedule.getStartTime())
+                .endTime(baseSchedule.getEndTime())
+                .build();
+
+            baseScheduleDtoList.add(baseScheduleDto);
+        }
+        return baseScheduleDtoList;
+    }
 
     public void updateBaseSchedule(List<BaseScheduleDto> baseScheduleDtoList, Long photographerId) {
         Member photographer = getMember(photographerId);

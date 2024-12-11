@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import com.foru.freebe.baseSchedule.entity.DayOfWeek;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -20,4 +21,11 @@ public class BaseScheduleDto {
 
     @NotNull
     private LocalTime endTime;
+
+    @Builder
+    public BaseScheduleDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+        this.dayOfWeek = dayOfWeek;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }

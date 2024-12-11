@@ -75,6 +75,11 @@ public class BaseScheduleService {
         }
     }
 
+    public void deleteBaseSchedule(Member photographer) {
+        List<BaseSchedule> baseSchedules = baseScheduleRepository.findByPhotographerId(photographer.getId());
+        baseScheduleRepository.deleteAll(baseSchedules);
+    }
+
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
         if (startTime.isAfter(endTime)) {
             throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
+import com.foru.freebe.baseSchedule.dto.ScheduleUnitDto;
 import com.foru.freebe.baseSchedule.service.BaseScheduleService;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
@@ -53,6 +54,23 @@ public class BaseScheduleController {
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
             .message("Basic schedule successfully changed")
             .data(null)
+            .build();
+
+        return ResponseEntity.status(HttpStatus.OK.value())
+            .body(responseBody);
+    }
+
+    @GetMapping("/schedule/unit")
+    public ResponseEntity<ResponseBody<ScheduleUnitDto>> getScheduleUnit(
+        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+
+        Member photographer = memberAdapter.getMember();
+        ScheduleUnitDto responseData = baseScheduleService.getScheduleUnit(photographer.getId());
+
+        ResponseBody<ScheduleUnitDto> responseBody = ResponseBody
+            .<ScheduleUnitDto>builder()
+            .message("Successfully retrieve schedule unit.")
+            .data(responseData)
             .build();
 
         return ResponseEntity.status(HttpStatus.OK.value())

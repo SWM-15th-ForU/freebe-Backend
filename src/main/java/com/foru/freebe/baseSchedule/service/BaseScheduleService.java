@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
+import com.foru.freebe.baseSchedule.dto.ScheduleUnitDto;
 import com.foru.freebe.baseSchedule.entity.BaseSchedule;
 import com.foru.freebe.baseSchedule.entity.DayOfWeek;
 import com.foru.freebe.baseSchedule.repository.BaseScheduleRepository;
@@ -78,6 +79,11 @@ public class BaseScheduleService {
     public void deleteBaseSchedule(Member photographer) {
         List<BaseSchedule> baseSchedules = baseScheduleRepository.findByPhotographerId(photographer.getId());
         baseScheduleRepository.deleteAll(baseSchedules);
+    }
+
+    public ScheduleUnitDto getScheduleUnit(Long photographerId) {
+        Member photographer = getMember(photographerId);
+        return new ScheduleUnitDto(photographer.getScheduleUnit());
     }
 
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {

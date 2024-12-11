@@ -6,8 +6,10 @@ import com.foru.freebe.baseSchedule.entity.DayOfWeek;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class BaseScheduleDto {
 
     @NotNull

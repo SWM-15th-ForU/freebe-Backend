@@ -58,7 +58,7 @@ public class BaseScheduleService {
 
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
         if (startTime.isAfter(endTime)) {
-            throw new RestApiException(ScheduleErrorCode.INCORRECT_TIME);
+            throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);
         }
     }
 

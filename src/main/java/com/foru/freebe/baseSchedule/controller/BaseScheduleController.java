@@ -25,7 +25,7 @@ public class BaseScheduleController {
 
     private final BaseScheduleService baseScheduleService;
 
-    @PutMapping("/update")
+    @PutMapping("/schedule/update")
     public ResponseEntity<ResponseBody<Void>> updateBaseSchedule(@AuthenticationPrincipal MemberAdapter memberAdapter,
         @RequestBody List<BaseScheduleDto> request) {
 
@@ -33,7 +33,7 @@ public class BaseScheduleController {
         baseScheduleService.updateBaseSchedule(request, photographer.getId());
 
         ResponseBody<Void> responseBody = ResponseBody.<Void>builder()
-            .message("Updated successfully")
+            .message("Basic schedule successfully changed")
             .data(null)
             .build();
 

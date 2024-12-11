@@ -51,6 +51,13 @@ public class Member extends BaseEntity {
 
     private String instagramId;
 
+    @Enumerated(EnumType.STRING)
+    private ScheduleUnit scheduleUnit;
+
+    public void initializeScheduleUnit() {
+        this.scheduleUnit = ScheduleUnit.SIXTY_MINUTES;
+    }
+
     public void assignRole(Role role) {
         this.role = role;
     }

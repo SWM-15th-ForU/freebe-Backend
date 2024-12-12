@@ -1,4 +1,4 @@
-package com.foru.freebe.baseSchedule.dto;
+package com.foru.freebe.schedule.dto;
 
 import com.foru.freebe.member.entity.ScheduleUnit;
 

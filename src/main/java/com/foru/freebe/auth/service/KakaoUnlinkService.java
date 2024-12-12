@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.foru.freebe.auth.dto.UnlinkRequest;
-import com.foru.freebe.baseSchedule.service.BaseScheduleService;
+import com.foru.freebe.schedule.service.BaseScheduleService;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.service.JwtService;

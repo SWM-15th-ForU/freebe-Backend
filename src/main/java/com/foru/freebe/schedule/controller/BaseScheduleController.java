@@ -1,4 +1,4 @@
-package com.foru.freebe.baseSchedule.controller;
+package com.foru.freebe.schedule.controller;
 
 import java.util.List;
 
@@ -12,12 +12,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.foru.freebe.auth.model.MemberAdapter;
-import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
-import com.foru.freebe.baseSchedule.dto.ScheduleUnitDto;
-import com.foru.freebe.baseSchedule.service.BaseScheduleService;
+import com.foru.freebe.schedule.dto.BaseScheduleDto;
+import com.foru.freebe.schedule.dto.ScheduleUnitDto;
+import com.foru.freebe.schedule.service.BaseScheduleService;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.product.dto.photographer.RegisteredProductResponse;
 
 import lombok.RequiredArgsConstructor;
 

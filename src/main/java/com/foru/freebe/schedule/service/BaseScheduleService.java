@@ -1,4 +1,4 @@
-package com.foru.freebe.baseSchedule.service;
+package com.foru.freebe.schedule.service;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -7,11 +7,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.foru.freebe.baseSchedule.dto.BaseScheduleDto;
-import com.foru.freebe.baseSchedule.dto.ScheduleUnitDto;
-import com.foru.freebe.baseSchedule.entity.BaseSchedule;
-import com.foru.freebe.baseSchedule.entity.DayOfWeek;
-import com.foru.freebe.baseSchedule.repository.BaseScheduleRepository;
+import com.foru.freebe.schedule.dto.BaseScheduleDto;
+import com.foru.freebe.schedule.dto.ScheduleUnitDto;
+import com.foru.freebe.schedule.entity.BaseSchedule;
+import com.foru.freebe.schedule.entity.DayOfWeek;
+import com.foru.freebe.schedule.entity.OperationStatus;
+import com.foru.freebe.schedule.repository.BaseScheduleRepository;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
@@ -40,6 +41,7 @@ public class BaseScheduleService {
                 .dayOfWeek(baseSchedule.getDayOfWeek())
                 .startTime(baseSchedule.getStartTime())
                 .endTime(baseSchedule.getEndTime())
+                .operationStatus(baseSchedule.getOperationStatus())
                 .build();
 
             baseScheduleDtoList.add(baseScheduleDto);
@@ -60,7 +62,7 @@ public class BaseScheduleService {
             BaseSchedule baseSchedule = baseScheduleRepository.findByDayOfWeekAndPhotographerId(dayOfWeek,
                 photographer.getId());
 
-            baseSchedule.updateScheduleTime(startTime, endTime);
+            baseSchedule.updateScheduleTime(startTime, endTime, baseSchedule.getOperationStatus());
         }
     }
 
@@ -71,6 +73,7 @@ public class BaseScheduleService {
                 .dayOfWeek(dayOfWeek)
                 .startTime(DEFAULT_START_TIME)
                 .endTime(DEFAULT_END_TIME)
+                .operationStatus(OperationStatus.ACTIVE)
                 .build();
 
             baseScheduleRepository.save(baseSchedule);

@@ -1,6 +1,4 @@
-package com.foru.freebe.baseSchedule.entity;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
+package com.foru.freebe.schedule.entity;
 
 public enum DayOfWeek {
 

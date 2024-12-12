@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service;
 
 import com.foru.freebe.auth.model.ServiceTermsAgreement;
 import com.foru.freebe.auth.service.KakaoAuthService;
-import com.foru.freebe.baseSchedule.service.BaseScheduleService;
+import com.foru.freebe.schedule.service.BaseScheduleService;
 import com.foru.freebe.member.dto.PhotographerJoinRequest;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.MemberTermAgreement;

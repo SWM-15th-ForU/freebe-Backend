@@ -1,4 +1,4 @@
-package com.foru.freebe.baseSchedule.entity;
+package com.foru.freebe.schedule.entity;
 
 
 import java.time.LocalTime;
@@ -8,6 +8,8 @@ import com.foru.freebe.member.entity.Member;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -35,6 +37,7 @@ public class BaseSchedule extends BaseEntity {
     private Member photographer;
 
     @NotNull(message = "DayOfWeek must not be null")
+    @Enumerated(EnumType.STRING)
     private DayOfWeek dayOfWeek;
 
     @NotNull(message = "Start time must not be null")
@@ -43,16 +46,23 @@ public class BaseSchedule extends BaseEntity {
     @NotNull(message = "End time must not be null")
     private LocalTime endTime;
 
-    public void updateScheduleTime(LocalTime startTime, LocalTime endTime) {
+    @NotNull(message = "Operation status must not be null")
+    @Enumerated(EnumType.STRING)
+    private OperationStatus operationStatus;
+
+    public void updateScheduleTime(LocalTime startTime, LocalTime endTime, OperationStatus operationStatus) {
         this.startTime = startTime;
         this.endTime = endTime;
+        this.operationStatus = operationStatus;
     }
 
     @Builder
-    public BaseSchedule(Member photographer, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {
+    public BaseSchedule(Member photographer, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
+        OperationStatus operationStatus) {
         this.photographer = photographer;
         this.dayOfWeek = dayOfWeek;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.operationStatus = operationStatus;
     }
 }

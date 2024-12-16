@@ -51,8 +51,13 @@ public class BaseSchedule extends BaseEntity {
     private OperationStatus operationStatus;
 
     public void updateScheduleTime(LocalTime startTime, LocalTime endTime, OperationStatus operationStatus) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+        if (operationStatus == OperationStatus.INACTIVE) {
+            this.startTime = LocalTime.of(9,0,0);
+            this.endTime = LocalTime.of(18,0,0);
+        } else {
+            this.startTime = startTime;
+            this.endTime = endTime;
+        }
         this.operationStatus = operationStatus;
     }
 

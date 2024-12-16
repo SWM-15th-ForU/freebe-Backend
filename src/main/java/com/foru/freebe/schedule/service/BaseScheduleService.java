@@ -53,17 +53,21 @@ public class BaseScheduleService {
         Member photographer = getMember(photographerId);
 
         for (BaseScheduleDto baseScheduleDto : baseScheduleDtoList) {
-            DayOfWeek dayOfWeek = baseScheduleDto.getDayOfWeek();
-            LocalTime startTime = baseScheduleDto.getStartTime();
-            LocalTime endTime = baseScheduleDto.getEndTime();
-
-            validateScheduleTime(startTime, endTime);
-
-            BaseSchedule baseSchedule = baseScheduleRepository.findByDayOfWeekAndPhotographerId(dayOfWeek,
-                photographer.getId());
-
-            baseSchedule.updateScheduleTime(startTime, endTime, baseSchedule.getOperationStatus());
+            updateSchedule(baseScheduleDto, photographer);
         }
+    }
+
+    public void updateSchedule(BaseScheduleDto baseScheduleDto, Member photographer) {
+        DayOfWeek dayOfWeek = baseScheduleDto.getDayOfWeek();
+        LocalTime startTime = baseScheduleDto.getStartTime();
+        LocalTime endTime = baseScheduleDto.getEndTime();
+
+        validateScheduleTime(startTime, endTime);
+
+        BaseSchedule baseSchedule = baseScheduleRepository.findByDayOfWeekAndPhotographerId(dayOfWeek,
+            photographer.getId());
+
+        baseSchedule.updateScheduleTime(startTime, endTime, baseSchedule.getOperationStatus());
     }
 
     public void createDefaultSchedule(Member photographer) {

@@ -37,14 +37,7 @@ public class BaseScheduleService {
 
         List<BaseScheduleDto> baseScheduleDtoList = new ArrayList<>();
         for (BaseSchedule baseSchedule : baseSchedules) {
-            BaseScheduleDto baseScheduleDto = BaseScheduleDto.builder()
-                .dayOfWeek(baseSchedule.getDayOfWeek())
-                .startTime(baseSchedule.getStartTime())
-                .endTime(baseSchedule.getEndTime())
-                .operationStatus(baseSchedule.getOperationStatus())
-                .build();
-
-            baseScheduleDtoList.add(baseScheduleDto);
+            convertBaseScheduleDto(baseSchedule, baseScheduleDtoList);
         }
         return baseScheduleDtoList;
     }
@@ -99,6 +92,17 @@ public class BaseScheduleService {
     public void updateScheduleUnit(Long photographerId, ScheduleUnitDto scheduleUnitDto) {
         Member photographer = getMember(photographerId);
         photographer.updateScheduleUnit(scheduleUnitDto.getScheduleUnit());
+    }
+
+    private  void convertBaseScheduleDto(BaseSchedule baseSchedule, List<BaseScheduleDto> baseScheduleDtoList) {
+        BaseScheduleDto baseScheduleDto = BaseScheduleDto.builder()
+            .dayOfWeek(baseSchedule.getDayOfWeek())
+            .startTime(baseSchedule.getStartTime())
+            .endTime(baseSchedule.getEndTime())
+            .operationStatus(baseSchedule.getOperationStatus())
+            .build();
+
+        baseScheduleDtoList.add(baseScheduleDto);
     }
 
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {

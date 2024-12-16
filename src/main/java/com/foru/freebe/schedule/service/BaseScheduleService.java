@@ -49,6 +49,7 @@ public class BaseScheduleService {
         return baseScheduleDtoList;
     }
 
+    @Transactional
     public void updateBaseSchedule(List<BaseScheduleDto> baseScheduleDtoList, Long photographerId) {
         Member photographer = getMember(photographerId);
 
@@ -67,7 +68,7 @@ public class BaseScheduleService {
         BaseSchedule baseSchedule = baseScheduleRepository.findByDayOfWeekAndPhotographerId(dayOfWeek,
             photographer.getId());
 
-        baseSchedule.updateScheduleTime(startTime, endTime, baseSchedule.getOperationStatus());
+        baseSchedule.updateScheduleTime(startTime, endTime, baseScheduleDto.getOperationStatus());
     }
 
     public void createDefaultSchedule(Member photographer) {

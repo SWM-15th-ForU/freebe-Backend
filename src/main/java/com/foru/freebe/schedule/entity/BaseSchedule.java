@@ -61,6 +61,12 @@ public class BaseSchedule extends BaseEntity {
         this.operationStatus = operationStatus;
     }
 
+    public void initializeSchedule() {
+        this.startTime = LocalTime.of(9,0,0);
+        this.endTime = LocalTime.of(18,0,0);
+        this.operationStatus = OperationStatus.ACTIVE;
+    }
+
     @Builder
     public BaseSchedule(Member photographer, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
         OperationStatus operationStatus) {

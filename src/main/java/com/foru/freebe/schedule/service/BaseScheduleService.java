@@ -91,6 +91,16 @@ public class BaseScheduleService {
     @Transactional
     public void updateScheduleUnit(Long photographerId, ScheduleUnitDto scheduleUnitDto) {
         Member photographer = getMember(photographerId);
+
+        if (photographer.getScheduleUnit() == scheduleUnitDto.getScheduleUnit()) {
+            throw new RestApiException(ScheduleErrorCode.CANNOT_CHANGE_SAME_SCHEDULE_UNIT);
+        }
+
+        List<BaseSchedule> baseScheduleList = baseScheduleRepository.findByPhotographerId(photographer.getId());
+        for (BaseSchedule baseSchedule : baseScheduleList) {
+            baseSchedule.initializeSchedule();
+        }
+
         photographer.updateScheduleUnit(scheduleUnitDto.getScheduleUnit());
     }
 

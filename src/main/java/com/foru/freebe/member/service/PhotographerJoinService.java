@@ -35,15 +35,14 @@ public class PhotographerJoinService {
         Profile profile = profileService.initialProfileSetting(photographer, request.getProfileName(),
             request.getContact());
 
-        initializeScheduleInfo(member, photographer);
+        initializeScheduleInfo(photographer);
 
         return profile.getProfileName();
     }
 
-    private void initializeScheduleInfo(Member member, Member photographer) {
+    private void initializeScheduleInfo(Member photographer) {
         baseScheduleService.createDefaultSchedule(photographer);
-        member.initializeScheduleUnit();
-        memberRepository.save(member);
+        photographer.initializeScheduleUnit();
     }
 
     private Member completePhotographerSignup(Member member) {

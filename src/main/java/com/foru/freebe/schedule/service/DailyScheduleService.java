@@ -11,6 +11,7 @@ import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
+import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleResponse;
 import com.foru.freebe.schedule.entity.DailySchedule;
@@ -26,11 +27,11 @@ public class DailyScheduleService {
     private final DailyScheduleRepository dailyScheduleRepository;
     private final Clock clock;
 
-    public List<DailyScheduleResponse> getDailySchedules(Member photographer) {
+    public List<DailyScheduleResponse> getDailySchedules(Member photographer, DailyScheduleMonthlyRequest request) {
         return dailyScheduleRepository.findByMember(photographer)
             .stream()
             .map(this::toDailyScheduleResponse)
-            .filter(this::isAfterToday)
+            .filter(dailySchedule -> dailySchedule.getDate().getMonthValue() == request.getMonthValue())
             .collect(Collectors.toList());
     }
 
@@ -105,12 +106,5 @@ public class DailyScheduleService {
             .startTime(dailySchedule.getStartTime())
             .endTime(dailySchedule.getEndTime())
             .build();
-    }
-
-    private boolean isAfterToday(DailyScheduleResponse dailySchedule) {
-        LocalDateTime today = LocalDateTime.now(clock);
-        LocalDateTime requestDateTime = dailySchedule.getDate().atTime(dailySchedule.getStartTime());
-
-        return requestDateTime.isAfter(today);
     }
 }

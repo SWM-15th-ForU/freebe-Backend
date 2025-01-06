@@ -26,6 +26,7 @@ import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
+import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleResponse;
 import com.foru.freebe.schedule.entity.DailySchedule;
@@ -63,35 +64,37 @@ public class DailyScheduleServiceTest {
     @DisplayName("날짜별 스케줄 조회 테스트")
     class FindDailySchedule {
         @Test
-        @DisplayName("날짜별 스케줄 조회 시 현시점 이후의 데이터만 불러온다")
+        @DisplayName("날짜별 스케줄 조회 시 월별 데이터를 불러온다")
         void shouldFetchSchedulesAfterCurrentDate() {
             // given
             List<DailySchedule> dailySchedules = new ArrayList<>();
             DailySchedule dailySchedule1 = DailySchedule.builder()
                 .member(photographer)
                 .scheduleStatus(ScheduleStatus.OPEN)
-                .date(now.toLocalDate().plusDays(1))
+                .date(now.toLocalDate())
                 .startTime(LocalTime.of(10, 0, 0))
                 .endTime(LocalTime.of(11, 0, 0))
                 .build();
             DailySchedule dailySchedule2 = DailySchedule.builder()
                 .member(photographer)
                 .scheduleStatus(ScheduleStatus.OPEN)
-                .date(now.toLocalDate())
+                .date(now.toLocalDate().plusMonths(1L))
                 .startTime(now.toLocalTime().minusSeconds(1L))
                 .endTime(now.toLocalTime())
                 .build();
             dailySchedules.add(dailySchedule1);
             dailySchedules.add(dailySchedule2);
 
+            DailyScheduleMonthlyRequest request = new DailyScheduleMonthlyRequest(now.toLocalDate().getMonthValue());
+
             given(dailyScheduleRepository.findByMember(photographer)).willReturn(dailySchedules);
 
             // when
-            List<DailyScheduleResponse> responses = dailyScheduleService.getDailySchedules(photographer);
+            List<DailyScheduleResponse> responses = dailyScheduleService.getDailySchedules(photographer, request);
 
             // then
             assertThat(responses).size().isEqualTo(1);
-            assertThat(responses.get(0).getDate()).isEqualTo(now.toLocalDate().plusDays(1));
+            assertThat(responses.get(0).getDate()).isEqualTo(now.toLocalDate());
         }
     }
 

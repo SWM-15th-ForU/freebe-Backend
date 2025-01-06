@@ -18,6 +18,7 @@ import com.foru.freebe.auth.model.MemberAdapter;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
+import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleResponse;
 import com.foru.freebe.schedule.service.DailyScheduleService;
@@ -34,10 +35,10 @@ public class DailyScheduleController {
 
     @GetMapping("/schedule/daily")
     public ResponseEntity<ResponseBody<List<DailyScheduleResponse>>> getDailySchedules(
-        @AuthenticationPrincipal MemberAdapter memberAdapter) {
+        @AuthenticationPrincipal MemberAdapter memberAdapter, @Valid @RequestBody DailyScheduleMonthlyRequest request) {
 
         Member photographer = memberAdapter.getMember();
-        List<DailyScheduleResponse> responses = dailyScheduleService.getDailySchedules(photographer);
+        List<DailyScheduleResponse> responses = dailyScheduleService.getDailySchedules(photographer, request);
 
         ResponseBody<List<DailyScheduleResponse>> responseBody = ResponseBody.<List<DailyScheduleResponse>>builder()
             .message("Successfully get daily schedules")

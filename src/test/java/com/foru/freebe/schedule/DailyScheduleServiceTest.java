@@ -85,7 +85,8 @@ public class DailyScheduleServiceTest {
             dailySchedules.add(dailySchedule1);
             dailySchedules.add(dailySchedule2);
 
-            DailyScheduleMonthlyRequest request = new DailyScheduleMonthlyRequest(now.toLocalDate().getMonthValue());
+            DailyScheduleMonthlyRequest request = new DailyScheduleMonthlyRequest(
+                now.toLocalDate().getYear(), now.toLocalDate().getMonthValue());
 
             given(dailyScheduleRepository.findByMember(photographer)).willReturn(dailySchedules);
 

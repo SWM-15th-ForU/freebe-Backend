@@ -31,6 +31,7 @@ public class DailyScheduleService {
         return dailyScheduleRepository.findByMember(photographer)
             .stream()
             .map(this::toDailyScheduleResponse)
+            .filter(dailySchedule -> dailySchedule.getDate().getYear() == request.getYear())
             .filter(dailySchedule -> dailySchedule.getDate().getMonthValue() == request.getMonthValue())
             .collect(Collectors.toList());
     }

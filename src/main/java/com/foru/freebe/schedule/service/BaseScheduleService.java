@@ -90,7 +90,7 @@ public class BaseScheduleService {
         Member photographer = getMember(photographerId);
 
         if (photographer.getScheduleUnit() == scheduleUnitDto.getScheduleUnit()) {
-            throw new RestApiException(ScheduleErrorCode.CANNOT_CHANGE_SAME_SCHEDULE_UNIT);
+            return;
         }
 
         initializeBaseSchedule(photographer);

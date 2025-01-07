@@ -18,6 +18,7 @@ import com.foru.freebe.schedule.service.BaseScheduleService;
 import com.foru.freebe.common.dto.ResponseBody;
 import com.foru.freebe.member.entity.Member;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -45,7 +46,7 @@ public class BaseScheduleController {
 
     @PutMapping("/schedule/base")
     public ResponseEntity<ResponseBody<Void>> updateBaseSchedule(@AuthenticationPrincipal MemberAdapter memberAdapter,
-        @RequestBody List<BaseScheduleDto> request) {
+        @Valid @RequestBody List<BaseScheduleDto> request) {
 
         Member photographer = memberAdapter.getMember();
         baseScheduleService.updateBaseSchedule(request, photographer.getId());
@@ -78,7 +79,7 @@ public class BaseScheduleController {
 
 
     @PutMapping("/schedule/unit")
-    public ResponseEntity<ResponseBody<Void>> updateScheduleUnit(@RequestBody ScheduleUnitDto request, @AuthenticationPrincipal MemberAdapter memberAdapter) {
+    public ResponseEntity<ResponseBody<Void>> updateScheduleUnit(@Valid @RequestBody ScheduleUnitDto request, @AuthenticationPrincipal MemberAdapter memberAdapter) {
 
         Member photographer = memberAdapter.getMember();
         baseScheduleService.updateScheduleUnit(photographer.getId(), request);

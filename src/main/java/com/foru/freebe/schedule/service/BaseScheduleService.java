@@ -3,6 +3,7 @@ package com.foru.freebe.schedule.service;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,11 +36,7 @@ public class BaseScheduleService {
 
         List<BaseSchedule> baseSchedules = baseScheduleRepository.findByPhotographerId(photographer.getId());
 
-        List<BaseScheduleDto> baseScheduleDtoList = new ArrayList<>();
-        for (BaseSchedule baseSchedule : baseSchedules) {
-            convertBaseScheduleDto(baseSchedule, baseScheduleDtoList);
-        }
-        return baseScheduleDtoList;
+        return convertBaseScheduleDto(baseSchedules);
     }
 
     @Transactional
@@ -96,23 +93,20 @@ public class BaseScheduleService {
             throw new RestApiException(ScheduleErrorCode.CANNOT_CHANGE_SAME_SCHEDULE_UNIT);
         }
 
-        List<BaseSchedule> baseScheduleList = baseScheduleRepository.findByPhotographerId(photographer.getId());
-        for (BaseSchedule baseSchedule : baseScheduleList) {
-            baseSchedule.initializeSchedule();
-        }
-
+        initializeBaseSchedule(photographer);
         photographer.updateScheduleUnit(scheduleUnitDto.getScheduleUnit());
     }
 
-    private  void convertBaseScheduleDto(BaseSchedule baseSchedule, List<BaseScheduleDto> baseScheduleDtoList) {
-        BaseScheduleDto baseScheduleDto = BaseScheduleDto.builder()
-            .dayOfWeek(baseSchedule.getDayOfWeek())
-            .startTime(baseSchedule.getStartTime())
-            .endTime(baseSchedule.getEndTime())
-            .operationStatus(baseSchedule.getOperationStatus())
-            .build();
+    private List<BaseScheduleDto> convertBaseScheduleDto(List<BaseSchedule> baseSchedules) {
 
-        baseScheduleDtoList.add(baseScheduleDto);
+        return baseSchedules.stream()
+            .map(baseSchedule -> BaseScheduleDto.builder()
+                .dayOfWeek(baseSchedule.getDayOfWeek())
+                .startTime(baseSchedule.getStartTime())
+                .endTime(baseSchedule.getEndTime())
+                .operationStatus(baseSchedule.getOperationStatus())
+                .build())
+            .collect(Collectors.toList());
     }
 
     private void validateScheduleTime(LocalTime startTime, LocalTime endTime) {
@@ -124,5 +118,13 @@ public class BaseScheduleService {
     private Member getMember(Long photographerId) {
         return memberRepository.findById(photographerId)
             .orElseThrow(() -> new RestApiException(MemberErrorCode.MEMBER_NOT_FOUND));
+    }
+
+    private void initializeBaseSchedule(Member photographer) {
+        List<BaseSchedule> baseScheduleList = baseScheduleRepository.findByPhotographerId(photographer.getId());
+
+        for (BaseSchedule baseSchedule : baseScheduleList) {
+            baseSchedule.initializeSchedule();
+        }
     }
 }

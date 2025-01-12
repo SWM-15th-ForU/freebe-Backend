@@ -13,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientException;
 
 import com.foru.freebe.auth.dto.UnlinkRequest;
+import com.foru.freebe.schedule.service.BaseScheduleService;
 import com.foru.freebe.errors.errorcode.MemberErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.jwt.service.JwtService;
@@ -45,6 +46,7 @@ public class KakaoUnlinkService {
     private final DeletedMemberRepository deletedMemberRepository;
     private final PhotographerNoticeService photographerNoticeService;
     private final JwtService jwtService;
+    private final BaseScheduleService baseScheduleService;
 
     @Value("${KAKAO_API_ADMIN_KEY}")
     private String adminKey;
@@ -81,6 +83,7 @@ public class KakaoUnlinkService {
             deletePhotographerProducts(member);
             photographerNoticeService.deleteAllNotices(member);
             photographerProfileService.deleteProfile(member);
+            baseScheduleService.deleteBaseSchedule(member);
         }
     }
 

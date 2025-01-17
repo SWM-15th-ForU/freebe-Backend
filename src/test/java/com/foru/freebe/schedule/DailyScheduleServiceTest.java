@@ -122,7 +122,7 @@ public class DailyScheduleServiceTest {
         }
 
         @Test
-        @DisplayName("중복되는 스케줄이 있을 때 예외가 발생한다")
+        @DisplayName("예약오픈, 예약중지 간 중복되는 스케줄이 있을 때 예외가 발생한다")
         void shouldThrowExceptionWhenSchedulesOverlap() {
             // given
             DailyScheduleRequest request = DailyScheduleRequest.builder()
@@ -135,14 +135,14 @@ public class DailyScheduleServiceTest {
             List<DailySchedule> overlappingSchedules = new ArrayList<>();
             overlappingSchedules.add(DailySchedule.builder()
                 .member(photographer)
-                .scheduleStatus(ScheduleStatus.OPEN)
+                .scheduleStatus(ScheduleStatus.CLOSED)
                 .date(now.toLocalDate())
                 .startTime(now.toLocalTime().plusHours(1).plusMinutes(30))
                 .endTime(now.toLocalTime().plusHours(3))
                 .build());
 
-            given(dailyScheduleRepository.findOverlappingSchedules(photographer, request.getDate(),
-                request.getStartTime(), request.getEndTime()))
+            given(dailyScheduleRepository.findConflictingSchedulesByStatuses(photographer, request.getDate(),
+                request.getStartTime(), request.getEndTime(), List.of(ScheduleStatus.OPEN, ScheduleStatus.CLOSED)))
                 .willReturn(overlappingSchedules);
 
             // when & then
@@ -166,8 +166,8 @@ public class DailyScheduleServiceTest {
 
             List<DailySchedule> overlappingSchedules = new ArrayList<>();
 
-            given(dailyScheduleRepository.findOverlappingSchedules(photographer, request.getDate(),
-                request.getStartTime(), request.getEndTime()))
+            given(dailyScheduleRepository.findConflictingSchedulesByStatuses(photographer, request.getDate(),
+                request.getStartTime(), request.getEndTime(), List.of(ScheduleStatus.OPEN, ScheduleStatus.CLOSED)))
                 .willReturn(overlappingSchedules);
 
             given(dailyScheduleRepository.save(any(DailySchedule.class))).willReturn(

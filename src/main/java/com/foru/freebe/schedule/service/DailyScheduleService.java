@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.entity.ScheduleUnit;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
 import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
@@ -40,6 +41,7 @@ public class DailyScheduleService {
 
     public DailyScheduleAddResponse addDailySchedule(Member photographer, DailyScheduleRequest request) {
         validateTimeRange(request.getStartTime(), request.getEndTime());
+        validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
         validateScheduleInFuture(request);
         validateConflictingSchedules(photographer, request);
 
@@ -57,6 +59,7 @@ public class DailyScheduleService {
 
     public void updateDailySchedule(Member photographer, Long scheduleId, DailyScheduleRequest request) {
         validateTimeRange(request.getStartTime(), request.getEndTime());
+        validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
 
         DailySchedule dailySchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND));
@@ -111,6 +114,23 @@ public class DailyScheduleService {
     private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);
+        }
+    }
+
+    private void validateScheduleUnit(ScheduleUnit scheduleUnit, LocalTime startTime, LocalTime endTime) {
+        switch (scheduleUnit) {
+            case SIXTY_MINUTES -> {
+                if (startTime.getMinute() != 0 || endTime.getMinute() != 0) {
+                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
+                }
+            }
+            case THIRTY_MINUTES -> {
+                if (startTime.getMinute() != 0 && startTime.getMinute() != 30) {
+                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
+                } else if (endTime.getMinute() != 0 && endTime.getMinute() != 30) {
+                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
+                }
+            }
         }
     }
 

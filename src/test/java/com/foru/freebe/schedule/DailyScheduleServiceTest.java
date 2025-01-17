@@ -17,6 +17,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -25,6 +27,7 @@ import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
+import com.foru.freebe.member.entity.ScheduleUnit;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
 import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
@@ -57,7 +60,10 @@ public class DailyScheduleServiceTest {
         given(clock.getZone()).willReturn(zoneId);
 
         now = LocalDateTime.now(clock);
-        photographer = Member.builder(1L, Role.PHOTOGRAPHER, "tester", "test@email", "010-0000-0000").build();
+        photographer = Member
+            .builder(1L, Role.PHOTOGRAPHER, "tester", "test@email", "010-0000-0000")
+            .build();
+        photographer.initializeScheduleUnit();
     }
 
     @Nested
@@ -185,6 +191,32 @@ public class DailyScheduleServiceTest {
 
             // then
             assertThat(response).isNotNull();
+        }
+
+        @ParameterizedTest
+        @EnumSource(ScheduleUnit.class)
+        @DisplayName("기본 스케줄 단위가 60분일 때, 시작시간과 종료시간이 정시가 아니면 예외가 발생한다")
+        void shouldThrowExceptionWhenScheduleUnitIsInvalid(ScheduleUnit scheduleUnit) {
+            //given
+            photographer.updateScheduleUnit(scheduleUnit);
+            int invalidMinute = scheduleUnit == ScheduleUnit.SIXTY_MINUTES ? 30 : 15;
+
+            LocalTime invalidStartTime = now.toLocalTime().plusHours(1);
+            invalidStartTime = invalidStartTime.withMinute(invalidMinute);
+
+            DailyScheduleRequest request = DailyScheduleRequest.builder()
+                .scheduleStatus(ScheduleStatus.OPEN)
+                .date(now.toLocalDate())
+                .startTime(invalidStartTime)
+                .endTime(now.toLocalTime().plusHours(2))
+                .build();
+
+            // when & then
+            RestApiException exception = assertThrows(RestApiException.class, () -> {
+                dailyScheduleService.addDailySchedule(photographer, request);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
         }
     }
 }

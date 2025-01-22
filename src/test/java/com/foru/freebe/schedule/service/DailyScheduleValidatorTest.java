@@ -1,4 +1,4 @@
-package com.foru.freebe.schedule;
+package com.foru.freebe.schedule.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,8 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -28,17 +26,13 @@ import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.member.entity.ScheduleUnit;
-import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
-import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
-import com.foru.freebe.schedule.dto.DailyScheduleResponse;
 import com.foru.freebe.schedule.entity.DailySchedule;
 import com.foru.freebe.schedule.entity.ScheduleStatus;
 import com.foru.freebe.schedule.repository.DailyScheduleRepository;
-import com.foru.freebe.schedule.service.DailyScheduleService;
 
 @ExtendWith(MockitoExtension.class)
-public class DailyScheduleServiceTest {
+public class DailyScheduleValidatorTest {
     @Mock
     private DailyScheduleRepository dailyScheduleRepository;
 
@@ -46,14 +40,14 @@ public class DailyScheduleServiceTest {
     private Clock clock;
 
     @InjectMocks
-    private DailyScheduleService dailyScheduleService;
+    private DailyScheduleValidator dailyScheduleValidator;
 
     private Member photographer;
     private LocalDateTime now;
 
     @BeforeEach
     void setUp() {
-        Instant fixedInstant = Instant.parse("2024-12-05T10:00:00Z");
+        Instant fixedInstant = Instant.parse("2025-01-22T10:00:00Z");
         ZoneId zoneId = ZoneId.systemDefault();
 
         given(clock.instant()).willReturn(fixedInstant);
@@ -67,47 +61,44 @@ public class DailyScheduleServiceTest {
     }
 
     @Nested
-    @DisplayName("날짜별 스케줄 조회 테스트")
-    class FindDailySchedule {
+    @DisplayName("날짜별 스케줄과 기본 스케줄의 단위 일치성 보장 테스트")
+    class ValidateDailyScheduleUnit {
         @Test
-        @DisplayName("날짜별 스케줄 조회 시 월별 데이터를 불러온다")
-        void shouldFetchSchedulesAfterCurrentDate() {
+        @DisplayName("기본 스케줄 단위가 60분일 때, 시작시간과 종료시간이 정시가 아니면 예외가 발생한다")
+        void shouldThrowExceptionForInvalidTime() {
             // given
-            List<DailySchedule> dailySchedules = new ArrayList<>();
-            DailySchedule dailySchedule1 = DailySchedule.builder()
-                .member(photographer)
-                .scheduleStatus(ScheduleStatus.OPEN)
-                .date(now.toLocalDate())
-                .startTime(LocalTime.of(10, 0, 0))
-                .endTime(LocalTime.of(11, 0, 0))
-                .build();
-            DailySchedule dailySchedule2 = DailySchedule.builder()
-                .member(photographer)
-                .scheduleStatus(ScheduleStatus.OPEN)
-                .date(now.toLocalDate().plusMonths(1L))
-                .startTime(now.toLocalTime().minusSeconds(1L))
-                .endTime(now.toLocalTime())
-                .build();
-            dailySchedules.add(dailySchedule1);
-            dailySchedules.add(dailySchedule2);
+            ScheduleUnit basicScheduleUnit = ScheduleUnit.SIXTY_MINUTES;
+            LocalTime invalidStartTime = LocalTime.parse("10:30:00");
+            LocalTime invalidEndTime = LocalTime.parse("11:30:00");
 
-            DailyScheduleMonthlyRequest request = new DailyScheduleMonthlyRequest(
-                now.toLocalDate().getYear(), now.toLocalDate().getMonthValue());
+            // when & then
+            RestApiException exception = assertThrows(RestApiException.class, () -> {
+                dailyScheduleValidator.validateScheduleUnit(basicScheduleUnit, invalidStartTime, invalidEndTime);
+            });
 
-            given(dailyScheduleRepository.findByMember(photographer)).willReturn(dailySchedules);
+            assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
+        }
 
-            // when
-            List<DailyScheduleResponse> responses = dailyScheduleService.getDailySchedules(photographer, request);
+        @Test
+        @DisplayName("기본 스케줄 단위와 날짜별 스케줄 단위가 일치하지 않으면 예외가 발생한다")
+        void shouldThrowExceptionForInvalidUnit() {
+            // given
+            ScheduleUnit basicScheduleUnit = ScheduleUnit.SIXTY_MINUTES;
+            LocalTime invalidStartTime = LocalTime.parse("10:00:00");
+            LocalTime invalidEndTime = LocalTime.parse("11:30:00");
 
-            // then
-            assertThat(responses).size().isEqualTo(1);
-            assertThat(responses.get(0).getDate()).isEqualTo(now.toLocalDate());
+            // when & then
+            RestApiException exception = assertThrows(RestApiException.class, () -> {
+                dailyScheduleValidator.validateScheduleUnit(basicScheduleUnit, invalidStartTime, invalidEndTime);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
         }
     }
 
     @Nested
-    @DisplayName("날짜별 스케줄 추가 테스트")
-    class AddDailySchedule {
+    @DisplayName("날짜별 스케줄 요청 객체의 유효성 검증 테스트")
+    class ValidateDailyScheduleRequestDTO {
         @Test
         @DisplayName("현시점 이전의 스케줄은 등록할 수 없다")
         void shouldNotAllowSchedulesInThePast() {
@@ -121,15 +112,19 @@ public class DailyScheduleServiceTest {
 
             //when & then
             RestApiException exception = assertThrows(RestApiException.class, () -> {
-                dailyScheduleService.addDailySchedule(photographer, request);
+                dailyScheduleValidator.validateScheduleInFuture(request);
             });
 
             assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
         }
+    }
 
+    @Nested
+    @DisplayName("날짜별 스케줄 간 충돌 테스트")
+    class ValidateDailyScheduleConflict {
         @Test
         @DisplayName("예약오픈, 예약중지 간 중복되는 스케줄이 있을 때 예외가 발생한다")
-        void shouldThrowExceptionWhenSchedulesOverlap() {
+        void shouldThrowExceptionWhenSchedulesConflict() {
             // given
             DailyScheduleRequest request = DailyScheduleRequest.builder()
                 .scheduleStatus(ScheduleStatus.OPEN)
@@ -153,7 +148,7 @@ public class DailyScheduleServiceTest {
 
             // when & then
             RestApiException exception = assertThrows(RestApiException.class, () -> {
-                dailyScheduleService.addDailySchedule(photographer, request);
+                dailyScheduleValidator.validateConflictingSchedules(photographer, request);
             });
 
             assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
@@ -161,7 +156,7 @@ public class DailyScheduleServiceTest {
 
         @Test
         @DisplayName("중복되는 스케줄이 없으면 예외가 발생하지 않는다")
-        void shouldNotThrowExceptionWhenNoOverlappingSchedules() {
+        void shouldNotThrowExceptionWhenNoConflictingSchedules() {
             // given
             DailyScheduleRequest request = DailyScheduleRequest.builder()
                 .scheduleStatus(ScheduleStatus.OPEN)
@@ -176,47 +171,8 @@ public class DailyScheduleServiceTest {
                 request.getStartTime(), request.getEndTime(), List.of(ScheduleStatus.OPEN, ScheduleStatus.CLOSED)))
                 .willReturn(overlappingSchedules);
 
-            given(dailyScheduleRepository.save(any(DailySchedule.class))).willReturn(
-                DailySchedule.builder()
-                    .member(photographer)
-                    .scheduleStatus(ScheduleStatus.OPEN)
-                    .date(now.toLocalDate())
-                    .startTime(now.toLocalTime().plusHours(1))
-                    .endTime(now.toLocalTime().plusHours(2))
-                    .build()
-            );
-
-            // when
-            DailyScheduleAddResponse response = dailyScheduleService.addDailySchedule(photographer, request);
-
-            // then
-            assertThat(response).isNotNull();
-        }
-
-        @ParameterizedTest
-        @EnumSource(ScheduleUnit.class)
-        @DisplayName("기본 스케줄 단위가 60분일 때, 시작시간과 종료시간이 정시가 아니면 예외가 발생한다")
-        void shouldThrowExceptionWhenScheduleUnitIsInvalid(ScheduleUnit scheduleUnit) {
-            //given
-            photographer.updateScheduleUnit(scheduleUnit);
-            int invalidMinute = scheduleUnit == ScheduleUnit.SIXTY_MINUTES ? 30 : 15;
-
-            LocalTime invalidStartTime = now.toLocalTime().plusHours(1);
-            invalidStartTime = invalidStartTime.withMinute(invalidMinute);
-
-            DailyScheduleRequest request = DailyScheduleRequest.builder()
-                .scheduleStatus(ScheduleStatus.OPEN)
-                .date(now.toLocalDate())
-                .startTime(invalidStartTime)
-                .endTime(now.toLocalTime().plusHours(2))
-                .build();
-
             // when & then
-            RestApiException exception = assertThrows(RestApiException.class, () -> {
-                dailyScheduleService.addDailySchedule(photographer, request);
-            });
-
-            assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
+            assertDoesNotThrow(() -> dailyScheduleValidator.validateConflictingSchedules(photographer, request));
         }
     }
 }

@@ -1,8 +1,5 @@
 package com.foru.freebe.schedule.service;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -11,13 +8,11 @@ import org.springframework.stereotype.Service;
 import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
 import com.foru.freebe.errors.exception.RestApiException;
 import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.entity.ScheduleUnit;
 import com.foru.freebe.schedule.dto.DailyScheduleAddResponse;
 import com.foru.freebe.schedule.dto.DailyScheduleMonthlyRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleRequest;
 import com.foru.freebe.schedule.dto.DailyScheduleResponse;
 import com.foru.freebe.schedule.entity.DailySchedule;
-import com.foru.freebe.schedule.entity.ScheduleStatus;
 import com.foru.freebe.schedule.repository.DailyScheduleRepository;
 
 import jakarta.transaction.Transactional;
@@ -28,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class DailyScheduleService {
     private final DailyScheduleRepository dailyScheduleRepository;
-    private final Clock clock;
+    private final DailyScheduleValidator validator;
 
     public List<DailyScheduleResponse> getDailySchedules(Member photographer, DailyScheduleMonthlyRequest request) {
         return dailyScheduleRepository.findByMember(photographer)
@@ -40,10 +35,10 @@ public class DailyScheduleService {
     }
 
     public DailyScheduleAddResponse addDailySchedule(Member photographer, DailyScheduleRequest request) {
-        validateTimeRange(request.getStartTime(), request.getEndTime());
-        validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
-        validateScheduleInFuture(request);
-        validateConflictingSchedules(photographer, request);
+        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
+        validator.validateScheduleInFuture(request);
+        validator.validateConflictingSchedules(photographer, request);
 
         DailySchedule dailySchedule = DailySchedule.builder()
             .member(photographer)
@@ -58,14 +53,14 @@ public class DailyScheduleService {
     }
 
     public void updateDailySchedule(Member photographer, Long scheduleId, DailyScheduleRequest request) {
-        validateTimeRange(request.getStartTime(), request.getEndTime());
-        validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
+        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
 
         DailySchedule dailySchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND));
 
-        validateScheduleInFuture(request);
-        validateConflictingSchedules(photographer, request, scheduleId);
+        validator.validateScheduleInFuture(request);
+        validator.validateConflictingSchedules(photographer, request, scheduleId);
 
         dailySchedule.updateScheduleStatus(request.getScheduleStatus());
         dailySchedule.updateDate(request.getDate());
@@ -76,70 +71,6 @@ public class DailyScheduleService {
     public void deleteDailySchedule(Member photographer, Long scheduleId) {
         dailyScheduleRepository.delete(dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND)));
-    }
-
-    private void validateConflictingSchedules(Member member, DailyScheduleRequest request) {
-        List<ScheduleStatus> scheduleStatuses = determineConflictingStatuses(request.getScheduleStatus());
-
-        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findConflictingSchedulesByStatuses(member,
-            request.getDate(), request.getStartTime(), request.getEndTime(), scheduleStatuses);
-
-        if (!overlappingSchedules.isEmpty()) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
-        }
-    }
-
-    private void validateConflictingSchedules(Member member, DailyScheduleRequest request, Long scheduleId) {
-        List<ScheduleStatus> scheduleStatuses = determineConflictingStatuses(request.getScheduleStatus());
-
-        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findConflictingSchedulesByStatuses(member,
-            request.getDate(), request.getStartTime(), request.getEndTime(), scheduleStatuses);
-
-        if (overlappingSchedules.size() == 1 && overlappingSchedules.get(0).getId().equals(scheduleId)) {
-            return;
-        }
-        if (!overlappingSchedules.isEmpty()) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
-        }
-    }
-
-    private List<ScheduleStatus> determineConflictingStatuses(ScheduleStatus scheduleStatus) {
-        if (scheduleStatus == ScheduleStatus.CONFIRMED) {
-            return List.of(ScheduleStatus.CONFIRMED);
-        } else {
-            return List.of(ScheduleStatus.OPEN, ScheduleStatus.CLOSED);
-        }
-    }
-
-    private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
-        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
-            throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);
-        }
-    }
-
-    private void validateScheduleUnit(ScheduleUnit scheduleUnit, LocalTime startTime, LocalTime endTime) {
-        switch (scheduleUnit) {
-            case SIXTY_MINUTES -> {
-                if (startTime.getMinute() != 0 || endTime.getMinute() != 0) {
-                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
-                }
-            }
-            case THIRTY_MINUTES -> {
-                if (startTime.getMinute() != 0 && startTime.getMinute() != 30) {
-                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
-                } else if (endTime.getMinute() != 0 && endTime.getMinute() != 30) {
-                    throw new RestApiException(ScheduleErrorCode.INVALID_SCHEDULE_UNIT);
-                }
-            }
-        }
-    }
-
-    private void validateScheduleInFuture(DailyScheduleRequest request) {
-        LocalDateTime requestDateTime = request.getDate().atTime(request.getStartTime());
-
-        if (requestDateTime.isBefore(LocalDateTime.now(clock))) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
-        }
     }
 
     private DailyScheduleResponse toDailyScheduleResponse(DailySchedule dailySchedule) {

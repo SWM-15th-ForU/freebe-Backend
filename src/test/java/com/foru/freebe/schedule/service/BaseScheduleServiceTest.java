@@ -3,6 +3,7 @@ package com.foru.freebe.schedule.service;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalTime;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.schedule.dto.BaseScheduleDto;
@@ -21,7 +23,6 @@ import com.foru.freebe.schedule.repository.BaseScheduleRepository;
 
 @ExtendWith(MockitoExtension.class)
 class BaseScheduleServiceTest {
-
     @Mock
     private BaseScheduleRepository baseScheduleRepository;
 
@@ -92,10 +93,12 @@ class BaseScheduleServiceTest {
         Assertions.assertEquals(LocalTime.of(9, 0), existingBaseSchedule.getStartTime());
         Assertions.assertEquals(LocalTime.of(18, 0), existingBaseSchedule.getEndTime());
 
-        verify(baseScheduleRepository, times(1)).findByDayOfWeekAndPhotographerId(baseScheduleDto.getDayOfWeek(), photographer.getId());
+        verify(baseScheduleRepository, times(1)).findByDayOfWeekAndPhotographerId(baseScheduleDto.getDayOfWeek(),
+            photographer.getId());
     }
 
-    private BaseScheduleDto createBaseScheduleDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime, OperationStatus operationStatus) {
+    private BaseScheduleDto createBaseScheduleDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
+        OperationStatus operationStatus) {
         return BaseScheduleDto.builder()
             .dayOfWeek(dayOfWeek)
             .startTime(startTime)

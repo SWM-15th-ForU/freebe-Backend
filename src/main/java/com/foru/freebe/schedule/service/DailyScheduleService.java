@@ -1,8 +1,5 @@
 package com.foru.freebe.schedule.service;
 
-import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class DailyScheduleService {
     private final DailyScheduleRepository dailyScheduleRepository;
-    private final Clock clock;
+    private final DailyScheduleValidator validator;
 
     public List<DailyScheduleResponse> getDailySchedules(Member photographer, DailyScheduleMonthlyRequest request) {
         return dailyScheduleRepository.findByMember(photographer)
@@ -38,9 +35,10 @@ public class DailyScheduleService {
     }
 
     public DailyScheduleAddResponse addDailySchedule(Member photographer, DailyScheduleRequest request) {
-        validateTimeRange(request.getStartTime(), request.getEndTime());
-        validateScheduleInFuture(request);
-        validateScheduleOverlap(photographer, request);
+        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
+        validator.validateScheduleInFuture(request);
+        validator.validateConflictingSchedules(photographer, request);
 
         DailySchedule dailySchedule = DailySchedule.builder()
             .member(photographer)
@@ -55,13 +53,14 @@ public class DailyScheduleService {
     }
 
     public void updateDailySchedule(Member photographer, Long scheduleId, DailyScheduleRequest request) {
-        validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
 
         DailySchedule dailySchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND));
 
-        validateScheduleInFuture(request);
-        validateScheduleOverlap(photographer, request, scheduleId);
+        validator.validateScheduleInFuture(request);
+        validator.validateConflictingSchedules(photographer, request, scheduleId);
 
         dailySchedule.updateScheduleStatus(request.getScheduleStatus());
         dailySchedule.updateDate(request.getDate());
@@ -72,41 +71,6 @@ public class DailyScheduleService {
     public void deleteDailySchedule(Member photographer, Long scheduleId) {
         dailyScheduleRepository.delete(dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND)));
-    }
-
-    private void validateScheduleOverlap(Member member, DailyScheduleRequest request) {
-        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findOverlappingSchedules(member,
-            request.getDate(), request.getStartTime(), request.getEndTime());
-
-        if (!overlappingSchedules.isEmpty()) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
-        }
-    }
-
-    private void validateTimeRange(LocalTime startTime, LocalTime endTime) {
-        if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
-            throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);
-        }
-    }
-
-    private void validateScheduleInFuture(DailyScheduleRequest request) {
-        LocalDateTime requestDateTime = request.getDate().atTime(request.getStartTime());
-
-        if (requestDateTime.isBefore(LocalDateTime.now(clock))) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
-        }
-    }
-
-    private void validateScheduleOverlap(Member member, DailyScheduleRequest request, Long scheduleId) {
-        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findOverlappingSchedules(member,
-            request.getDate(), request.getStartTime(), request.getEndTime());
-
-        if (overlappingSchedules.size() == 1 && overlappingSchedules.get(0).getId().equals(scheduleId)) {
-            return;
-        }
-        if (!overlappingSchedules.isEmpty()) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
-        }
     }
 
     private DailyScheduleResponse toDailyScheduleResponse(DailySchedule dailySchedule) {

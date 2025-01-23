@@ -1,24 +1,23 @@
 package com.foru.freebe.schedule.service;
 
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.foru.freebe.errors.errorcode.MemberErrorCode;
+import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
+import com.foru.freebe.errors.exception.RestApiException;
+import com.foru.freebe.member.entity.Member;
+import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.schedule.dto.BaseScheduleDto;
 import com.foru.freebe.schedule.dto.ScheduleUnitDto;
 import com.foru.freebe.schedule.entity.BaseSchedule;
 import com.foru.freebe.schedule.entity.DayOfWeek;
 import com.foru.freebe.schedule.entity.OperationStatus;
 import com.foru.freebe.schedule.repository.BaseScheduleRepository;
-import com.foru.freebe.errors.errorcode.MemberErrorCode;
-import com.foru.freebe.errors.errorcode.ScheduleErrorCode;
-import com.foru.freebe.errors.exception.RestApiException;
-import com.foru.freebe.member.entity.Member;
-import com.foru.freebe.member.repository.MemberRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -62,7 +61,7 @@ public class BaseScheduleService {
     }
 
     public void createDefaultSchedule(Member photographer) {
-        for(DayOfWeek dayOfWeek : DayOfWeek.values()) {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             BaseSchedule baseSchedule = BaseSchedule.builder()
                 .photographer(photographer)
                 .dayOfWeek(dayOfWeek)

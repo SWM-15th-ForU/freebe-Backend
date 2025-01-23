@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.schedule.entity.DailySchedule;
+import com.foru.freebe.schedule.entity.ScheduleStatus;
 
 public interface DailyScheduleRepository extends JpaRepository<DailySchedule, Long> {
     Optional<DailySchedule> findByMemberAndId(Member member, Long scheduleId);
@@ -18,7 +19,8 @@ public interface DailyScheduleRepository extends JpaRepository<DailySchedule, Lo
 
     @Query("SELECT ds FROM DailySchedule ds WHERE ds.member = :photographer "
         + "AND ds.date = :date "
-        + "AND ((ds.startTime < :endTime AND ds.endTime > :startTime))")
-    List<DailySchedule> findOverlappingSchedules(Member photographer, LocalDate date, LocalTime startTime,
-        LocalTime endTime);
+        + "AND ((ds.startTime < :endTime AND ds.endTime > :startTime))"
+        + "AND ds.scheduleStatus IN (:scheduleStatuses)")
+    List<DailySchedule> findConflictingSchedulesByStatuses(Member photographer, LocalDate date, LocalTime startTime,
+        LocalTime endTime, List<ScheduleStatus> scheduleStatuses);
 }

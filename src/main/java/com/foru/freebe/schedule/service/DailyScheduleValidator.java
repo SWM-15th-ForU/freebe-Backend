@@ -71,15 +71,14 @@ public class DailyScheduleValidator {
     public void validateConflictingSchedules(Member member, DailyScheduleRequest request, Long scheduleId) {
         List<ScheduleStatus> scheduleStatuses = determineConflictingStatuses(request.getScheduleStatus());
 
-        List<DailySchedule> overlappingSchedules = dailyScheduleRepository.findConflictingSchedulesByStatuses(member,
+        List<DailySchedule> conflictingSchedules = dailyScheduleRepository.findConflictingSchedulesByStatuses(member,
             request.getDate(), request.getStartTime(), request.getEndTime(), scheduleStatuses);
 
-        if (overlappingSchedules.size() == 1 && overlappingSchedules.get(0).getId().equals(scheduleId)) {
+        if (conflictingSchedules.isEmpty() || isSelfConflictOnly(scheduleId, conflictingSchedules)) {
             return;
         }
-        if (!overlappingSchedules.isEmpty()) {
-            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
-        }
+
+        throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_OVERLAP);
     }
 
     private List<ScheduleStatus> determineConflictingStatuses(ScheduleStatus scheduleStatus) {
@@ -90,4 +89,7 @@ public class DailyScheduleValidator {
         }
     }
 
+    private boolean isSelfConflictOnly(Long scheduleId, List<DailySchedule> conflictingSchedules) {
+        return conflictingSchedules.size() == 1 && conflictingSchedules.get(0).getId().equals(scheduleId);
+    }
 }

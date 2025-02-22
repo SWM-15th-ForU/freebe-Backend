@@ -112,10 +112,76 @@ public class DailyScheduleValidatorTest {
 
             //when & then
             RestApiException exception = assertThrows(RestApiException.class, () -> {
-                dailyScheduleValidator.validateScheduleInFuture(request);
+                dailyScheduleValidator.validateScheduleStartInFuture(request);
             });
 
             assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
+        }
+
+        @Test
+        @DisplayName("이미 진행 중인 스케줄을 수정할 때, 시작 시간이 과거 시점이어도 변경하지 않으면 예외가 발생하지 않는다")
+        void validateStartTimeNotChanged() {
+            // given
+            DailySchedule existingSchedule = createExistingSchedule();
+
+            DailyScheduleRequest sameStartTimeRequest = DailyScheduleRequest.builder()
+                .scheduleStatus(ScheduleStatus.OPEN)
+                .date(now.toLocalDate())
+                .startTime(existingSchedule.getStartTime())
+                .endTime(existingSchedule.getEndTime().plusHours(1L))
+                .build();
+
+            // when & then
+            assertDoesNotThrow(
+                () -> dailyScheduleValidator.validateScheduleUpdateStartTime(existingSchedule, sameStartTimeRequest));
+        }
+
+        @Test
+        @DisplayName("이미 진행 중인 스케줄을 수정할 때, 시작 시간을 현재 시각 이후로 변경하면 예외가 발생하지 않는다")
+        void validateStartTimeUpdatedToFuture() {
+            // given
+            DailySchedule existingSchedule = createExistingSchedule();
+
+            DailyScheduleRequest futureStartTimeRequest = DailyScheduleRequest.builder()
+                .scheduleStatus(ScheduleStatus.OPEN)
+                .date(now.toLocalDate())
+                .startTime(now.toLocalTime().plusHours(1L)) // 현재 시각보다 미래
+                .endTime(existingSchedule.getEndTime().plusHours(1L))
+                .build();
+
+            // when & then
+            assertDoesNotThrow(
+                () -> dailyScheduleValidator.validateScheduleUpdateStartTime(existingSchedule, futureStartTimeRequest));
+        }
+
+        @Test
+        @DisplayName("이미 진행 중인 스케줄을 수정할 때, 시작 시간을 현재 시각보다 과거로 변경하면 예외가 발생한다")
+        void validateStartTimeUpdatedToPast() {
+            // given
+            DailySchedule existingSchedule = createExistingSchedule();
+
+            DailyScheduleRequest pastStartTimeRequest = DailyScheduleRequest.builder()
+                .scheduleStatus(ScheduleStatus.OPEN)
+                .date(now.toLocalDate())
+                .startTime(now.toLocalTime().minusHours(1L)) // 현재보다 과거
+                .endTime(existingSchedule.getEndTime().plusHours(1L))
+                .build();
+
+            // when & then
+            RestApiException exception = assertThrows(RestApiException.class, () -> {
+                dailyScheduleValidator.validateScheduleUpdateStartTime(existingSchedule, pastStartTimeRequest);
+            });
+
+            assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
+        }
+
+        DailySchedule createExistingSchedule() {
+            return DailySchedule.builder()
+                .member(photographer)
+                .date(now.toLocalDate())
+                .startTime(now.toLocalTime().minusHours(2L))
+                .endTime(now.toLocalTime().plusHours(1L))
+                .build();
         }
     }
 

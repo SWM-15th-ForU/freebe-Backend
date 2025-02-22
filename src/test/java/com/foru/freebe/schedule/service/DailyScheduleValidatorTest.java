@@ -112,7 +112,7 @@ public class DailyScheduleValidatorTest {
 
             //when & then
             RestApiException exception = assertThrows(RestApiException.class, () -> {
-                dailyScheduleValidator.validateScheduleInFuture(request);
+                dailyScheduleValidator.validateScheduleStartInFuture(request);
             });
 
             assertThat(exception.getErrorCode()).isEqualTo(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);

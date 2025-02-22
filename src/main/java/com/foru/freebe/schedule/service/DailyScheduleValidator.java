@@ -26,7 +26,7 @@ public class DailyScheduleValidator {
     private final Clock clock;
     private final DailyScheduleRepository dailyScheduleRepository;
 
-    public void validateTimeRange(LocalTime startTime, LocalTime endTime) {
+    public void validateStartTimeBeforeEndTime(LocalTime startTime, LocalTime endTime) {
         if (startTime.isAfter(endTime) || startTime.equals(endTime)) {
             throw new RestApiException(ScheduleErrorCode.START_TIME_AFTER_END_TIME);
         }
@@ -49,10 +49,19 @@ public class DailyScheduleValidator {
         }
     }
 
-    public void validateScheduleInFuture(DailyScheduleRequest request) {
-        LocalDateTime requestDateTime = request.getDate().atTime(request.getStartTime());
+    public void validateScheduleStartInFuture(DailyScheduleRequest request) {
+        LocalDateTime requestedStartTime = request.getDate().atTime(request.getStartTime());
 
-        if (requestDateTime.isBefore(LocalDateTime.now(clock))) {
+        if (requestedStartTime.isBefore(LocalDateTime.now(clock))) {
+            throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
+        }
+    }
+
+    public void validateScheduleUpdateStartTime(DailySchedule existingSchedule, DailyScheduleRequest request) {
+        LocalDateTime requestedStartTime = request.getDate().atTime(request.getStartTime());
+        LocalDateTime existingStartTime = existingSchedule.getDate().atTime(existingSchedule.getStartTime());
+
+        if (!requestedStartTime.equals(existingStartTime) && requestedStartTime.isBefore(LocalDateTime.now(clock))) {
             throw new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_IN_PAST);
         }
     }

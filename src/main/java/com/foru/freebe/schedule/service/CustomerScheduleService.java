@@ -46,7 +46,7 @@ public class CustomerScheduleService {
             dailyScheduleRepository.findByMemberAndStatusesOrderByStartTime(viewDate, photographer,
                 List.of(ScheduleStatus.CLOSED, ScheduleStatus.CONFIRMED));
 
-        return scheduleCalculator.calculateReservationSchedule(
+        return scheduleCalculator.calculateAvailableSchedule(
             baseSchedule, openSchedules, confirmedOrClosedSchedules, photographer.getScheduleUnit());
 
     }

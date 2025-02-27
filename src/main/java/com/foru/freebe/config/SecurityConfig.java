@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .requestMatchers("/customer/product/**").permitAll()
                 .requestMatchers("/customer/profile/**").permitAll()
                 .requestMatchers("/customer/notice/**").permitAll()
+                .requestMatchers("/customer/schedule/**").permitAll()
                 .requestMatchers("/customer/**").hasAnyRole("CUSTOMER", "PHOTOGRAPHER")
                 .requestMatchers("/admin/**").hasAnyRole("ADMIN")
                 .anyRequest().permitAll())

@@ -1,5 +1,8 @@
 package com.foru.freebe.profile.entity;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
+
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;
 

@@ -84,7 +84,7 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(Long kakaoId, Role role, String name, String email, String phoneNumber, String birthYear,
-        String birthDay, String gender, String instagramId) {
+        String birthDay, String gender, String instagramId, ScheduleUnit scheduleUnit) {
         this.kakaoId = kakaoId;
         this.role = role;
         this.name = name;
@@ -94,6 +94,7 @@ public class Member extends BaseEntity {
         this.birthDay = birthDay;
         this.gender = gender;
         this.instagramId = instagramId;
+        this.scheduleUnit = scheduleUnit;
     }
 
     public static MemberBuilder builder(Long kakaoId, Role role, String name, String email, String phoneNumber) {

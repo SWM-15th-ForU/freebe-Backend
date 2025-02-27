@@ -1,7 +1,9 @@
 package com.foru.freebe.schedule.entity;
 
 
+
 import java.time.LocalTime;
+import java.time.DayOfWeek;
 
 import com.foru.freebe.common.entity.BaseEntity;
 import com.foru.freebe.member.entity.Member;

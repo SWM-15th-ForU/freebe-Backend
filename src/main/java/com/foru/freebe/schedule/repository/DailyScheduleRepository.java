@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.schedule.entity.DailySchedule;
@@ -23,4 +24,9 @@ public interface DailyScheduleRepository extends JpaRepository<DailySchedule, Lo
         + "AND ds.scheduleStatus IN (:scheduleStatuses)")
     List<DailySchedule> findConflictingSchedulesByStatuses(Member photographer, LocalDate date, LocalTime startTime,
         LocalTime endTime, List<ScheduleStatus> scheduleStatuses);
+
+    @Query("SELECT ds FROM DailySchedule ds WHERE ds.date = :date AND ds.member = :member "
+        + "AND ds.scheduleStatus IN (:statuses) ORDER BY ds.startTime ASC")
+    List<DailySchedule> findByMemberAndStatusesOrderByStartTime(LocalDate date, Member member,
+        List<ScheduleStatus> statuses);
 }

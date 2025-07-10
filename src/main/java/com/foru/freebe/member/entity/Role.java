@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/*
+ * Role 클래스
+ */
 @AllArgsConstructor
 @Getter
 public enum Role {

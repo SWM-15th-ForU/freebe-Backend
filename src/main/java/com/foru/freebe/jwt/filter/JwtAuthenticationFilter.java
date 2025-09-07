@@ -38,6 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         matchers.add(new AntPathRequestMatcher("/customer/notice/**"));
         matchers.add(new AntPathRequestMatcher("/login/**"));
         matchers.add(new AntPathRequestMatcher("/reissue"));
+        matchers.add(new AntPathRequestMatcher("/actuator/health"));
 
         return matchers.stream()
             .anyMatch((matcher -> matcher.matches(request)));

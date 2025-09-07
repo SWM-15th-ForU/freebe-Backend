@@ -37,7 +37,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtExceptionFilter, LogoutFilter.class)
 
             .authorizeHttpRequests((request) -> request
-                .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
                 .requestMatchers("/photographer/join").hasAnyRole("PHOTOGRAPHER_PENDING")
                 .requestMatchers("/photographer/**").hasAnyRole("PHOTOGRAPHER")
                 .requestMatchers("/customer/product/**").permitAll()

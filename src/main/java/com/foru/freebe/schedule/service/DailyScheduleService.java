@@ -35,9 +35,9 @@ public class DailyScheduleService {
     }
 
     public DailyScheduleAddResponse addDailySchedule(Member photographer, DailyScheduleRequest request) {
-        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateStartTimeBeforeEndTime(request.getStartTime(), request.getEndTime());
         validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
-        validator.validateScheduleInFuture(request);
+        validator.validateScheduleStartInFuture(request);
         validator.validateConflictingSchedules(photographer, request);
 
         DailySchedule dailySchedule = DailySchedule.builder()
@@ -53,19 +53,19 @@ public class DailyScheduleService {
     }
 
     public void updateDailySchedule(Member photographer, Long scheduleId, DailyScheduleRequest request) {
-        validator.validateTimeRange(request.getStartTime(), request.getEndTime());
+        validator.validateStartTimeBeforeEndTime(request.getStartTime(), request.getEndTime());
         validator.validateScheduleUnit(photographer.getScheduleUnit(), request.getStartTime(), request.getEndTime());
 
-        DailySchedule dailySchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
+        DailySchedule existingSchedule = dailyScheduleRepository.findByMemberAndId(photographer, scheduleId)
             .orElseThrow(() -> new RestApiException(ScheduleErrorCode.DAILY_SCHEDULE_NOT_FOUND));
 
-        validator.validateScheduleInFuture(request);
+        validator.validateScheduleUpdateStartTime(existingSchedule, request);
         validator.validateConflictingSchedules(photographer, request, scheduleId);
 
-        dailySchedule.updateScheduleStatus(request.getScheduleStatus());
-        dailySchedule.updateDate(request.getDate());
-        dailySchedule.updateStartTime(request.getStartTime());
-        dailySchedule.updateEndTime(request.getEndTime());
+        existingSchedule.updateScheduleStatus(request.getScheduleStatus());
+        existingSchedule.updateDate(request.getDate());
+        existingSchedule.updateStartTime(request.getStartTime());
+        existingSchedule.updateEndTime(request.getEndTime());
     }
 
     public void deleteDailySchedule(Member photographer, Long scheduleId) {

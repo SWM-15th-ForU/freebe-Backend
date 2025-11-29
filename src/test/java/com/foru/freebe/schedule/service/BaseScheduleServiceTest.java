@@ -17,7 +17,7 @@ import com.foru.freebe.member.entity.Member;
 import com.foru.freebe.member.entity.Role;
 import com.foru.freebe.schedule.dto.BaseScheduleDto;
 import com.foru.freebe.schedule.entity.BaseSchedule;
-import com.foru.freebe.schedule.entity.DayOfWeek;
+import java.time.DayOfWeek;
 import com.foru.freebe.schedule.entity.OperationStatus;
 import com.foru.freebe.schedule.repository.BaseScheduleRepository;
 
@@ -95,15 +95,5 @@ class BaseScheduleServiceTest {
 
         verify(baseScheduleRepository, times(1)).findByDayOfWeekAndPhotographerId(baseScheduleDto.getDayOfWeek(),
             photographer.getId());
-    }
-
-    private BaseScheduleDto createBaseScheduleDto(DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime,
-        OperationStatus operationStatus) {
-        return BaseScheduleDto.builder()
-            .dayOfWeek(dayOfWeek)
-            .startTime(startTime)
-            .endTime(endTime)
-            .operationStatus(operationStatus)
-            .build();
     }
 }

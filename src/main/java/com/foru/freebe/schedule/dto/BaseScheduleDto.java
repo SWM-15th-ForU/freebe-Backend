@@ -2,7 +2,7 @@ package com.foru.freebe.schedule.dto;
 
 import java.time.LocalTime;
 
-import com.foru.freebe.schedule.entity.DayOfWeek;
+import java.time.DayOfWeek;
 import com.foru.freebe.schedule.entity.OperationStatus;
 
 import jakarta.validation.constraints.NotNull;

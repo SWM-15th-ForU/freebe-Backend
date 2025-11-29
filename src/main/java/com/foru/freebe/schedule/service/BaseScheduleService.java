@@ -15,7 +15,7 @@ import com.foru.freebe.member.repository.MemberRepository;
 import com.foru.freebe.schedule.dto.BaseScheduleDto;
 import com.foru.freebe.schedule.dto.ScheduleUnitDto;
 import com.foru.freebe.schedule.entity.BaseSchedule;
-import com.foru.freebe.schedule.entity.DayOfWeek;
+import java.time.DayOfWeek;
 import com.foru.freebe.schedule.entity.OperationStatus;
 import com.foru.freebe.schedule.repository.BaseScheduleRepository;
 
